@@ -1,0 +1,3 @@
+# Revalidate the app so every device receives the current HTML, logic and styles.
+/*
+  Cache-Control: public, max-age=0, must-revalidate

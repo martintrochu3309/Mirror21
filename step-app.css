@@ -1,0 +1,30 @@
+/* Mirror 21 · app additions to the Step handoff. tokens.css and step.css stay exact copies of
+   the Step 01 design handoff; only what the app changes lives here. */
+
+/* The app keeps its one continuous progress bar instead of the 3-part bar (agreed change). */
+.topbar .course-progress { position: relative; flex: 1; min-width: 0; height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
+.course-progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; max-width: 100%; border-radius: 7px; background: linear-gradient(#f2cf6c, var(--gold)); transition: width 600ms ease; }
+.course-progress-fill::after { content: ""; position: absolute; left: 7px; right: 7px; top: 3px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.55); }
+.course-progress-fill.is-instant { transition: none; }
+.topbar .course-progress[hidden] { display: block !important; visibility: hidden; }
+
+/* Step 01 TEST answer carries the same gold tick as Step 02's "Yes, I could prove it." */
+.answered--btn { display: flex; align-items: center; gap: 8px; }
+
+/* MY PROMISE label above the promise sentence in the commit section. */
+.commit .promise-label + .commit-quote { margin-top: 10px; }
+
+/* Opened from the Home Screen as an app: keep clear of the clock and the home indicator. */
+.screen {
+  padding-top: max(var(--pad-top), calc(env(safe-area-inset-top) + 12px));
+  padding-bottom: max(var(--pad-bottom), calc(env(safe-area-inset-bottom) + 16px));
+}
+
+/* Close is a link back to the map. */
+a.icon-btn { flex: none; text-decoration: none; }
+
+/* Long step titles shrink to stay on one line (font size set by step.js). */
+.title { overflow: visible; }
+
+/* Steps whose content has not been supplied yet. */
+.unavailable { margin: 24px 0 0; font-size: var(--intro-size); line-height: 1.5; font-weight: 300; color: var(--muted); }

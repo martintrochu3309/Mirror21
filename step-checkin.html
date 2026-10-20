@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Step · Check in</title>
+<!-- Built from the Step 02 check-in design handoff, checkin.html (locked design). -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/checkin.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261020-app">
+<script src="../assets/progress.js?v=20261020-app" defer></script>
+<script src="../assets/steps.js?v=20261020-app" defer></script>
+<script src="../assets/step/step.js?v=20261020-app" defer></script>
+</head>
+<body data-screen="checkin">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="course-progress" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="course-progress-fill"></span></div>
+  </div>
+
+  <div class="chip-row">
+    <div class="chip">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M8 12.3l2.8 2.8L16.2 9.5"/></svg>
+    </div>
+    <div class="chip-label">CHECK IN</div>
+  </div>
+
+  <div class="step-label" id="stepLabel">STEP 02</div>
+  <h1 class="title">DID YOU KEEP YOUR PROMISE?</h1>
+  <p class="intro"><span id="when">Last time</span> you promised:</p>
+
+  <div class="commitment">
+    <div class="ex-row">
+      <div class="ex-key ex-key--gold">MY<br>PROMISE</div>
+      <p class="ex-text" id="commitText"></p>
+    </div>
+  </div>
+
+  <div class="choices" id="choices" role="radiogroup" aria-label="Did you keep your promise?">
+    <button class="choice" role="radio" aria-checked="false" data-choice="yes">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#e0b84c" stroke="#e0b84c" stroke-width="2"/></svg>
+      <span class="choice-label">YES, I DID IT</span>
+      <svg class="tick" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </button>
+    <button class="choice" role="radio" aria-checked="false" data-choice="partly">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#ffffff" stroke="#e0b84c" stroke-width="2"/><path d="M14 2 A12 12 0 0 0 14 26 Z" fill="#e0b84c"/></svg>
+      <span class="choice-label">PARTLY</span>
+      <svg class="tick" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </button>
+    <button class="choice" role="radio" aria-checked="false" data-choice="no">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#ffffff" stroke="#e0b84c" stroke-width="2"/></svg>
+      <span class="choice-label">NO</span>
+      <svg class="tick" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <a class="btn btn--gold" id="next" href="step-watch.html" hidden>
+    WATCH
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+</main>
+</body>
+</html>

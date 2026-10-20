@@ -1,0 +1,59 @@
+/* Mirror 21 · My Journey — the user's steps as one story, read-only.
+   Values come from assets/step/tokens.css (the Step 01 / Step 02 design system). */
+
+.journey-page .journey-scroll { padding: max(59px, calc(env(safe-area-inset-top) + 12px)) var(--pad-x) max(130px, calc(env(safe-area-inset-bottom) + 110px)); font-family: var(--font-body); color: var(--ink); }
+.journey-title { margin: 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 40px; line-height: 1; letter-spacing: -0.04em; }
+.journey-sub { margin: 10px 0 0; font-size: var(--intro-size); line-height: 1.5; font-weight: 300; color: var(--muted); }
+
+/* Week divider: rule · WEEK 1 · SEE IT · rule */
+.journey-week { display: flex; align-items: center; gap: 12px; margin: 28px 0 22px; font-size: var(--label-size); line-height: 1; font-weight: 700; letter-spacing: 0.23em; color: var(--ink); white-space: nowrap; }
+.journey-week::before, .journey-week::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+.journey-week-label { white-space: pre; }
+.journey-week-label b { font-weight: inherit; color: var(--gold-text); }
+
+/* One entry per step on the Act-style rail */
+.entry { display: flex; gap: 16px; }
+.entry-rail { width: 40px; flex: none; display: flex; flex-direction: column; align-items: center; }
+.entry-dot {
+  width: 40px; height: 40px; flex: none; box-sizing: border-box; border-radius: 20px; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 14px; color: var(--ink);
+}
+/* The circle is the check-in result: YES full, PARTLY half, NO ring only. */
+.entry-dot.yes { background: var(--gold); color: var(--on-gold); }
+.entry-dot.partly { background: linear-gradient(90deg, var(--gold) 50%, var(--bg) 50%); border: 2px solid var(--gold); color: var(--on-gold); }
+.entry-dot.no { border: 2px solid var(--gold); }
+/* Committed, waiting for its check-in: plain white, gold number, no gold ring (as on the map). */
+.entry-dot.committed { border: 1px solid var(--rule); color: var(--gold-text); }
+.entry-dot.today { border: 2px dashed var(--locked-border); color: var(--locked-number); }
+.entry-line { flex: 1; width: 2px; margin-top: 6px; border-radius: 1px; background: var(--path-off); }
+.entry-line.is-gold { background: var(--gold); }
+
+.entry-body { flex: 1; min-width: 0; padding: 4px 0 28px; }
+.entry-head { display: block; width: 100%; padding: 0; border: none; background: transparent; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.entry-meta { display: flex; align-items: center; min-height: 18px; white-space: pre; font-size: var(--eyebrow-size); line-height: 1.4; font-weight: 700; letter-spacing: 0.23em; color: var(--gold-text); }
+.entry-meta .date { color: var(--muted); }
+.entry-chev { margin-left: auto; flex: none; color: var(--muted); transition: transform 300ms ease; }
+.entry.is-open .entry-chev { transform: rotate(180deg); }
+.entry-title { margin: 6px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 20px; line-height: 1.1; letter-spacing: -0.02em; text-transform: uppercase; }
+.entry-promise { margin: 10px 0 0; font-size: var(--move-text-size); line-height: 1.45; font-weight: 300; font-style: italic; color: var(--ink); }
+.entry.is-open .entry-promise { display: none; }
+.entry-detail { display: none; }
+.entry.is-open .entry-detail { display: block; }
+
+/* The step's own answers as ruled rows, like the Learn example */
+.entry-answers { margin: 16px 0 0; border-top: 1px solid var(--rule); }
+.entry-answer { display: grid; grid-template-columns: 62px minmax(0, 1fr); column-gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.entry-answer dt { padding-top: 4px; font-size: var(--eyebrow-size); line-height: 1.4; font-weight: 700; letter-spacing: 0.23em; color: var(--muted); }
+.entry-answer dd { margin: 0; font-size: var(--move-text-size); line-height: 1.45; font-weight: 300; font-style: italic; color: var(--example-ink); }
+.entry-promise-label { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: var(--eyebrow-size); line-height: 1.4; font-weight: 700; letter-spacing: 0.23em; color: var(--gold-text); }
+.entry-locked { margin: 8px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 22px; line-height: 1.2; letter-spacing: -0.02em; color: var(--ink); }
+
+/* Today's step: faded, not clickable */
+.entry.is-today { opacity: 0.55; }
+.entry.is-today .entry-meta { color: var(--muted); }
+.entry-note { margin: 8px 0 0; font-size: var(--prompt-size); line-height: 1.45; font-weight: 300; color: var(--muted); }
+
+.journey-footer { margin: 12px 0 0; text-align: center; font-size: 13px; line-height: 1.4; font-weight: 500; color: #8a8a86; }
+
+@media (prefers-reduced-motion: reduce) { .entry-chev { transition: none; } }

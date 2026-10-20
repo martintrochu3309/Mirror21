@@ -1,0 +1,46 @@
+/* Mirror 21 · Step 02 — additions on top of tokens.css + step.css. Reusable for later steps. */
+
+/* Title with drawn arrows (the brand fonts have no arrow glyph) */
+.title--arrows { display: flex; align-items: center; gap: 8px; }
+
+/* Read-only content brought forward from an earlier step */
+.mine { margin-top: 14px; padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.from { display: flex; align-items: center; gap: 8px; font-size: var(--eyebrow-size); font-weight: 700; letter-spacing: 0.23em; color: var(--gold-text); }
+.from span { color: var(--muted); }
+.mine-text { margin: 6px 0 0; font-size: var(--answer-size); line-height: 1.45; font-weight: 300; font-style: italic; color: var(--ink); }
+
+/* Proof test rows in the example: circle + verdict in the label column */
+.ex-verdict { padding-top: 3px; }
+.ex-verdict .ex-key { padding-top: 6px; }
+.ex-text--fail { color: #8a8a86; }
+.ex-note { margin: 6px 0 0; font-size: 15px; line-height: 1.45; font-weight: 500; color: var(--muted); }
+.ex-block { padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.inbox {
+  margin-top: 10px; border: 1px solid var(--rule); border-radius: var(--radius-box); background: var(--surface);
+  padding: 14px 16px; font-size: var(--input-size); line-height: 1.45; font-weight: 500;
+}
+.starter-text { color: #8a8a86; }
+
+/* Answer box with a fixed sentence starter (the user finishes the sentence) */
+.starter-wrap { position: relative; margin-top: 14px; }
+.starter-wrap .answer-box { margin-top: 0; }
+.starter {
+  position: absolute; left: 17px; top: 15px; white-space: pre; pointer-events: none;
+  font-size: var(--input-size); line-height: 1.45; font-weight: 500; color: #8a8a86;
+}
+
+/* Promise */
+.promise-title { margin: 8px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: var(--question-size); line-height: 1.1; letter-spacing: -0.02em; }
+.promise {
+  margin: 14px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700;
+  font-size: 25px; line-height: 1.2; letter-spacing: -0.02em; color: var(--ink);
+}
+.promise-rest.is-empty { color: #b0b0ac; }
+.hold-label--lg { font-size: var(--button-size); }
+.locked-row { margin-top: 20px; display: flex; align-items: center; gap: 10px; font-size: var(--button-size); font-weight: 700; letter-spacing: 0.18em; }
+.locked-mark { width: 36px; height: 36px; border-radius: 18px; background: var(--gold-gradient); display: flex; align-items: center; justify-content: center; }
+.proved { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 0; border: none; background: transparent; cursor: pointer;
+  font-size: 16px; line-height: 1.45; font-weight: 300; font-style: italic; color: var(--example-ink); }
+.proof-q { margin: 20px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 20px; line-height: 1.15; letter-spacing: -0.02em; }
+.row-static .node { background: var(--gold); color: var(--on-gold); border-color: var(--gold); }
+.row-static .rail-line { background: var(--gold); }

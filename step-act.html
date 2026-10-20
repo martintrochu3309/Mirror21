@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Step · Act</title>
+<!-- Built from the Step 01 design handoff, act.html (locked design). -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step02.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261020-app">
+<script src="../assets/progress.js?v=20261020-app" defer></script>
+<script src="../assets/steps.js?v=20261020-app" defer></script>
+<script src="../assets/step/step.js?v=20261020-app" defer></script>
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="course-progress" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="course-progress-fill"></span></div>
+  </div>
+
+  <div class="chip-row">
+    <div class="chip">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg>
+    </div>
+    <div class="chip-label">ACT</div>
+  </div>
+
+  <div class="step-label" id="stepLabel">STEP 01</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Now put it in writing.</p>
+
+  <div class="rows">
+
+    <!-- 01 PRESENT -->
+    <section class="row" data-k="0">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">PRESENT</div>
+        <p class="question">STOP. GIVE THIS YOUR FULL ATTENTION.</p>
+        <div data-when="active">
+          <div class="pills">
+            <button class="pill pill--ink" data-action="here">I’M HERE</button>
+            <button class="pill pill--outline" data-action="notyet">NOT YET</button>
+          </div>
+          <p class="note" id="notYetNote" hidden>No rush. Your answers will wait here until you can give this your full attention.</p>
+        </div>
+        <p class="answered" data-when="done">I’m here. Full attention.</p>
+      </div>
+    </section>
+
+    <!-- 02 HERE -->
+    <section class="row" data-k="1">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">HERE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <label class="question" for="a-here">WHERE ARE YOU?</label>
+        <p class="prompt">Say where you are right now.</p>
+        <div class="starter-wrap"><span class="starter" aria-hidden="true">Right now, I </span><textarea class="answer-box" id="a-here" data-field="here" rows="3" maxlength="2000" aria-label="Where are you? Right now, I"></textarea></div>
+        <div class="next-row"><button class="next" data-next="here" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+      </div>
+    </section>
+
+    <!-- 03 THERE -->
+    <section class="row" data-k="2">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">THERE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <label class="question" for="a-there">WHERE ARE YOU GOING?</label>
+        <p class="prompt">Say where you want to get to. Clear enough to picture.</p>
+        <p class="hint" id="notSureHint" hidden>Picture it more clearly. What would you actually see?</p>
+        <div class="starter-wrap"><span class="starter" aria-hidden="true">I want to be able to </span><textarea class="answer-box" id="a-there" data-field="there" rows="3" maxlength="2000" aria-label="Where are you going? I want to be able to"></textarea></div>
+        <div class="next-row"><button class="next" data-next="there" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+      </div>
+    </section>
+
+    <!-- 04 TEST -->
+    <section class="row" data-k="3">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">TEST <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="question" style="line-height: 1.12">WILL GETTING THERE GIVE YOU WHAT YOU ACTUALLY WANT?</p>
+        <div class="pills" data-when="not-done">
+          <button class="pill pill--ink" data-action="yes">YES</button>
+          <button class="pill pill--outline" data-action="notsure">NOT SURE</button>
+        </div>
+        <button class="answered answered--btn" data-when="done" data-action="retest" aria-label="Redo the test"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Yes, that’s what I actually want.</button>
+      </div>
+    </section>
+
+    <!-- 05 POINT & STEP -->
+    <section class="row" data-k="4">
+      <div class="rail"><div class="node">05</div></div>
+      <div class="row-body">
+        <div class="eyebrow">MY STEP <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <label class="question" for="a-step">WHAT’S YOUR ONE STEP?</label>
+        <p class="prompt">One thing you’ll do today.</p>
+        <div class="starter-wrap"><span class="starter" aria-hidden="true">Today I will </span><textarea class="answer-box" id="a-step" data-field="step" rows="3" maxlength="200" aria-label="My step. Today I will"></textarea></div>
+        <div class="next-row"><button class="next" data-next="step" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="commit is-locked" id="commit">
+    <!-- MY PROMISE: "Today, I will [their step].", filled in from MY STEP. -->
+    <div class="eyebrow promise-label">MY PROMISE</div>
+    <p class="commit-quote" id="promise">Today, I will …</p>
+    <button class="hold" id="hold" disabled aria-describedby="holdHelp">
+      <span class="hold-fill" id="holdFill"></span>
+      <span class="hold-label">I’M COMMITTED</span>
+    </button>
+    <p class="hold-help" id="holdHelp">Press and hold until it fills.</p>
+  </section>
+
+  <section class="done" id="done" hidden>
+    <div class="done-mark"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <p class="done-title">COMMITTED.</p>
+    <p class="done-text" id="doneText">Step 02 is open. It starts by asking how your step went.</p>
+  </section>
+</main>
+</body>
+</html>

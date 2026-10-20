@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · My Path map</title>
+<!-- Exported from the Mirror 21 design canvas; behaviour lives in ../assets/prototype.js. -->
+<style>
+body{margin:0;background:#ffffff;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:hover{color:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid #896a00;outline-offset:4px}
+.map-scroll{scrollbar-width:none}
+.map-scroll::-webkit-scrollbar{display:none}
+.step{transition:transform .08s ease,box-shadow .08s ease}
+.step:active{transform:translateY(5px);box-shadow:0 2px 0 var(--lip),inset 0 2px 0 rgba(255,255,255,.45) !important}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.bubble{animation:bob 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.bubble{animation:none}.step{transition:none}}
+</style>
+<link rel="stylesheet" href="../assets/prototype.css?v=20261020-app">
+<script src="../assets/progress.js?v=20261020-app" defer></script>
+<script src="../assets/steps.js?v=20261020-app" defer></script><script src="../assets/prototype.js?v=20261020-app" defer></script>
+</head>
+<body class="map-page">
+<div class="app-frame" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: #ffffff; color: #111111; font: 500 18px/1.5 'Neue Haas Display', Arial, Helvetica, sans-serif">
+  <a class="map-wordmark" href="../index.html" aria-label="Mirror 21 home">MIRROR <span>21</span></a>
+
+  <div id="map-start" class="map-scroll" style="position: absolute; inset: 0; overflow-x: hidden; overflow-y: auto; background-color: #ededed">
+    <div style="display: flex; flex-direction: column; align-items: center; padding: 170px 0 170px">
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 176px; transform: translateX(0px)">
+
+            
+              <span class="bubble" style="position: relative; display: block; margin-bottom: 12px; padding: 8px 14px; border-radius: 12px; border: 1px solid #e4e4e0; background: #ffffff; box-shadow: 0 6px 16px rgba(0,0,0,.08); font: 700 11px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .18em; color: #111111; white-space: nowrap">START<span aria-hidden="true" style="position: absolute; left: 50%; bottom: -5px; width: 9px; height: 9px; margin-left: -5px; transform: rotate(45deg); background: #ffffff; border-right: 1px solid #e4e4e0; border-bottom: 1px solid #e4e4e0"></span></span>
+              <div style="position: relative; display: grid; place-items: center; width: 112px; height: 112px">
+                <svg viewBox="0 0 112 112" width="112" height="112" aria-hidden="true" style="position: absolute; inset: 0">
+                  <circle cx="56" cy="56" r="52" fill="none" stroke="#ececea" stroke-width="6"></circle>
+                  <circle cx="56" cy="56" r="52" fill="none" stroke="#e0b84c" stroke-width="6" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 56 56)"></circle>
+                </svg>
+                
+                  <a href="06-lesson-1-listen.html" class="day-number step" aria-label="Day 1, today. start" style="--lip: #000000; position: relative; display: grid; place-items: center; width: 84px; height: 74px; margin-top: -6px; border-radius: 50%; background: linear-gradient(180deg, #2a2a2a, #111111); box-shadow: 0 7px 0 #000000, inset 0 2px 0 rgba(255,255,255,.18); color: #e0b84c; font: 700 26px/1 'Magistral', Arial, Helvetica, sans-serif">01</a>
+                
+                
+              </div>
+            
+
+            
+
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 2, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">02</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(80px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 3, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">03</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 4, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">04</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(0px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 5, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">05</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(-52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 6, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">06</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(-80px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 7, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">07</span>
+            
+
+            
+          </div>
+        
+      
+        
+          <div style="display: flex; align-items: center; gap: 14px; width: 300px; height: 64px">
+            <span style="flex: 1; height: 1px; background: #e4e4e0"></span>
+            <span style="font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .23em; color: #646461">WEEK 2</span>
+            <span style="flex: 1; height: 1px; background: #e4e4e0"></span>
+          </div>
+        
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(-52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 8, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">08</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(0px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 9, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">09</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 10, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">10</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(80px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 11, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">11</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 12, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">12</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(0px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 13, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">13</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(-52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 14, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">14</span>
+            
+
+            
+          </div>
+        
+      
+        
+          <div style="display: flex; align-items: center; gap: 14px; width: 300px; height: 64px">
+            <span style="flex: 1; height: 1px; background: #e4e4e0"></span>
+            <span style="font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .23em; color: #646461">WEEK 3</span>
+            <span style="flex: 1; height: 1px; background: #e4e4e0"></span>
+          </div>
+        
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(-80px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 15, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">15</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(-52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 16, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">16</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(0px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 17, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">17</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 18, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">18</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(80px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 19, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">19</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 104px; transform: translateX(52px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 20, locked" style="position: relative; display: grid; place-items: center; width: 76px; height: 66px; box-sizing: border-box; border-radius: 50%; border: 0; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">20</span>
+            
+
+            
+          </div>
+        
+      
+        
+        
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; transform: translateX(0px)">
+
+            
+
+            
+
+            
+              <span aria-label="Day 21, finish, locked" style="position: relative; display: grid; place-items: center; width: 92px; height: 80px; box-sizing: border-box; border-radius: 50%; border: 2px solid #e0b84c; background: linear-gradient(180deg, #f6f6f3, #ebebe7); box-shadow: 0 7px 0 #d6d6d1, inset 0 2px 0 rgba(255,255,255,.7); color: #8a8a86; font: 700 22px/1 'Magistral', Arial, Helvetica, sans-serif" class="day-number">21</span>
+            
+
+            
+              <span style="margin-top: 16px; font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .23em; color: #896a00">FINISH</span>
+            
+          </div>
+        
+      
+    </div>
+  </div>
+
+  <div aria-hidden="true" style="position: absolute; top: 0; left: 0; right: 0; height: 168px; background: linear-gradient(180deg, #ffffff 70%, rgba(255,255,255,0)); pointer-events: none"></div>
+  <div style="position: absolute; top: 59px; left: 16px; right: 16px; display: flex; align-items: center; gap: 14px; height: 82px; padding: 0 14px 0 20px; box-sizing: border-box; border-radius: 22px; background: #111111; color: #ffffff">
+    <div style="flex: 1; min-width: 0">
+      <p style="margin: 0 0 6px; font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .23em; color: #e0b84c">WEEK 1</p>
+      <p style="margin: 0; font: italic 700 22px/1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: -.02em">DAY 01 OF 21</p>
+      <p style="margin: 6px 0 0; font: 500 12px/1 'Neue Haas Display', Arial, sans-serif; color: #a3a3a0">30 days left</p>
+    </div>
+    <span aria-hidden="true" style="width: 1px; height: 46px; background: rgba(255,255,255,.16)"></span>
+    <a href="#reminder" aria-label="Daily reminder" style="display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); color: #ffffff">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15Z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+    </a>
+  </div>
+
+  <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 130px; background: linear-gradient(0deg, #ffffff 45%, rgba(255,255,255,0)); pointer-events: none"></div>
+
+  
+
+  <nav class="course-tabs" aria-label="Course">
+    <a href="04-map-start.html" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="5" r="2"></circle><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"></path></svg>MY PATH</a>
+    <a href="18-my-mirror.html"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v6l4 2"></path></svg>MY MIRROR</a>
+    <a href="19-my-journey.html"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10.3 5.2 7.8 4.5 4 4.5v13c3.8 0 6.3.7 8 2 1.7-1.3 4.2-2 8-2v-13c-3.8 0-6.3.7-8 2Z"></path><path d="M12 6.5v13"></path></svg>MY JOURNEY</a>
+  </nav>
+</div>
+
+</body>
+</html>

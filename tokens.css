@@ -1,0 +1,63 @@
+/* Mirror 21 · Step 01 — design tokens (source of truth).
+   Values are exact copies of the locked canvas screens. Light theme only. */
+
+@font-face { font-family: "Magistral"; src: url("fonts/magistral-bold-italic.woff2") format("woff2"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "Neue Haas Display"; src: url("fonts/nhd-light.woff2") format("woff2"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "Neue Haas Display"; src: url("fonts/nhd-light-italic.woff2") format("woff2"); font-weight: 300; font-style: italic; font-display: swap; }
+@font-face { font-family: "Neue Haas Display"; src: url("fonts/nhd-medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Neue Haas Display"; src: url("fonts/nhd-bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
+:root {
+  /* Colour */
+  --bg: #ffffff;              /* page ground */
+  --surface: #f7f7f5;         /* text boxes, notes */
+  --ink: #111111;             /* headlines, body, black buttons */
+  --muted: #646461;           /* intros, prompts, secondary text, icons */
+  --example-ink: #2b2b29;     /* italic answers (example + user answers) */
+  --rule: #dededb;            /* 1px dividers, text box border */
+  --track: #ececea;           /* progress track, disabled next button */
+  --outline: #c9c9c5;         /* outline buttons */
+  --gold: #e0b84c;            /* progress fill, path nodes, gold rings — never as text on white */
+  --gold-text: #896a00;       /* gold used as TEXT on white (labels, chips, emphasis) */
+  --gold-tint: #f6efdc;       /* chip square background, NOT SURE hint background */
+  --gold-hint-text: #5c4700;  /* text on gold-tint */
+  --gold-gradient: linear-gradient(110deg, #d8ad3e, #ffef9a 53%, #d8ad3e); /* primary button, final node */
+  --on-gold: #101010;         /* text/icons on gold */
+  --path-learn: #ecdcae;      /* vertical line behind Learn's five moves */
+  --path-off: #e6e6e3;        /* Act path line segment not yet earned */
+  --locked-border: #d6d6d3;   /* Act node ring when locked */
+  --locked-number: #8f8f8b;   /* Act node number when locked; disabled arrow */
+  --note-ink: #3a3a38;        /* NOT YET note text */
+
+  /* Type families */
+  --font-display: "Magistral", Arial, sans-serif;            /* always 700 italic */
+  --font-body: "Neue Haas Display", Arial, sans-serif;
+
+  /* Type styles (size / line-height / weight / tracking) */
+  --title-size: 22px;     /* one-line screen title, Magistral, caps, -0.035em, lh 1.1 */
+  --question-size: 22px;  /* Act questions, Magistral, caps, -0.02em, lh 1.1–1.12 */
+  --keyword-size: 24px;   /* Learn move keywords, Magistral, caps, -0.02em, lh 1 */
+  --quote-size: 27px;     /* Learn pull quote, Magistral, sentence case, -0.02em, lh 1.22 */
+  --commit-quote-size: 25px;
+  --done-title-size: 30px;
+  --intro-size: 18px;     /* 300, lh 1.5, muted */
+  --move-text-size: 17px; /* 300, lh 1.55, muted */
+  --answer-size: 18px;    /* 300 italic, lh 1.45 */
+  --input-size: 17px;     /* 500, lh 1.45 */
+  --prompt-size: 16px;    /* 300, lh 1.45, muted */
+  --label-size: 12px;     /* STEP 01 line: 700, 0.23em, caps, gold-text */
+  --chip-label-size: 13px;/* WATCH / LEARN / ACT: 700, 0.23em */
+  --eyebrow-size: 11px;   /* HERE / THERE …: 700, 0.23em */
+  --button-size: 12px;    /* full-width pill label: 700, 0.18em */
+  --pill-size: 11px;      /* in-Act pills (I'M HERE, YES…): 700, 0.18em */
+
+  /* Layout */
+  --column: 480px;        /* max content width; designs drawn at 390px */
+  --pad-x: 24px;
+  --pad-top: 28px;
+  --pad-bottom: 34px;
+  --radius-chip: 12px;
+  --radius-box: 16px;
+  --radius-pill: 28px;    /* 56px tall full-width button */
+  --radius-pill-sm: 26px; /* 52px tall in-Act pills */
+}

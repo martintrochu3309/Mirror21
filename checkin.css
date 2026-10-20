@@ -1,0 +1,21 @@
+/* Mirror 21 · Step 02 · Check in — styles on top of tokens.css + step.css */
+
+/* "Yesterday you committed to:" + the user's POINT & STEP answer, as one ruled row (same as the Learn example) */
+.commitment { margin-top: 14px; border-top: 1px solid var(--rule); }
+.commitment .ex-text { color: var(--ink); }
+
+/* Three answers as full-width ruled rows */
+.choices { margin-top: 26px; display: flex; flex-direction: column; }
+.choice {
+  display: flex; align-items: center; gap: 16px; height: 60px; padding: 0 4px;
+  border: none; border-bottom: 1px solid var(--rule); background: transparent;
+  text-align: left; color: var(--ink); cursor: pointer; transition: opacity 300ms ease;
+}
+.choice-label { flex: 1; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; }
+.choice .tick { display: none; }
+.choice[aria-checked="true"] .tick { display: block; }
+.choices.has-pick .choice[aria-checked="false"] { opacity: 0.38; }
+
+/* Kevin's one-line reply, then the optional box (PARTLY / NOT YET only) */
+.reply { margin: 22px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 22px; line-height: 1.18; letter-spacing: -0.02em; }
+.why { min-height: 76px; }

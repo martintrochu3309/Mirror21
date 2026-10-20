@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Step 02 · Act</title>
+<!-- Built from the Step 02 design handoff, act.html (locked design). -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step02.css?v=20261020-app">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261020-app">
+<script src="../assets/progress.js?v=20261020-app" defer></script>
+<script src="../assets/steps.js?v=20261020-app" defer></script>
+<script src="../assets/step/step.js?v=20261020-app" defer></script>
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="course-progress" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="course-progress-fill"></span></div>
+  </div>
+
+  <div class="chip-row">
+    <div class="chip">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg>
+    </div>
+    <div class="chip-label">ACT</div>
+  </div>
+
+  <div class="step-label" id="stepLabel">STEP 02</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Turn your destination into something you do today.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from the step before (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">THERE
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 01</span>
+        </div>
+        <p class="question">WHERE YOU’RE GOING</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="there"></p>
+      </div>
+    </section>
+
+    <!-- 02 PROOF — my action + proof check -->
+    <section class="row" id="rowAction">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">PROOF</div>
+        <label class="question" for="action">MY ACTION</label>
+        <p class="prompt">Make it something you could prove you did.</p>
+        <p class="hint" id="proofHint" hidden>If you couldn’t prove it, it’s still an intention. Make it something you either do or don’t.</p>
+        <div class="starter-wrap">
+          <span class="starter" id="starter" aria-hidden="true">Today I will </span>
+          <textarea class="answer-box" id="action" rows="3" maxlength="200" aria-label="My action. Today I will"></textarea>
+        </div>
+        <div class="next-row" id="nextRow" style="display: flex">
+          <button class="next" id="next" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div id="proofQ" hidden>
+          <p class="proof-q">COULD YOU PROVE YOU DID IT?</p>
+          <div class="pills" style="margin-top: 14px">
+            <button class="pill pill--ink" id="proofYes">YES</button>
+            <button class="pill pill--outline" id="proofNotSure">NOT SURE</button>
+          </div>
+        </div>
+        <button class="proved" id="proved" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          Yes, I could prove it.
+        </button>
+      </div>
+    </section>
+
+    <!-- 03 ONCE — my promise -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node">03</div></div>
+      <div class="row-body">
+        <div class="eyebrow">ONCE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until your action is written"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" aria-live="polite">Today, I will <span class="promise-rest is-empty" id="promiseRest">…</span></p>
+
+        <div id="commitBlock">
+          <button class="hold" id="hold" disabled aria-describedby="holdHelp">
+            <span class="hold-fill" id="holdFill"></span>
+            <span class="hold-label hold-label--lg">I’M COMMITTED</span>
+          </button>
+          <p class="hold-help" id="holdHelp">Press and hold. Once committed, your promise can’t be changed.</p>
+        </div>
+
+        <div id="lockedBlock" hidden>
+          <div class="locked-row">
+            <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+            COMMITTED
+          </div>
+          <p class="done-text" id="lockedText" style="margin-top: 12px">Your promise is locked. Step 03 starts by asking how it went.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
