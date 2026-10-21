@@ -1,0 +1,104 @@
+/* Mirror 21 · Watch screen (Start → Mid → Finish), one template for every step and Welcome.
+   Built from the Watch screen design handoff (index.html, locked design); fonts come from tokens.css.
+   States live on #watch[data-state]: start · playing · paused · finish. */
+
+html, body { height: 100%; margin: 0; background: #000; overflow: hidden; overscroll-behavior: none; }
+body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antialiased; }
+.watch *, .watch *::before, .watch *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+.watch button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.watch a { color: inherit; text-decoration: none; }
+.watch :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* Full screen on a phone; a phone-wide column, centred on black, on wider screens. */
+.watch {
+  --gold: #dcc24e;
+  --st: max(env(safe-area-inset-top, 0px), 16px);
+  --sb: env(safe-area-inset-bottom, 0px);
+  --m: 20px; --title: 21px;
+  position: fixed; inset: 0; max-width: var(--column); margin: 0 auto;
+  overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.media, .still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+.media { opacity: 0; transition: opacity .4s; }
+.still { transition: filter .5s, opacity .4s; }
+[data-state=playing] .media, [data-state=paused] .media { opacity: 1; }
+[data-state=playing] .still, [data-state=paused] .still { opacity: 0; }
+[data-state=finish] .still { filter: brightness(.55); }
+.placeholder .still { opacity: 1; }
+
+/* Fades: strong at Start/Finish, light while playing */
+.fade { position: absolute; left: 0; right: 0; pointer-events: none; transition: opacity .5s; }
+.fade.top { top: 0; height: 260px; background: linear-gradient(rgba(0,0,0,.73), transparent); }
+.fade.bottom { bottom: 0; height: 210px; background: linear-gradient(transparent, rgba(0,0,0,.67)); }
+.fade.end { bottom: 0; height: 300px; opacity: 0; background: linear-gradient(transparent, rgba(0,0,0,.82)); }
+[data-state=playing] .fade.top { height: 140px; opacity: .65; }
+[data-state=playing] .fade.bottom { height: 90px; opacity: .4; }
+[data-state=finish] .fade.bottom { opacity: 0; }
+[data-state=finish] .fade.end { opacity: 1; }
+
+/* Top: X + step bar (3 parts for Step 01, 4 from Step 02; built by step.js) */
+.close { position: absolute; left: calc(var(--m) - 10px); top: calc(var(--st) + 8px); width: 44px; height: 44px; display: grid; place-items: center; z-index: 5; }
+.close svg { width: 18px; height: 18px; }
+.steps { position: absolute; left: calc(var(--m) + 40px); right: calc(var(--m) - 8px); top: calc(var(--st) + 28px); display: flex; gap: 6px; transition: opacity .5s; }
+.steps span { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
+.steps i { display: block; height: 100%; width: var(--fill, 0%); background: var(--gold); transition: width .6s ease; }
+.steps.is-instant i { transition: none; }
+
+/* Meta + single-line title (long titles shrink to fit, set by step.js) */
+.heading { position: absolute; left: var(--m); right: var(--m); top: calc(var(--st) + 60px); transition: opacity .5s; }
+.meta { font-size: 11px; font-weight: 700; letter-spacing: .18em; color: var(--gold); }
+.meta .done { display: none; }
+[data-state=finish] .meta .done { display: inline; }
+.title { margin-top: 8px; font-family: var(--font-display); font-size: var(--title); font-weight: 700; font-style: italic;
+  line-height: 1.1; white-space: nowrap; letter-spacing: -.01em; text-transform: uppercase; }
+.immersed .heading, .immersed .steps { opacity: 0; pointer-events: none; }
+
+/* Centred play */
+.play { position: absolute; left: 50%; top: 50%; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(255,255,255,.38); border: 1.5px solid rgba(255,255,255,.8);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: opacity .3s, transform .3s; }
+.play svg { width: 26px; height: 26px; margin-left: 4px; }
+[data-state=playing] .play, [data-state=finish] .play { opacity: 0; transform: scale(.9); pointer-events: none; }
+
+/* Start hint: BEST WITH SOUND · 1:45, or RESUME · 0:48 */
+.hint { position: absolute; left: 0; right: 0; bottom: calc(var(--sb) + 22px); display: flex; justify-content: center; align-items: center; gap: 8px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .17em; color: rgba(255,255,255,.92); transition: opacity .4s; }
+.hint svg { width: 16px; height: 16px; }
+.hint.is-resume svg { display: none; }
+[data-state=playing] .hint, [data-state=paused] .hint, [data-state=finish] .hint { opacity: 0; }
+
+/* Mid: video progress (display only) */
+.line { position: absolute; left: var(--m); right: var(--m); bottom: calc(var(--sb) + 6px); height: 3px; border-radius: 2px;
+  background: rgba(255,255,255,.3); opacity: 0; transition: opacity .4s; pointer-events: none; }
+.line i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--gold); }
+[data-state=playing] .line, [data-state=paused] .line { opacity: 1; }
+
+.soon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 8px 14px; border-radius: 20px; white-space: nowrap;
+  background: rgba(0,0,0,.55); font-size: 11px; font-weight: 700; letter-spacing: .16em; opacity: 0; transition: opacity .4s; pointer-events: none; }
+.placeholder[data-state=playing] .soon { opacity: 1; }
+
+/* Finish (also shown paused when rewatching a step already watched) */
+.end { position: absolute; left: var(--m); right: var(--m); bottom: calc(var(--sb) + 20px); display: flex; flex-direction: column; align-items: center; gap: 14px;
+  opacity: 0; transform: translateY(24px); transition: opacity .5s, transform .5s; pointer-events: none; }
+[data-state=finish] .end, .is-watched[data-state=paused] .end { opacity: 1; transform: none; pointer-events: auto; }
+[data-state=paused].is-watched .line { opacity: 0; }
+.again { font-size: 12px; font-weight: 700; letter-spacing: .13em; color: rgba(255,255,255,.92); padding: 6px 10px; }
+/* Same gold as the app's primary buttons (YOUR TURN), black label, no arrow (agreed change from the handoff's deep gold). */
+.learn { display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border-radius: 29px;
+  background: var(--gold-gradient); font-size: 13.5px; font-weight: 700; letter-spacing: .18em; }
+.watch a.learn { color: var(--on-gold); }
+
+/* Into Learn (white): a quick fade instead of a hard cut. */
+.watch::after { content: ""; position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 10; }
+.watch.is-leaving::after { opacity: 1; }
+
+/* Arriving from the map's step card (classes on <html>, run by step.js): on the card's black,
+   the X, step bar, meta line and title fade in (0.2s), then Kevin (0.6s), then the play button and
+   hint, or WATCH AGAIN and the button at Finish (0.2s). Each part only hides; its state shows it. */
+.intro .watch :is(.close, .steps, .heading, .play, .hint, .end) { transition: opacity .2s ease; }
+.intro .watch .still { transition: opacity .6s ease, filter .5s; }
+.intro:not(.show-text) .watch :is(.close, .steps, .heading),
+.intro:not(.show-image) .watch .still,
+.intro:not(.show-controls) .watch :is(.play, .hint, .end) { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) { .watch, .watch * { transition: none !important; } }

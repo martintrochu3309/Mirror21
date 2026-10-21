@@ -31,7 +31,24 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const go=async name=>{console.log('Opening '+name);await command('Page.navigate',{url:base+'/html/'+name.replace('.html','')});await ready(name.split('?')[0]);};
   const click=async selector=>{await evaluate('document.querySelector('+JSON.stringify(selector)+').click()');};
   const stored=()=>evaluate('JSON.parse(localStorage.getItem("mirror21-progress"))');
-  const barValue=()=>evaluate('Number(document.querySelector(".course-progress").getAttribute("aria-valuenow"))');
+  const barValue=()=>evaluate('Number(document.querySelector("#stepBar").getAttribute("aria-valuenow"))');
+  const barParts=()=>evaluate('document.querySelectorAll("#stepBar > span").length');
+  const watchState=()=>evaluate('document.querySelector("#watch").dataset.state');
+  const text=selector=>evaluate('document.querySelector('+JSON.stringify(selector)+').textContent.replace(/\\u00a0/g," ").replace(/\\s+/g," ").trim()');
+  const shows=selector=>evaluate('(()=>{const s=getComputedStyle(document.querySelector('+JSON.stringify(selector)+'));return s.opacity!=="0"&&s.pointerEvents!=="none"})()');
+  const arriving=()=>evaluate('document.documentElement.classList.contains("intro")').catch(()=>true);
+  // From the map's card into Watch: the card grows, Watch arrives in sequence, play is locked until it ends.
+  const openWatchFromCard=async()=>{
+   await click('.day-popover-start');
+   assert.equal(await evaluate('document.querySelectorAll(".day-card-cover").length'),1,'The card grows to fill the screen');
+   await until(()=>evaluate('location.pathname.includes("step-watch")&&document.documentElement.dataset.mirrorReady==="true"').catch(()=>false),'Watch');
+   assert.equal(await arriving(),true,'Arrival sequence when opened from the map');
+   const before=await watchState();await click('#play');await click('#again');
+   assert.equal(await watchState(),before,'Nothing can be tapped during the sequence');
+   await until(async()=>!(await arriving()),'the arrival sequence to end');
+   await ready('step-watch.html');
+  };
+  const until=async(check,what)=>{for(let n=0;n<150;n++){if(await check())return;await wait(100);}throw Error('Timed out waiting for '+what);};
   const noOverflow=async()=>assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth'),false,'No horizontal page scroll');
   const titleFits=()=>evaluate('(()=>{const t=document.querySelector(".title"),r=document.createRange();r.selectNodeContents(t);const rects=r.getClientRects();return {lines:new Set(Array.from(rects,x=>Math.round(x.top))).size,width:r.getBoundingClientRect().width,available:t.clientWidth,size:parseFloat(getComputedStyle(t).fontSize),text:t.textContent}})()');
   const shot=async(name,full)=>{
@@ -62,16 +79,17 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    // Step 00 · Welcome: watch-only, no bar, never starts an attempt.
    await go('step-watch.html?step=0');
    assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'WELCOME TO MIRROR 21.');
-   assert.equal(await evaluate('document.querySelector(".course-progress").hidden'),true);
-   assert.equal(await evaluate('document.querySelector("#nextLabel").textContent'),'MY PATH');
+   assert.equal(await evaluate('document.querySelector("#stepBar").hidden'),true);
+   assert.equal(await watchState(),'start');
+   assert.equal(await text('#nextLabel'),'MY PATH');
    assert.equal(await evaluate('new URL(document.querySelector("#next").href).pathname.replace(/\\.html$/,"")'),'/html/04-map-start');
-   for(let n=0;n<100&&!(await evaluate('document.querySelector("#stepLabel").textContent.includes(":")'));n++)await wait(100);
-   assert.equal(await evaluate('document.querySelector("#stepLabel").textContent'),'STEP 00 · 0:37','Length comes from the video file');
+   assert.equal(await text('#stepLabel'),'STEP 00 OF 21');
+   assert.equal(await text('#hintText'),'BEST WITH SOUND · 0:37');
    assert.equal(await evaluate('localStorage.getItem("mirror21-progress")'),null,'Welcome must not create an attempt or start its clock');
    if(phone){
     await shot('welcome-watch-mobile.png');
-    // Report every title that needs to shrink below 22px to stay on one line at this width.
-    const shrunk=await evaluate('(()=>{const t=document.querySelector("#stepTitle"),out=[];for(let s=1;s<=21;s++){const probe=t.cloneNode();probe.removeAttribute("id");probe.style.fontSize="";probe.textContent=MirrorSteps.headline(s);t.after(probe);const r=document.createRange();r.selectNodeContents(probe);const w=r.getBoundingClientRect().width;if(w>probe.clientWidth)out.push(String(s).padStart(2,"0")+" "+probe.textContent+" "+(Math.floor(22*probe.clientWidth/w*.985*10)/10)+"px");probe.remove();}return out;})()');
+    // Report every title that needs to shrink below the base size to stay on one line at this width.
+    const shrunk=await evaluate('(()=>{const t=document.querySelector("#stepTitle"),out=[];for(let s=1;s<=21;s++){const probe=t.cloneNode();probe.removeAttribute("id");probe.style.fontSize="";probe.textContent=MirrorSteps.headline(s);t.after(probe);const r=document.createRange();r.selectNodeContents(probe);const w=r.getBoundingClientRect().width,size=parseFloat(getComputedStyle(probe).fontSize);if(w>probe.clientWidth)out.push(String(s).padStart(2,"0")+" "+probe.textContent+" "+(Math.floor(size*probe.clientWidth/w*.985*10)/10)+"px");probe.remove();}return out;})()');
     console.log('phone: titles shrunk to fit one line:\n  '+shrunk.join('\n  '));
    }
 
@@ -91,46 +109,75 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    const bubbleBox=await evaluate('(()=>{const b=document.querySelector(".welcome-row .active-bubble").getBoundingClientRect(),h=document.querySelector(".app-frame > div[style*=\\"top: 59px\\"]").getBoundingClientRect();return {bubbleTop:b.top,headerBottom:h.bottom}})()');
    assert.ok(bubbleBox.bubbleTop>bubbleBox.headerBottom,'START on 00 is visible below the header card: '+JSON.stringify(bubbleBox));
    if(phone)await shot('map-start-on-welcome-mobile.png');
-   await go('step-watch.html?step=0');await click('#next');await ready('04-map-start.html');
+   // Welcome already watched opens at Finish; its MY PATH button returns to the map.
+   await evaluate('localStorage.setItem("mirror21-watched-0","true")');
+   await go('step-watch.html?step=0');assert.equal(await watchState(),'finish');
+   await click('#next');await ready('04-map-start.html');
    assert.equal(await evaluate('document.querySelector(".welcome-row .active-bubble")'),null,'Leaving Welcome moves START on');
    assert.equal(await evaluate('document.querySelector(".progress-row[data-day=\\"1\\"] .active-bubble").textContent'),'START');
    await click('.welcome-step');assert.equal(await evaluate('document.querySelector(".day-popover h2").textContent'),'Welcome to Mirror 21');
    assert.equal(await evaluate('document.querySelector(".welcome-card-stage").textContent'),'WATCH');
    await click('.progress-step.current');
-   assert.equal(await evaluate('document.querySelector(".day-popover h2").textContent'),'Know Where You’re Going');
+   assert.equal(await evaluate('document.querySelector(".day-popover h2").textContent'),'Know Where You Are Going');
    assert.equal(await evaluate('document.querySelector(".day-popover-start .action-label").textContent'),'START STEP');
    assert.equal(await evaluate('new URL(document.querySelector(".day-popover-start").href).pathname+new URL(document.querySelector(".day-popover-start").href).search'),'/html/step-watch.html?step=1');
    if(phone){await shot('day-card-mobile.png');}
 
    // Step 01 · Watch.
-   await click('.day-popover-start');await ready('step-watch.html');
-   assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'KNOW WHERE YOU’RE GOING.');
+   await openWatchFromCard();
+   assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'KNOW WHERE YOU ARE GOING.');
    let fit=await titleFits();assert.equal(fit.lines,1);assert.ok(fit.width<=fit.available+1,JSON.stringify(fit));
-   assert.equal(await evaluate('document.querySelector("#next").classList.contains("btn--outline")'),true,'LEARN is outlined until the video is watched');
-   assert.equal(await evaluate('document.querySelector("#player").hasAttribute("playsinline")'),false);
-   assert.equal(await evaluate('document.querySelector(".play").getBoundingClientRect().width'),76);
-   const video=await evaluate('(()=>{const v=document.querySelector(".video").getBoundingClientRect();return {left:v.left,width:v.width,height:v.height,vw:document.documentElement.clientWidth,column:document.querySelector(".screen").getBoundingClientRect()}})()');
-   assert.equal(video.width,video.height,'Video is square');
-   if(phone)assert.ok(video.left===0&&video.width===video.vw,'Video runs edge to edge on a phone');
-   for(let n=0;n<100&&!(await evaluate('document.querySelector("#stepLabel").textContent.includes(":")'));n++)await wait(100);
-   assert.equal(await evaluate('document.querySelector("#stepLabel").textContent'),'STEP 01 · 1:45');
+   // Start: full-screen still, centred play, BEST WITH SOUND, no Learn button.
+   assert.equal(await watchState(),'start');
+   assert.equal(await text('#stepLabel'),'STEP 01 OF 21');
+   assert.equal(await text('#hintText'),'BEST WITH SOUND · 1:45');
+   assert.equal(await barParts(),3,'Step 01: Watch · Learn · Act');
    assert.equal(await barValue(),0);
+   assert.equal(await shows('.end'),false,'No Learn button before Finish');
+   assert.equal(await evaluate('document.querySelector("#player").hasAttribute("playsinline")'),true,'Plays in the page, never Apple’s full-screen player');
+   assert.equal(await evaluate('document.querySelector("#watch").classList.contains("placeholder")'),false,'Step 01 has its portrait video');
+   assert.equal(await evaluate('new URL(document.querySelector("#player").currentSrc||document.querySelector("#player").src).pathname'),'/Audio-Video/Step01-Watch.mp4');
+   const layout=await evaluate('(()=>{const s=document.querySelector("#watch").getBoundingClientRect(),p=document.querySelector("#play").getBoundingClientRect();return {screen:{w:s.width,h:s.height,left:s.left},vw:innerWidth,vh:innerHeight,play:{w:p.width,cx:p.left+p.width/2-s.left,cy:p.top+p.height/2-s.top}}})()');
+   assert.equal(layout.play.w,80);
+   assert.ok(Math.abs(layout.play.cx-layout.screen.w/2)<1&&Math.abs(layout.play.cy-layout.screen.h/2)<1,'Play is dead centre: '+JSON.stringify(layout));
+   if(phone)assert.ok(layout.screen.w===layout.vw&&layout.screen.h===layout.vh,'Full screen on a phone: '+JSON.stringify(layout));
    await noOverflow();
    if(phone)await shot('step-watch-mobile.png');
-   // Real playback starts and moves the Watch third of the bar.
-   await click('#play');await wait(2500);
-   assert.equal(await evaluate('document.querySelector("#player").paused'),false,'Video plays');
-   await evaluate('(()=>{const v=document.querySelector("#player");v.currentTime=v.duration*.5;})()');await wait(1600);
-   const midBar=await barValue();assert.ok(midBar>=15&&midBar<=18,'Half-watched fills half of the Watch third: '+midBar);
-   await evaluate('(()=>{const v=document.querySelector("#player");v.currentTime=v.duration-.3;})()');
-   for(let n=0;n<60&&!(await evaluate('document.querySelector("#watch").classList.contains("is-watched")'));n++)await wait(100);
-   await wait(700);
-   assert.equal(await evaluate('document.querySelector("#next").classList.contains("btn--gold")'),true,'LEARN turns gold once watched');
-   assert.equal(await evaluate('getComputedStyle(document.querySelector(".watched-tag")).display'),'flex');
-   assert.equal(await barValue(),33);
-   if(phone)await shot('step-watch-watched-mobile.png');
+   // Mid: the title, meta line and bar fade after 2 seconds; tapping anywhere pauses.
+   await click('#play');assert.equal(await watchState(),'playing');
+   await wait(2600);
+   assert.equal(await evaluate('document.querySelector("#watch").classList.contains("immersed")'),true);
+   assert.equal(await evaluate('document.querySelector("#player").paused'),false,'The video plays in the page');
+   assert.equal(await evaluate('getComputedStyle(document.querySelector(".soon")).opacity'),'0','No COMING SOON with a real video');assert.equal(await shows('.end'),false,'No Learn button during playback');
+   if(phone)await shot('step-watch-playing-mobile.png');
+   await click('#watch');assert.equal(await watchState(),'paused');
+   assert.equal(await evaluate('document.querySelector("#watch").classList.contains("immersed")'),false,'Pausing brings the title back');
+   assert.equal(await shows('.end'),false);
+   if(phone)await shot('step-watch-paused-mobile.png');
+   const seen=(await stored()).steps[1].watch;assert.ok(seen>0.01&&seen<0.9,'Watched share saved: '+seen);
+   // Leaving mid-video and coming back offers to resume where it stopped.
    await go('step-watch.html?step=1');
-   assert.equal(await evaluate('document.querySelector("#next").classList.contains("btn--gold")'),true,'Watched state is remembered');
+   assert.equal(await watchState(),'start');
+   assert.equal(await arriving(),false,'The arrival sequence only plays from the map');
+   assert.match(await text('#hintText'),/^RESUME · 0:\d\d$/);
+   if(phone)await shot('step-watch-resume-mobile.png');
+   // Finish at the end (90% watched): WATCHED ✓, Watch fills gold, the Learn button rises.
+   await click('#play');await wait(1000);
+   assert.ok(await evaluate('document.querySelector("#player").currentTime')>=seen*105-1,'Resumes where it stopped');
+   // Jump to the last second (the test only: the screen has no scrubbing) and let it end.
+   await evaluate('(()=>{const v=document.querySelector("#player");v.currentTime=v.duration-1;})()');
+   await until(async()=>await watchState()==='finish','Finish');await wait(700);
+   assert.equal(await text('.meta'),'STEP 01 OF 21 · WATCHED ✓');
+   assert.equal(await text('#next'),'LEARN','Just LEARN, no arrow');
+   assert.equal(await evaluate('getComputedStyle(document.querySelector("#next")).backgroundImage.includes("gradient")'),true,'Same gold as YOUR TURN');
+   assert.equal(await evaluate('getComputedStyle(document.querySelector("#next")).color'),'rgb(16, 16, 16)');
+   assert.equal(await evaluate('new URL(document.querySelector("#still").src).pathname'),'/assets/images/step01-finish.jpg','Finish shows the video’s last frame');
+   assert.equal(await shows('.end'),true);
+   assert.equal(await barValue(),33);
+   assert.equal((await stored()).steps[1].watched,true);
+   if(phone)await shot('step-watch-finish-mobile.png');
+   await go('step-watch.html?step=1');
+   assert.equal(await watchState(),'finish','A watched step opens at Finish');
 
    // Step 01 · Learn: the button sits at the end of the content, not pinned.
    await click('#next');await ready('step-learn.html');
@@ -237,7 +284,8 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector(".intro").textContent'),'Earlier today you promised:','Committed minutes ago');
    assert.equal(await evaluate('document.querySelector("#commitText").textContent'),'Today, I will say no to one request this week, kindly and clearly.','The check-in shows the exact promise');
    assert.equal(await evaluate('document.querySelector("#next").hidden'),true,'WATCH waits for an answer');
-   assert.equal(await barValue(),0,'The check-in does not move the bar');
+   assert.equal(await barParts(),4,'From Step 02: Check in · Watch · Learn · Act');
+   assert.equal(await barValue(),0,'Check in fills once answered');
    assert.equal(await evaluate('document.querySelectorAll(".choice[role=radio]").length'),3);
    assert.equal(await evaluate('document.querySelector(".choice").getBoundingClientRect().height'),60);
    await noOverflow();
@@ -249,7 +297,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelectorAll("#reply, #why, .reply, textarea").length'),0,'Check-in is just YES / PARTLY / NO: no reply line, no note');
    assert.equal(await evaluate('document.querySelector("#next").hidden'),false);
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".choice"),b=>getComputedStyle(b).opacity)'),['1','0.38','0.38']);
-   assert.equal(await barValue(),0);
+   assert.equal(await barValue(),25);
    if(phone)await shot('step-checkin-yes-mobile.png');
    await choose('partly');
    if(phone)await shot('step-checkin-partly-mobile.png');
@@ -265,7 +313,9 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'MAKE IT SOMETHING YOU DO.');
    fit=await titleFits();assert.equal(fit.lines,1);assert.ok(fit.width<=fit.available+1,JSON.stringify(fit));
    assert.equal(await evaluate('document.querySelector("#yesterday")'),null,'Watch has nothing under the video');
-   assert.equal(await barValue(),0);
+   assert.equal(await barParts(),4);
+   assert.equal(await barValue(),25,'Check in is already gold on arrival');
+   assert.equal(await text('#nextLabel'),'LEARN');
    if(phone)await shot('step02-watch-mobile.png');
    // WATCH locked the answer in.
    await go('step-checkin.html?step=2');await choose('yes');
@@ -280,13 +330,15 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    // A done step opens again to rewatch and redo, without touching its check-in or the open step.
    const before=JSON.stringify(await stored());
    await click('.progress-step.partly');
-   assert.equal(await evaluate('document.querySelector(".day-popover h2").textContent'),'Know Where You’re Going');
+   assert.equal(await evaluate('document.querySelector(".day-popover h2").textContent'),'Know Where You Are Going');
    assert.equal(await evaluate('document.querySelector(".day-popover-start .action-label").textContent'),'REDO STEP');
    if(phone)await shot('redo-card-mobile.png');
-   await click('.day-popover-start');await ready('step-watch.html');
-   assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'KNOW WHERE YOU’RE GOING.');
-   assert.equal(await evaluate('document.querySelector("#next").classList.contains("btn--gold")'),true);
-   await click('#play');await wait(1500);assert.equal(await evaluate('document.querySelector("#player").paused'),false,'Rewatching plays the video');
+   await openWatchFromCard();
+   assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'KNOW WHERE YOU ARE GOING.');
+   assert.equal(await watchState(),'finish','A done step opens at Finish');
+   await click('#again');assert.equal(await watchState(),'playing','WATCH AGAIN plays from the start');
+   await wait(500);await click('#watch');assert.equal(await watchState(),'paused');await wait(600);
+   assert.equal(await shows('.end'),true,'Paused while rewatching, the button stays reachable');
    await click('#next');await ready('step-learn.html');
    await click('#next');await ready('step-act.html');
    assert.equal(await evaluate('document.querySelector("#a-step").value'),'say no to one request this week, kindly and clearly');assert.equal(await evaluate('document.querySelector("#a-step").readOnly'),true,'Reopened answers stay locked');
@@ -311,12 +363,12 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    await noOverflow();
    if(phone)await shot('step02-learn-mobile.png',true);
    await evaluate('scrollTo(0,document.documentElement.scrollHeight)');await wait(700);
-   assert.equal(await barValue(),67);
+   assert.equal(await barValue(),75);
    await click('#next');await ready('step02-act.html');
 
    // Step 02 · Act: THERE (read-only) → PROOF → ONCE.
    const stage2=async()=>(await stored()).steps[2].stage;
-   assert.equal(await barValue(),78,'Act starts at 35% of its third');
+   assert.equal(await barValue(),84,'Act starts at 35% of its part');
    assert.equal(await evaluate('document.querySelector("[data-from=there]").textContent'),'I want to be able to have two evenings a week that are truly mine.');
    assert.equal(await evaluate('document.querySelector("#rowPromise").classList.contains("is-locked")'),true);
    assert.equal(await evaluate('document.querySelector("#hold").disabled'),true);
@@ -327,7 +379,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector(".promise").textContent'),'Today, I will leave my laptop at work tonight.','The promise forms as you type');
    await pressEnter('#action');assert.equal(await stage2(),1);
    assert.equal(await evaluate('document.querySelector("#proofQ").hidden'),false);
-   assert.equal(await barValue(),87);
+   assert.equal(await barValue(),90);
    if(phone)await shot('step02-act-proof-mobile.png');
    await click('#proofNotSure');await wait(300);
    assert.equal(await stage2(),0,'NOT SURE goes back to the box');
@@ -337,7 +389,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector("#proved").hidden'),false);
    assert.equal(await evaluate('document.querySelector("#rowPromise").classList.contains("is-locked")'),false);
    assert.equal(await evaluate('document.querySelector("#hold").disabled'),false);
-   assert.equal(await barValue(),95);
+   assert.equal(await barValue(),96);
    if(phone)await shot('step02-act-ready-mobile.png',true);
    await holdFor(1250);await wait(300);
    assert.equal(await stage2(),3);

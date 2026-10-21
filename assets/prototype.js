@@ -79,6 +79,11 @@
       const continuing = dayNumber > 0 && !done && model.session(state,dayNumber).label === 'CONTINUE';
       setActionLabel(start, done ? 'REDO STEP' : continuing ? 'CONTINUE' : 'START STEP');
       start.setAttribute('aria-label', (done ? 'Redo' : continuing ? 'Continue' : 'Start')+' Step '+dayNumber+': '+title.textContent);
+      start.addEventListener('click', event => {
+        if (pageFilename(new URL(start.href).pathname) !== 'step-watch.html') return;
+        event.preventDefault();
+        expandIntoWatch(card, start.href, dayNumber);
+      });
       if (dayNumber === 0) {
         const stage = document.createElement('p');stage.className='welcome-card-stage';stage.textContent='WATCH';card.append(title,stage,start);
       } else card.append(title, start);
@@ -110,6 +115,34 @@
     });
     (card.querySelector('a') || step).focus({ preventScroll: true });
   }
+  // Into Watch, the black step card grows to fill the screen (0.35s), then Watch continues from that
+  // black with its arrival sequence. The note tells Watch it was opened from here.
+  let leaving = false;
+  function expandIntoWatch(card, href, dayNumber) {
+    if (leaving) return;
+    leaving = true;
+    try { sessionStorage.setItem('mirror21-intro', String(dayNumber)); } catch {}
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.href = href; return; }
+    const box = card.getBoundingClientRect();
+    const cover = card.cloneNode(true);
+    cover.removeAttribute('id'); cover.removeAttribute('role'); cover.removeAttribute('aria-labelledby');
+    cover.setAttribute('aria-hidden', 'true');
+    cover.classList.add('day-card-cover');
+    document.body.append(cover);
+    const at = (left, top, width, height) => ({ left: left+'px', top: top+'px', width: width+'px', height: height+'px' });
+    cover.animate([
+      { ...at(box.left, box.top, box.width, box.height), borderRadius: '14px', backgroundColor: '#111111' },
+      { ...at(0, 0, innerWidth, innerHeight), borderRadius: '0px', backgroundColor: '#000000' }
+    ], { duration: 350, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'forwards' });
+    Array.from(cover.children).forEach(child => child.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, fill: 'forwards' }));
+    setTimeout(() => { location.href = href; }, 350);
+  }
+  // Coming back to the map with the browser's Back button shows it as it was.
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    leaving = false;
+    document.querySelectorAll('.day-card-cover').forEach(cover => cover.remove());
+  });
   document.addEventListener('click', event => {
     if (openDayCard && !openDayCard.card.contains(event.target) && !openDayCard.step.contains(event.target)) closeDayCard();
   });

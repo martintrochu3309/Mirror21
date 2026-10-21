@@ -84,12 +84,25 @@
       screen: step?.screen || (day >= 2 ? 'checkin' : 'watch')
     };
   }
+  // Step bar: Watch · Learn · Act, with Check in first from Step 02. Check in and Watch fill once done;
+  // Learn and Act fill as the user goes. A committed or graded step is full.
+  function segments(state, day) {
+    const step = state.steps[day];
+    const done = Boolean(state.lessons[day] || state.answers[day]);
+    const parts = done ? [1, 1, 1] : !step ? [0, 0, 0] : [
+      step.watched || step.reached >= 1 ? 1 : 0,
+      step.reached >= 2 ? 1 : step.reached >= 1 ? step.learn : 0,
+      step.reached >= 2 ? (Number.isFinite(step.act) ? step.act : ACT_PROGRESS[step.stage] / 100) : 0
+    ];
+    if (day >= 2) parts.unshift(done || step?.checkedIn || state.answers[day - 1] ? 1 : 0);
+    return parts;
+  }
   // Watch, Learn and Act open once the check-in on the previous step is done (Step 01 has none).
   const needsCheckIn = (state, day) => day >= 2 && !state.lessons[day] && state.steps[day]?.checkedIn !== true;
   function writtenChange(state, day) {
     return state.dayChanges[day] ?? (state.answers[day] ? state.change : '');
   }
-  const api = { fresh, normalize, stats, record, session, writtenChange, checkInLocked, needsCheckIn, ACT_PROGRESS };
+  const api = { fresh, normalize, stats, record, session, segments, writtenChange, checkInLocked, needsCheckIn, ACT_PROGRESS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.MirrorProgress = api;
 })(globalThis);

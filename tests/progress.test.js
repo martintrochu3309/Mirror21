@@ -120,6 +120,27 @@ test('the bar fills a third each for Watch, Learn and Act, then completes on com
   assert.equal(model.normalize(JSON.parse(JSON.stringify(state)), now).steps[2].act, 0.6);
 });
 
+test('the step bar: Watch · Learn · Act, Check in first from Step 02; Watch fills only once watched', () => {
+  const state = model.fresh(now);
+  assert.deepEqual(model.segments(state, 1), [0, 0, 0]);
+  assert.deepEqual(model.segments(state, 2), [0, 0, 0, 0]);
+  state.steps[1] = { screen: 'watch', reached: 0, watch: 0.5, watched: false, learn: 0, stage: 0, notSure: false };
+  assert.deepEqual(model.segments(state, 1), [0, 0, 0], 'Half-watched leaves Watch empty');
+  state.steps[1].watched = true;
+  assert.deepEqual(model.segments(state, 1), [1, 0, 0]);
+  Object.assign(state.steps[1], { screen: 'learn', reached: 1, learn: 0.5 });
+  assert.deepEqual(model.segments(state, 1), [1, 0.5, 0]);
+  Object.assign(state.steps[1], { screen: 'act', reached: 2, stage: 2 });
+  assert.deepEqual(model.segments(state, 1), [1, 1, model.ACT_PROGRESS[2] / 100]);
+  commit(state, 1);
+  assert.deepEqual(model.segments(state, 1), [1, 1, 1]);
+  // Step 02: answering the check-in fills its part; Watch is the second part.
+  model.record(state, 1, 'yes');
+  assert.deepEqual(model.segments(state, 2), [1, 0, 0, 0]);
+  state.steps[2] = { screen: 'watch', reached: 0, watch: 1, watched: true, learn: 0, stage: 0, notSure: false, checkedIn: true };
+  assert.deepEqual(model.segments(state, 2), [1, 1, 0, 0]);
+});
+
 test('step progress survives storage and rejects bad values', () => {
   const state = model.fresh(now);
   state.steps[1] = { screen: 'act', reached: 2, watch: 1, watched: true, learn: 1, stage: 3, notSure: true, checkedIn: false, committedAt: '2026-10-07T20:15:00.000Z' };

@@ -7,6 +7,9 @@
   const write = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
   const map = '04-map-start.html';
   const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // One-time note from the map's step card: Watch plays its arrival sequence. Used up on any step page.
+  let arrival = null;
+  try { arrival = sessionStorage.getItem('mirror21-intro'); sessionStorage.removeItem('mirror21-intro'); } catch {}
 
   let raw; try { raw = JSON.parse(read('mirror21-progress')); } catch {}
   const state = model.normalize(raw);
@@ -40,27 +43,29 @@
   label.textContent = 'STEP ' + pad(step);
   document.title = 'Mirror 21 · Step ' + pad(step) + ' · ' + { checkin: 'Check in', watch: 'Watch', learn: 'Learn', act: 'Act' }[screenName];
 
-  // Continuous progress bar: Watch, Learn and Act each fill a third.
-  const bar = document.querySelector('.course-progress');
-  const fill = bar.firstElementChild;
+  // Step bar: Watch · Learn · Act, with Check in first from Step 02. Each part fills gold as it is done.
+  const bar = document.getElementById('stepBar');
   const barKey = 'mirror21-bar-' + step;
-  function paint(ratio) {
-    const pct = Math.round(ratio * 100);
+  const parts = step >= 2 ? 4 : 3;
+  const fills = Array.from({ length: parts }, () => bar.appendChild(document.createElement('span')).appendChild(document.createElement('i')));
+  function draw(values) { values.forEach((value, i) => fills[i].style.setProperty('--fill', value * 100 + '%')); }
+  function paint(values) {
+    const pct = Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 100);
     bar.setAttribute('aria-valuenow', String(pct));
     bar.setAttribute('aria-valuetext', pct + ' percent complete');
-    fill.style.width = ratio * 100 + '%';
-    write(barKey, String(ratio));
+    draw(values);
+    write(barKey, JSON.stringify(values));
   }
-  const refreshBar = () => { if (!welcome) paint(model.session(state, step).ratio); };
+  const refreshBar = () => { if (!welcome) paint(model.segments(state, step)); };
   if (welcome) bar.hidden = true;
   else {
     // Start from where the bar was on the previous screen, then advance.
-    const ratio = model.session(state, step).ratio;
-    const previous = Number(read(barKey));
-    fill.classList.add('is-instant');
-    fill.style.width = Math.min(Number.isFinite(previous) ? previous : 0, ratio) * 100 + '%';
-    void fill.offsetWidth;
-    fill.classList.remove('is-instant');
+    const values = model.segments(state, step);
+    let previous; try { previous = JSON.parse(read(barKey)); } catch {}
+    bar.classList.add('is-instant');
+    draw(values.map((value, i) => Math.min(Array.isArray(previous) && Number.isFinite(previous[i]) ? previous[i] : 0, value)));
+    void bar.offsetWidth;
+    bar.classList.remove('is-instant');
     requestAnimationFrame(() => requestAnimationFrame(refreshBar));
   }
 
@@ -87,66 +92,162 @@
   document.documentElement.dataset.stepScreen = screenName;
   document.documentElement.dataset.mirrorReady = 'true';
 
+  // Watch: Start → Mid (playing / paused) → Finish, from the Watch screen handoff.
+  // Learn appears only at Finish, once 90% of the video has actually been watched (no scrubbing).
   function watchScreen() {
     const screen = document.getElementById('watch');
     const player = document.getElementById('player');
-    const poster = document.getElementById('poster');
-    const play = document.getElementById('play');
+    const still = document.getElementById('still');
+    const line = document.getElementById('line');
+    const hint = document.getElementById('hint');
     const next = document.getElementById('next');
     const media = steps.media(step);
+    // Without a video, playback is simulated for this long and shows VIDEO COMING SOON.
+    const DEMO_SECONDS = 8;
+    const fake = !media.video;
+    const watchedKey = 'mirror21-watched-0';
+    const sep = '  ·  ';
+    const clock = seconds => Math.floor(seconds / 60) + ':' + String(Math.floor(seconds % 60)).padStart(2, '0');
+    const [mins, secs] = media.duration.split(':').map(Number);
+    // Length shown before the file loads; the file's own length replaces it.
+    let total = mins * 60 + secs || 0;
+    let watched = welcome ? read(watchedKey) === 'true' : committed || record.watched;
+    // Where playback stands, as a share of the video; an unfinished first watch resumes from here.
+    let at = watched || welcome ? 0 : record.watch;
+    let current, immerse, raf, t0 = 0, lastSaved = 0, savedWatch = at, arriving = false;
+
+    label.textContent = 'STEP ' + pad(step) + ' OF 21';
     document.getElementById('stepTitle').textContent = steps.headline(step);
-    poster.src = media.poster;
-    poster.alt = 'Kevin Craggs, Step ' + pad(step) + ' video';
-    player.src = media.video;
+    document.getElementById('nextLabel').textContent = media.next;
+    if (fake) screen.classList.add('placeholder'); else player.src = media.video;
+    // Load the finish image (the video's last frame) now, so the end fades straight into it.
+    if (media.finish) new Image().src = media.finish;
+
+    function set(mode) {
+      current = screen.dataset.state = mode;
+      clearTimeout(immerse); screen.classList.remove('immersed');
+      // Title, meta line and step bar fade out after 2 seconds of playback.
+      if (mode === 'playing') immerse = setTimeout(() => screen.classList.add('immersed'), 2000);
+      const src = mode === 'finish' && media.finish ? media.finish : media.image;
+      if (still.getAttribute('src') !== src) still.src = src;
+    }
+    function showHint() {
+      const resume = at > 0 && !watched;
+      hint.classList.toggle('is-resume', resume);
+      document.getElementById('hintText').textContent = resume ? 'RESUME' + (total ? sep + clock(at * total) : '')
+        : 'BEST WITH SOUND' + (total ? sep + clock(total) : '');
+    }
+    // Saves how far the first watch got, only when it moved since the last save.
+    function keep() {
+      if (welcome || committed || watched || record.watch === savedWatch) return;
+      savedWatch = record.watch; lastSaved = Date.now(); save();
+    }
+    function markWatched() {
+      watched = true; screen.classList.add('is-watched');
+      if (welcome) write(watchedKey, 'true');
+      else if (!committed) { record.watched = true; record.watch = 1; save(); }
+    }
+    function progress(p) {
+      at = p; line.style.width = p * 100 + '%';
+      if (watched) return;
+      if (p >= 0.9) markWatched();
+      else if (!welcome && !committed && p > record.watch) {
+        record.watch = p;
+        if (Date.now() - lastSaved > 1000) keep();
+      }
+    }
+    // The end: Finish once watched (the Watch part of the bar fills), otherwise back to paused.
+    function finish() {
+      at = 0;
+      if (!watched) { set('paused'); return; }
+      set('finish'); refreshBar();
+    }
+
+    function play() {
+      if (current === 'finish') { progress(0); if (!fake) player.currentTime = 0; }
+      set('playing');
+      if (fake) {
+        t0 = performance.now() - at * DEMO_SECONDS * 1000;
+        const tick = now => {
+          const p = Math.min((now - t0) / 1000 / DEMO_SECONDS, 1); progress(p);
+          if (p < 1) raf = requestAnimationFrame(tick); else finish();
+        };
+        raf = requestAnimationFrame(tick);
+      } else player.play().catch(() => set(at ? 'paused' : 'start'));
+    }
+    function pause() {
+      if (fake) cancelAnimationFrame(raf); else player.pause();
+      set('paused'); keep();
+    }
+
+    player.addEventListener('loadedmetadata', () => {
+      if (!Number.isFinite(player.duration)) return;
+      total = player.duration;
+      if (at) player.currentTime = at * player.duration;
+      showHint();
+    });
+    player.addEventListener('timeupdate', () => { if (current === 'playing' && player.duration) progress(player.currentTime / player.duration); });
+    player.addEventListener('ended', () => { progress(1); finish(); });
+    // Paused by the phone (a call, headphones unplugged, leaving the app): show the paused state.
+    player.addEventListener('pause', () => { if (current === 'playing' && !player.ended) { set('paused'); keep(); } });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && fake && current === 'playing') pause(); });
+    addEventListener('pagehide', keep);
+
+    // Nothing but the X can be tapped until the arrival sequence has shown the controls.
+    screen.addEventListener('click', event => {
+      if (arriving && !event.target.closest('.close')) { event.preventDefault(); event.stopPropagation(); }
+    }, true);
+    // Tap anywhere to play / pause; Finish only reacts to its buttons. Swiping does nothing.
+    screen.addEventListener('click', event => {
+      if (event.target.closest('.close, .end')) return;
+      if (current === 'playing') pause(); else if (current !== 'finish') play();
+    });
+    document.getElementById('again').addEventListener('click', play);
+
     if (welcome) {
-      next.href = map; document.getElementById('nextLabel').textContent = 'MY PATH';
+      next.href = map;
       // Leaving Welcome with its button counts as done: the map's START moves on to Step 01.
       next.addEventListener('click', () => write('mirror21-seen-0', 'true'));
     }
     else next.href = href('learn');
-
-    // Length comes from the video file itself.
-    player.addEventListener('loadedmetadata', () => {
-      if (!Number.isFinite(player.duration)) return;
-      const total = Math.floor(player.duration);
-      label.textContent = 'STEP ' + pad(step) + ' · ' + Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0');
+    // Dark to white: a quick fade into the next screen rather than a hard cut.
+    next.addEventListener('click', event => {
+      if (reduceMotion()) return;
+      event.preventDefault(); screen.classList.add('is-leaving');
+      setTimeout(() => { location.href = next.href; }, 250);
     });
 
-    const watchedKey = 'mirror21-watched-0';
-    function showWatched() {
-      screen.classList.add('is-watched');
-      next.classList.remove('btn--outline');
-      next.classList.add('btn--gold');
-    }
-    function setWatched() {
-      showWatched();
-      if (welcome) write(watchedKey, 'true');
-      else if (!committed) { record.watched = true; record.watch = 1; save(); refreshBar(); }
-    }
-    if (welcome ? read(watchedKey) === 'true' : committed || record.watched) showWatched();
+    // A step already watched (or left after 90%) opens at Finish, with its button ready.
+    progress(at);
+    if (watched) screen.classList.add('is-watched');
+    set(watched ? 'finish' : 'start');
+    showHint();
+    arrive();
 
-    function showPoster() {
-      player.style.opacity = ''; player.style.pointerEvents = ''; player.controls = false;
-      play.hidden = false;
+    // From the map: on black, the title (0.2s), then Kevin once his image has loaded (0.6s), then the
+    // controls (0.2s). With reduce motion, one 0.3s fade. Only when the map's card opened this screen.
+    function arrive() {
+      const root = document.documentElement;
+      if (arrival !== String(step)) { root.classList.remove('intro'); return; }
+      arriving = true;
+      const done = () => { arriving = false; root.classList.remove('intro', 'show-text', 'show-image', 'show-controls'); };
+      if (reduceMotion()) {
+        root.classList.remove('intro');
+        screen.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'ease-out' }).finished.then(done, done);
+        return;
+      }
+      const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+      root.classList.add('intro');
+      requestAnimationFrame(() => requestAnimationFrame(async () => {
+        root.classList.add('show-text');
+        await Promise.all([pause(200), still.decode().catch(() => {})]);
+        root.classList.add('show-image');
+        await pause(600);
+        root.classList.add('show-controls');
+        await pause(200);
+        done();
+      }));
     }
-    // Watched = the video reached its end (the iPhone full-screen player fires 'ended' too).
-    player.addEventListener('ended', () => { setWatched(); showPoster(); });
-    player.addEventListener('webkitendfullscreen', () => { if (player.paused) showPoster(); });
-    player.addEventListener('play', () => { play.hidden = true; });
-    let lastSaved = 0;
-    player.addEventListener('timeupdate', () => {
-      if (welcome || committed || !player.duration) return;
-      const seen = player.currentTime / player.duration;
-      if (seen <= record.watch) return;
-      record.watch = seen;
-      if (Date.now() - lastSaved > 1000) { lastSaved = Date.now(); save(); refreshBar(); }
-    });
-    play.addEventListener('click', () => {
-      player.style.opacity = 1; player.style.pointerEvents = 'auto'; player.controls = true;
-      if (player.ended) player.currentTime = 0;
-      const started = player.play();
-      if (started && started.catch) started.catch(showPoster);
-    });
   }
 
   function checkinScreen() {
@@ -183,7 +284,7 @@
       const button = event.target.closest('.choice');
       if (!button || locked()) return;
       if (!model.record(state, previous, button.dataset.choice)) return;
-      save(); render();
+      save(); render(); refreshBar();
       if (navigator.vibrate) navigator.vibrate(15);
     });
     // WATCH locks the answer in and opens the step.

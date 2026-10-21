@@ -8,8 +8,8 @@ mirror21-design-handoff/
 ├── html/          the app: Offer, My Path (map), Step screens (check-in, watch, learn, act), My Mirror, My Journey, restart
 ├── Audio-Video/   Step00-Mirror21.mp4 (Welcome) and Step01-Mirror21.mp4
 ├── assets/
-│   ├── step/             Step screens: tokens.css, step.css, step02.css, checkin.css (copied unchanged from the design handoffs), step-app.css, step.js, fonts
-│   ├── steps.js          the 21 step titles and which video/lesson each step uses
+│   ├── step/             Step screens: tokens.css, step.css, step02.css, checkin.css (copied unchanged from the design handoffs), watch.css (Watch screen handoff), step-app.css, step.js, fonts
+│   ├── steps.js          the 21 step titles, each step's Watch content (video, images, button label) and lesson
 │   ├── progress.js       course rules and saved progress
 │   ├── prototype.js/css  My Path map, My Mirror, My Journey, tabs, reset gear
 │   ├── journey.css, opening-pages.css, restart-session.js
@@ -35,26 +35,27 @@ iPhones read these settings only when the icon is added: after a deploy that cha
 
 The course is 21 **Steps** (previously "days"), plus **Step 00 · Welcome**. Step 01 is Watch → Learn → Act, built from the Step 01 design handoff (no longer kept in the project; its styles and fonts were copied into `assets/step/`). From Step 02, every step opens with a **Check in** on the previous step, built from the Step 02 check-in design handoff (also copied into `assets/step/`). The app changes these things from the handoffs, by agreement:
 
-- the top bar keeps the app's **continuous progress bar** instead of the 3- or 4-part bar: Watch, Learn and Act each fill a third, and the check-in does not move it;
 - there is **no sound button**;
 - with no commit time saved (steps committed before `committedAt` existed), the check-in says "Last time you promised:";
 - the Done text reads "Step 0N is open. It starts by asking how your step went."
 
-Titles come from `assets/steps.js` (block names are not shown yet). A title that is too long for one line at 22px shrinks just enough to fit. At 390px wide, that is Step 04 (20.7px) and Step 06 (20.9px).
+**Step bar:** every step screen shows the handoff's part bar. Step 01 has 3 parts (Watch · Learn · Act); from Step 02 there are 4 (Check in · Watch · Learn · Act). Check in fills once answered, Watch once the video is watched, Learn as the reader scrolls and Act stage by stage (`segments` in `assets/progress.js`). The map's ring still uses the overall share (`session`).
 
-**Content so far:** Step 01 and Step 02 have their own lessons (Step 02 from the Step 02 design handoff, likewise copied into `assets/step/step02.css`). Steps 03–18 reuse Step 01's lesson as placeholders, and Steps 19–21 show "Coming soon" on the map. Every step uses Step 01's video until Kevin films the others. `assets/steps.js` decides each step's video (`media`) and lesson (`lesson` / `page`).
+Titles come from `assets/steps.js` (block names are not shown yet). A title that is too long for one line shrinks just enough to fit. On the Watch screen (21px) at 390px wide, that is Step 04 (20.4px) and Step 06 (20.6px).
+
+**Content so far:** Step 01 and Step 02 have their own lessons (Step 02 from the Step 02 design handoff, likewise copied into `assets/step/step02.css`). Steps 03–18 reuse Step 01's lesson as placeholders, and Steps 19–21 show "Coming soon" on the map. Step 01 plays its portrait video (`Audio-Video/Step01-Watch.mp4`: 720×1280 H.264/AAC, 1:45, saved with "faststart" so playback begins before the whole file loads); its start image is the video's first frame, so nothing jumps when it starts. Welcome and the other steps show Step 01's start image and "VIDEO COMING SOON" with an 8-second simulated playback. For each new video: portrait 720×1280 MP4, a URL-safe name (`StepNN-Watch.mp4`), `ffmpeg -i in.mp4 -c copy -movflags +faststart StepNN-Watch.mp4`, a first-second frame as its start image, and its last frame (`ffmpeg -sseof -0.3 -i StepNN-Watch.mp4 -update 1 -q:v 3 stepNN-finish.jpg`) as its finish image. `assets/steps.js` decides each step's Watch content (`watch`: video, start image, finish image, length, button label) and lesson (`lesson` / `page`). To add a video, set its `video` there (for example `'../Audio-Video/Step01-Watch.mp4'`): the placeholder goes away by itself and the length comes from the file.
 
 | Screen | Page | Notes |
 |---|---|---|
 | Check in | `html/step-checkin.html?step=N` | Steps 02+. "DID YOU KEEP YOUR PROMISE?" Shows the previous step's exact promise under MY PROMISE ("Earlier today / Yesterday / On Monday / Last time you promised:"). Just YES, I DID IT · PARTLY · NO: no reply line and no note. The answer saves at once and can change until WATCH, which locks it. Watch, Learn and Act send you back here until it is done. |
-| Watch | `html/step-watch.html?step=N` | Square edge-to-edge video, opens Apple's full-screen player. LEARN is outlined until the video ends, then gold; the length shown comes from the file. Nothing under the video. |
+| Watch | `html/step-watch.html?step=N` | From the Watch screen design handoff: full-screen portrait video played in the page (never Apple's full-screen player). **Start:** still image, step bar, "STEP 0N OF 21", one-line title, frosted play button dead centre, "BEST WITH SOUND · 1:45". **Mid:** after 2 seconds only the X and a thin gold line remain; tapping anywhere pauses and brings the title back. **Finish:** the video's last frame (each step's `finish` image), dimmed, so nothing jumps when it ends; "WATCHED ✓", Watch part of the bar gold, WATCH AGAIN and a LEARN button (Welcome: MY PATH) in the app's gold gradient with a black label and no arrow, like YOUR TURN (agreed change from the handoff's deep gold #aa8107 and "LEARN THE 5 MOVES →"). The button only appears at Finish, once 90% has actually been watched; there is no scrubbing. Leaving mid-video offers "RESUME · 0:48"; a watched step opens at Finish (and keeps its button when paused on a rewatch). The button fades to white into Learn. Safari's bar turns black on this screen only. |
 | Learn | `html/step-learn.html?step=N` | Five moves, pull quote, example rows. YOUR TURN sits at the end of the content. The bar fills as the reader scrolls. |
 | Act | `html/step-act.html?step=N` | Rows unlock one by one; answers save as typed. Each box has a grey sentence starter in front ("Right now, I", "I want to be able to", "Today I will"): the user only finishes the sentence, and the saved answer is the whole sentence. TEST's answer shows a gold tick. Row 05 is MY STEP. The commit section shows MY PROMISE: "Today, I will [their step]." filled in live. I'M COMMITTED (1-second press and hold for now) is greyed out until all three boxes are filled; committing locks the answers for good, shows COMMITTED for 1.5 seconds, then returns to the map with the next step open. |
 | Step 02 Learn | `html/step02-learn.html?step=2` | "THERE → PROOF → ONCE." with drawn arrows. Three moves; under THERE, your own Step 01 THERE, read-only ("YOURS · FROM STEP 01"). FAILS / PASSES example with the check-in's empty and full circles, and the "IN THE BOX" sample. |
 | Step 02 Act | `html/step02-act.html?step=2` | 01 THERE (read-only, from Step 01) → 02 PROOF: MY ACTION after a grey "Today I will", then "COULD YOU PROVE YOU DID IT?" YES / NOT SURE (NOT SURE goes back to the box with a hint) → 03 ONCE: MY PROMISE forms live, I'M COMMITTED (press and hold) once proof is YES. Committing locks the box, shows COMMITTED, then returns to the map. Act fills its third 35 → 60 → 85 → 100%. Saves `responses[2].ACTION` (typed words only) and the promise word for word for Step 03's check-in. |
 
 Opening `step-learn` or `step-act` for Step 02 (or the Step 02 pages for any other step) redirects to the right page, so links can stay generic.
-| Welcome | `html/step-watch.html?step=0` | Watch only, no progress bar, button (MY PATH) returns to the map. Never starts an attempt. |
+| Welcome | `html/step-watch.html?step=0` | The same Watch screen ("STEP 00 OF 21"), no step bar; its Finish button (MY PATH) returns to the map. Never starts an attempt. |
 
 ## Course rules (`assets/progress.js`)
 
@@ -86,13 +87,14 @@ The third tab (book icon) replaces My Tools. The tabs are **MY PATH** (the map),
 
 - Steps follow a wave of x offsets: `[0, 52, 80, 52, 0, -52, -80, -52]`, 104px per row; WEEK 2 and WEEK 3 dividers before Steps 8 and 15.
 - Today's step is bigger and black, with a gold ring showing its progress and a bubble (START / CONTINUE). Tapping it opens a black card with the step title and START STEP (or CONTINUE, which reopens the last screen).
+- **Into Watch:** when the card's button leads to Watch (Step 01 and Welcome START, CONTINUE on Watch, REDO STEP), the card grows to fill the screen (0.35s). On that black, Watch fades in the X, step bar, "STEP 0N OF 21" and title (0.2s), then Kevin's image once loaded (0.6s), then the play button and hint, or WATCH AGAIN and the button at Finish (0.2s). Nothing but the X can be tapped until then. With reduce motion it's one 0.3s fade. It only plays from the map (a one-time note in session storage, used up by any step page): not on Watch Again, resuming, Back or reload. Buttons leading to Check in, Learn or Act open as before.
 - Locked steps are grey; tapping shows "Opens after Step N".
 - On open, the map scrolls so today is centred.
 - Until Welcome is done (its video watched to the end, or left with its MY PATH button) and while Step 01 hasn't been started, the START bubble sits on 00 Welcome and the map opens at the top. After that it moves to today's step.
 
 ## Placeholders to replace
 
-- Videos for Steps 02–21, and lessons for Steps 03–21 (see **Content so far**).
+- Portrait videos (720×1280) for Welcome and Steps 02–21, and lessons for Steps 03–21 (see **Content so far**). The square videos in `Audio-Video/` and the square posters in `assets/images/` are no longer used.
 - Captions (.vtt) for the videos.
 - Day 8 history on the static screens 17–18 is sample data.
 - **Fonts:** Magistral and Neue Haas Display are licensed fonts; confirm webfont licences with Kevin before public launch.
@@ -104,7 +106,7 @@ The third tab (book icon) replaces My Tools. The tabs are **MY PATH** (the map),
 
 ## Deploying on Netlify
 
-Publish this folder as the site root, including `index.html`, `html/`, `assets/`, `Audio-Video/` and `_headers`. No build command is needed. `_headers` tells browsers to revalidate site files. Netlify Pretty URLs are supported (`/html/step-watch` and `/html/step-watch.html` are the same page). After deploying, check that `/Audio-Video/Step01-Mirror21.mp4` plays on the published site.
+Publish this folder as the site root, including `index.html`, `html/`, `assets/`, `Audio-Video/` and `_headers`. No build command is needed. `_headers` tells browsers to revalidate site files. Netlify Pretty URLs are supported (`/html/step-watch` and `/html/step-watch.html` are the same page). After deploying, check that `/Audio-Video/Step01-Watch.mp4` plays on the published site.
 
 ## Restart this device's session
 
