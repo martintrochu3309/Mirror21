@@ -32,7 +32,8 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const click=async selector=>{await evaluate('document.querySelector('+JSON.stringify(selector)+').click()');};
   const stored=()=>evaluate('JSON.parse(localStorage.getItem("mirror21-progress"))');
   const barValue=()=>evaluate('Number(document.querySelector("#stepBar").getAttribute("aria-valuenow"))');
-  const barParts=()=>evaluate('document.querySelectorAll("#stepBar > span").length');
+  const barParts=()=>evaluate('document.querySelectorAll("#stepBar > .bar-part").length');
+  const barLabels=()=>evaluate('Array.from(document.querySelectorAll("#stepBar .bar-label"),l=>l.textContent+":"+(l.classList.contains("is-done")?"done":l.classList.contains("is-current")?"current":""))');
   const watchState=()=>evaluate('document.querySelector("#watch").dataset.state');
   const text=selector=>evaluate('document.querySelector('+JSON.stringify(selector)+').textContent.replace(/\\u00a0/g," ").replace(/\\s+/g," ").trim()');
   const shows=selector=>evaluate('(()=>{const s=getComputedStyle(document.querySelector('+JSON.stringify(selector)+'));return s.opacity!=="0"&&s.pointerEvents!=="none"})()');
@@ -70,11 +71,19 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   for(const [label,width,height] of [['phone',390,844],['iPad',820,1180],['desktop',1440,900]]){
    const phone=label==='phone';
    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:phone?2:1,mobile:label!=='desktop'});
-   await command('Page.navigate',{url:base+'/'});await ready('01-offer.html');await evaluate('localStorage.clear()');
+   await command('Page.navigate',{url:base+'/'});await ready('02-sign-in.html');await evaluate('localStorage.clear()');
    assert.equal(await evaluate('document.fonts.check("italic 700 22px Magistral")'),true);
    // Opens as a full-screen app from the Home Screen: manifest, Apple tags and icon on every page.
    const app=await evaluate('(async()=>{const m=document.querySelector("link[rel=manifest]"),i=document.querySelector("link[rel=apple-touch-icon]");const manifest=await (await fetch(m.href)).json();const icon=await fetch(i.href);return {display:manifest.display,name:manifest.name,capable:document.querySelector("meta[name=apple-mobile-web-app-capable]")?.content,bar:document.querySelector("meta[name=apple-mobile-web-app-status-bar-style]")?.content,title:document.querySelector("meta[name=apple-mobile-web-app-title]")?.content,icon:icon.ok}})()');
    assert.deepEqual(app,{display:'standalone',name:'Mirror 21',capable:'yes',bar:'default',title:'Mirror 21',icon:true});
+   // The app opens on Sign in (the Offer is hidden), MIRROR 21 at the top left. Blank fields still sign in › My Path.
+   assert.equal(await evaluate('document.querySelector(".wordmark").textContent'),'MIRROR 21');
+   assert.equal(await evaluate('document.querySelector("h1").textContent'),'SIGN IN.');
+   await click('[data-mode="email"]');
+   assert.deepEqual(await evaluate('[document.querySelector("[data-for=phone]").hidden,document.querySelector("[data-for=email]").hidden]'),[true,false]);
+   if(phone)await shot('sign-in-mobile.png');
+   await click('.go');await ready('04-map-start.html');
+   await evaluate('localStorage.clear()');
 
    // Step 00 · Welcome: watch-only, no bar, never starts an attempt.
    await go('step-watch.html?step=0');
@@ -132,6 +141,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await text('#stepLabel'),'STEP 01 OF 21');
    assert.equal(await text('#hintText'),'BEST WITH SOUND · 1:45');
    assert.equal(await barParts(),3,'Step 01: Watch · Learn · Act');
+   assert.deepEqual(await barLabels(),['WATCH:current','LEARN:','ACT:'],'Labels under the bar');
    assert.equal(await barValue(),0);
    assert.equal(await shows('.end'),false,'No Learn button before Finish');
    assert.equal(await evaluate('document.querySelector("#player").hasAttribute("playsinline")'),true,'Plays in the page, never Apple’s full-screen player');
@@ -174,6 +184,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('new URL(document.querySelector("#still").src).pathname'),'/assets/images/step01-finish.jpg','Finish shows the video’s last frame');
    assert.equal(await shows('.end'),true);
    assert.equal(await barValue(),33);
+   assert.deepEqual(await barLabels(),['WATCH:done','LEARN:','ACT:'],'Watch turns gold once watched');
    assert.equal((await stored()).steps[1].watched,true);
    if(phone)await shot('step-watch-finish-mobile.png');
    await go('step-watch.html?step=1');
@@ -313,6 +324,9 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'MAKE IT SOMETHING YOU DO.');
    fit=await titleFits();assert.equal(fit.lines,1);assert.ok(fit.width<=fit.available+1,JSON.stringify(fit));
    assert.equal(await evaluate('document.querySelector("#yesterday")'),null,'Watch has nothing under the video');
+   assert.equal(await evaluate('new URL(document.querySelector("#player").src).pathname'),'/Audio-Video/Step02-Watch.mp4','Step 02 plays its own video');
+   assert.equal(await evaluate('new URL(document.querySelector("#still").src).pathname'),'/assets/images/step02-start.jpg');
+   assert.equal(await text('#hintText'),'BEST WITH SOUND · 1:18');
    assert.equal(await barParts(),4);
    assert.equal(await barValue(),25,'Check in is already gold on arrival');
    assert.equal(await text('#nextLabel'),'LEARN');
@@ -415,12 +429,23 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector("[aria-label=\\"Where I stand\\"] svg text").textContent'),'50%','One PARTLY = 50%');
    assert.equal(await evaluate('document.querySelector("[aria-label=\\"Where I stand\\"] > div:last-child").textContent.replace(/\\s+/g," ").trim()'),'WEEK 1 SEE IT');
    if(phone)await shot('my-mirror-mobile.png');
-   // Demo reset gear: top right of My Path, My Mirror and My Journey; confirms, then clears this device's steps.
-   for(const page of ['04-map-start.html','18-my-mirror.html','19-my-journey.html']){await go(page);assert.equal(await evaluate('document.querySelectorAll(".demo-reset").length'),1,page);}
-   const gearBox=await evaluate('(()=>{const r=document.querySelector(".demo-reset").getBoundingClientRect(),f=document.querySelector(".app-frame").getBoundingClientRect();return {right:f.right-r.right,top:r.top-f.top,width:r.width}})()');
+   // Settings gear: top right of My Path, My Mirror and My Journey; opens Settings, the X closes it.
+   for(const page of ['04-map-start.html','18-my-mirror.html','19-my-journey.html']){await go(page);assert.equal(await evaluate('document.querySelectorAll(".settings-gear").length'),1,page);}
+   const gearBox=await evaluate('(()=>{const r=document.querySelector(".settings-gear").getBoundingClientRect(),f=document.querySelector(".app-frame").getBoundingClientRect();return {right:f.right-r.right,top:r.top-f.top,width:r.width}})()');
    assert.ok(gearBox.top<20&&gearBox.right<20&&gearBox.width<=32,JSON.stringify(gearBox));
-   await evaluate('window.confirm=()=>false');await click('.demo-reset');await wait(300);
+   await click('.settings-gear');await wait(400);
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".settings h3"),h=>h.textContent)'),['REMINDERS','VIDEO','YOUR COURSE','HELP','ABOUT','YOUR DATA']);
+   const settingsBox=await evaluate('(()=>{const s=document.querySelector(".settings");return {scrolls:s.scrollHeight>s.clientHeight,overflow:getComputedStyle(s).overflowY}})()');
+   assert.ok(settingsBox.scrolls&&settingsBox.overflow==='auto','Settings scrolls: '+JSON.stringify(settingsBox));
+   if(phone)await shot('settings-mobile.png');
+   const settingRow=text=>'Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes('+JSON.stringify(text)+'))';
+   await evaluate(settingRow('Daily step reminder')+'.click()');
+   assert.equal(await evaluate('localStorage.getItem("mirror21-reminder-daily")'),'false','A toggle remembers its choice');
+   assert.equal(await evaluate(settingRow('Daily step reminder')+'.getAttribute("aria-checked")'),'false');
+   await evaluate('window.confirm=()=>false');await evaluate(settingRow('Start over')+'.click()');await wait(300);
    assert.ok(await evaluate('localStorage.getItem("mirror21-progress")!==null'),'Cancel keeps everything');
+   await click('.settings-close');await wait(400);
+   assert.equal(await evaluate('document.querySelector(".settings")'),null,'The X closes Settings');
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("nav a"),a=>a.textContent.trim())'),['MY PATH','MY MIRROR','MY JOURNEY']);
 
    // My Journey: committed steps in your own words, read-only, then today's step.
@@ -452,6 +477,81 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.ok(entries[0].line.includes('is-gold'),'Gold between graded steps');assert.ok(!entries[1].line.includes('is-gold'),'Grey after');
    if(phone)await shot('my-journey-mobile.png',true);
 
+   // Step 03 · Pick one move: its own Learn (straight into the moves) and Act (MY MOVE, MY ACTION, proof, promise).
+   await go('step-checkin.html?step=3');await click('#next');await ready('step-watch.html');
+   assert.deepEqual(await barLabels(),['CHECK IN:done','WATCH:current','LEARN:','ACT:'],'Watch is current, Check in gold');
+   await command('Page.navigate',{url:base+'/html/step-learn?step=3'});await ready('step03-learn.html');
+   assert.equal(await evaluate('document.querySelector(".title")'),null,'Learn opens straight on the moves');
+   assert.equal(await evaluate('document.querySelectorAll(".chip-row").length'),0,'No LEARN chip');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".move-key"),k=>k.textContent)'),['OPTIONS','IMPACT','START']);
+   assert.equal(await evaluate('document.querySelector(".option.is-picked").textContent'),'Get up at the same time every day, weekends included.');
+   assert.deepEqual(await barLabels(),['CHECK IN:done','WATCH:done','LEARN:current','ACT:']);
+   await noOverflow();
+   if(phone)await shot('step03-learn-mobile.png',true);
+   await evaluate('scrollTo(0,document.documentElement.scrollHeight)');await wait(700);
+   await click('#next');await ready('step03-act.html');
+   const stage3=async()=>(await stored()).steps[3].stage;
+   assert.deepEqual(await barLabels(),['CHECK IN:done','WATCH:done','LEARN:done','ACT:current']);
+   assert.equal(await evaluate('document.querySelector("[data-from=there]").textContent'),'I want to be able to have two evenings a week that are truly mine.','THERE comes from Step 01');
+   assert.equal(await evaluate('document.querySelector("#boxTwo").disabled'),true,'MY ACTION waits for MY MOVE');
+   assert.equal(await evaluate('document.querySelector("#hold").disabled'),true);
+   if(phone)await shot('step03-act-start-mobile.png');
+   await typeInto('#boxOne','saying no to extra evening work');
+   await pressEnter('#boxOne');assert.equal(await stage3(),1);
+   await typeInto('#boxTwo','leave the office at 6pm');
+   assert.equal(await evaluate('document.querySelector(".promise").textContent'),'Today, I will leave the office at 6pm.','The promise is built from MY ACTION');
+   await pressEnter('#boxTwo');assert.equal(await stage3(),2);
+   await click('#proofNotSure');await wait(300);
+   assert.equal(await stage3(),1,'NOT SURE goes back to MY ACTION');assert.equal(await evaluate('document.querySelector("#proofHint").hidden'),false);
+   await click('#twoNext');await wait(300);await click('#proofYes');await wait(400);
+   assert.equal(await stage3(),3);assert.equal(await evaluate('document.querySelector("#hold").disabled'),false);
+   assert.equal(await barValue(),96);
+   await noOverflow();
+   if(phone)await shot('step03-act-ready-mobile.png',true);
+   await holdFor(1250);await wait(300);
+   assert.equal(await stage3(),4);assert.equal(await evaluate('document.querySelector("#lockedText").textContent'),'Your promise is locked. Step 04 starts by asking how it went.');
+   saved=await stored();
+   assert.deepEqual([saved.lessons[3],saved.responses[3].MOVE,saved.responses[3].ACTION,saved.dayChanges[3]],[true,'saying no to extra evening work','leave the office at 6pm','Today, I will leave the office at 6pm.'],'Both answers saved; the promise is MY ACTION');
+   await ready('04-map-start.html');
+   await go('19-my-journey.html');await click('.entry[data-step="3"] .entry-head');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".entry[data-step=\\"3\\"] .entry-answer dt"),d=>d.textContent)'),['MOVE','ACTION','PROOF']);
+
+   // Steps 04–06: check in, then Learn (straight into the moves) and Act (two boxes, the check, the promise).
+   const twoBoxStep=async(n,{from,first,second,promise,keys,notSureBack})=>{
+    const stageN=async()=>(await stored()).steps[n].stage;
+    await go('step-checkin.html?step='+n);await click('.choice[data-choice="yes"]');await wait(300);await click('#next');await ready('step-watch.html');
+    await command('Page.navigate',{url:base+'/html/step-learn?step='+n});await ready('step0'+n+'-learn.html');
+    assert.equal(await evaluate('document.querySelector(".title")'),null,'Step 0'+n+' Learn opens straight on the moves');
+    assert.equal(await evaluate('document.querySelectorAll(".move").length'),3);
+    await noOverflow();
+    if(phone)await shot('step0'+n+'-learn-mobile.png',true);
+    await evaluate('scrollTo(0,document.documentElement.scrollHeight)');await wait(500);
+    await click('#next');await ready('step0'+n+'-act.html');
+    assert.equal(await evaluate('document.querySelector("[data-from]").textContent'),from,'Step 0'+n+' read-only answer');
+    await typeInto('#boxOne',first);await pressEnter('#boxOne');assert.equal(await stageN(),1);
+    await typeInto('#boxTwo',second);await pressEnter('#boxTwo');assert.equal(await stageN(),2);
+    await click('#proofNotSure');await wait(300);
+    assert.equal(await stageN(),notSureBack,'NOT SURE goes back to the box the check is about');
+    assert.equal(await evaluate('document.querySelector("#proofHint").closest(".row").classList.contains("is-active")'),true,'Its hint shows in that row');
+    if(notSureBack===0){await pressEnter('#boxOne');await wait(300);}
+    await click('#twoNext');await wait(300);await click('#proofYes');await wait(400);
+    assert.equal(await stageN(),3);
+    assert.equal(await evaluate('document.querySelector("#promise").textContent'),promise,'Step 0'+n+' promise');
+    await noOverflow();
+    if(phone)await shot('step0'+n+'-act-ready-mobile.png',true);
+    await holdFor(1250);await wait(300);assert.equal(await stageN(),4);
+    const s=await stored();
+    assert.deepEqual([s.responses[n][keys[0]],s.responses[n][keys[1]],s.dayChanges[n]],[first,second,promise],'Step 0'+n+' saves both answers and the promise');
+    await ready('04-map-start.html');
+   };
+   await twoBoxStep(4,{from:'Saying no to extra evening work',first:'I scroll my phone when I get home',second:'leave my phone in the car until 7pm',promise:'Today, I will leave my phone in the car until 7pm.',keys:['WAY','ACTION'],notSureBack:1});
+   await twoBoxStep(5,{from:'I want to be able to have two evenings a week that are truly mine.',first:'I’m about to open my work email after dinner.',second:'close the laptop',promise:'Today, when I’m about to open my work email after dinner, I will pause and close the laptop. If it doesn’t come, I’ll run through it once in my head.',keys:['MOMENT','RESPONSE'],notSureBack:0});
+   await twoBoxStep(6,{from:'I want to be able to have two evenings a week that are truly mine.',first:'my laptop stays on the kitchen table',second:'put my laptop in a drawer when I get home',promise:'Today, I will put my laptop in a drawer when I get home.',keys:['EASY','CHANGE'],notSureBack:1});
+   await go('step-checkin.html?step=6');
+   assert.equal(await evaluate('document.querySelector("#commitText").textContent'),'Today, when I’m about to open my work email after dinner, I will pause and close the laptop. If it doesn’t come, I’ll run through it once in my head.','Step 06’s check-in grades Step 05’s whole promise');
+   await go('19-my-journey.html');await click('.entry[data-step="5"] .entry-head');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".entry[data-step=\\"5\\"] .entry-answer"),r=>r.querySelector("dt").textContent+": "+r.querySelector("dd").textContent)'),['MOMENT: When I’m about to open my work email after dinner.','RESPONSE: I will pause and close the laptop','READY: Yes, I’ll know the moment when it comes.']);
+
    // Long titles shrink to stay on one line: open each step as the current one.
    if(phone){
     const sizes=[];
@@ -464,9 +564,11 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     console.log('phone: long titles '+sizes.join(', '));
    }
 
-   // The gear's reset: clears answers, check-ins and the Welcome video, then opens My Path at Step 01.
-   await go('18-my-mirror.html');await evaluate('localStorage.setItem("mirror21-watched-0","true");window.confirm=()=>true');
-   await click('.demo-reset');await ready('04-map-start.html');
+   // Settings › Start over: clears answers, check-ins and the Welcome video, keeps settings, then opens My Path at Step 01.
+   await go('18-my-mirror.html');await evaluate('localStorage.setItem("mirror21-watched-0","true");localStorage.setItem("mirror21-captions","false");window.confirm=()=>true');
+   await click('.settings-gear');await wait(400);
+   await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Start over")).click()');await ready('04-map-start.html');
+   assert.equal(await evaluate('localStorage.getItem("mirror21-captions")'),'false','Start over keeps settings');
    assert.equal(await evaluate('document.querySelector(".progress-step.current").textContent'),'01');
    assert.equal(await evaluate('Object.keys(JSON.parse(localStorage.getItem("mirror21-progress")).lessons).length'),0);
    assert.equal(await evaluate('localStorage.getItem("mirror21-watched-0")'),null);

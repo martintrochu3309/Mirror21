@@ -38,9 +38,10 @@
           if (/^[A-Z_]{1,24}$/.test(key) && typeof value === 'string') state.responses[day][key] = value.slice(0,2000);
         }
       }
-      if (typeof raw.dayChanges?.[day] === 'string') state.dayChanges[day] = raw.dayChanges[day].slice(0, 240);
+      // Promises up to 600 characters: Step 05's carries two answers and a fixed sentence.
+      if (typeof raw.dayChanges?.[day] === 'string') state.dayChanges[day] = raw.dayChanges[day].slice(0, 600);
     }
-    state.change = typeof raw.change === 'string' ? raw.change.slice(0, 240) : '';
+    state.change = typeof raw.change === 'string' ? raw.change.slice(0, 600) : '';
     return state;
   }
   // The course has no time limit: it runs until all 21 promises are graded.

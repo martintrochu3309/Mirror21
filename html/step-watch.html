@@ -13,13 +13,14 @@
 <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
 <title>Mirror 21 · Step · Watch</title>
 <!-- Built from the Watch screen design handoff, index.html (locked design): Start → Mid → Finish. -->
-<link rel="stylesheet" href="../assets/step/tokens.css?v=20261020-watch">
-<link rel="stylesheet" href="../assets/step/watch.css?v=20261020-watch">
-<!-- Opened from the map's step card: start on black, before the first paint (step.js runs the sequence). -->
-<script>try { if (sessionStorage.getItem('mirror21-intro') !== null) document.documentElement.classList.add('intro'); } catch {}</script>
-<script src="../assets/progress.js?v=20261020-watch" defer></script>
-<script src="../assets/steps.js?v=20261020-watch" defer></script>
-<script src="../assets/step/step.js?v=20261020-watch" defer></script>
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/watch.css?v=20261021-signin">
+<!-- Opened from the map's step card: start on black; from the check-in: start on white, with Safari's
+     bar white too. Set before the first paint (step.js runs the sequence). -->
+<script>try { const note = sessionStorage.getItem('mirror21-intro'); if (note !== null) document.documentElement.classList.add('intro'); if (note && note.startsWith('light:')) { document.documentElement.classList.add('intro-light'); document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff'); } } catch {}</script>
+<script src="../assets/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/step/step.js?v=20261021-signin" defer></script>
 </head>
 <body data-screen="watch">
 <main class="watch" id="watch" data-state="start">

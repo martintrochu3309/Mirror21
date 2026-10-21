@@ -19,3 +19,6 @@
 /* Kevin's one-line reply, then the optional box (PARTLY / NOT YET only) */
 .reply { margin: 22px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 22px; line-height: 1.18; letter-spacing: -0.02em; }
 .why { min-height: 76px; }
+
+/* Into Watch: the page fades to its white (0.2s), then Watch brings Kevin in from that white. */
+.screen.is-leaving { opacity: 0; transition: opacity 200ms ease-out; }

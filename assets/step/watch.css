@@ -40,9 +40,14 @@ body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antia
 .close { position: absolute; left: calc(var(--m) - 10px); top: calc(var(--st) + 8px); width: 44px; height: 44px; display: grid; place-items: center; z-index: 5; }
 .close svg { width: 18px; height: 18px; }
 .steps { position: absolute; left: calc(var(--m) + 40px); right: calc(var(--m) - 8px); top: calc(var(--st) + 28px); display: flex; gap: 6px; transition: opacity .5s; }
-.steps span { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
+.steps .bar-part { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.steps span { height: 4px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
 .steps i { display: block; height: 100%; width: var(--fill, 0%); background: var(--gold); transition: width .6s ease; }
 .steps.is-instant i { transition: none; }
+/* Labels under the bar: gold once done, white on this screen, faint still to come. */
+.bar-label { font-size: 9px; line-height: 1; font-weight: 700; letter-spacing: .16em; white-space: nowrap; color: rgba(255,255,255,.5); transition: color .4s; }
+.bar-label.is-done { color: var(--gold); }
+.bar-label.is-current { color: #fff; }
 
 /* Meta + single-line title (long titles shrink to fit, set by step.js) */
 .heading { position: absolute; left: var(--m); right: var(--m); top: calc(var(--st) + 60px); transition: opacity .5s; }
@@ -100,5 +105,14 @@ body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antia
 .intro:not(.show-text) .watch :is(.close, .steps, .heading),
 .intro:not(.show-image) .watch .still,
 .intro:not(.show-controls) .watch :is(.play, .hint, .end) { opacity: 0; }
+
+/* Arriving from the check-in (.intro-light): on the check-in's white, Kevin fades in with a slight
+   zoom (0.5s), then the shadows, X, step bar, title and controls together (0.2s). The ground turns
+   black under him once he is in, so the white text never shows on white. */
+.intro-light:not(.show-text), .intro-light:not(.show-text) body { background: #fff; }
+.intro.intro-light .watch .still { transition: opacity .5s ease-out, transform .5s ease-out, filter .5s; }
+.intro.intro-light:not(.show-image) .watch .still { transform: scale(1.03); }
+.intro.intro-light .watch .fade { transition: opacity .2s ease; }
+.intro.intro-light:not(.show-text) .watch .fade { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) { .watch, .watch * { transition: none !important; } }

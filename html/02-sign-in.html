@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Sign in</title>
+<!-- Preview only: between the Offer and My Path. Nothing is checked, saved or sent; SIGN IN always opens My Path. -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<style>
+html, body { margin: 0; background: var(--bg); }
+body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+.signin { display: flex; flex-direction: column; max-width: var(--column); min-height: 100vh; min-height: 100svh; margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)); }
+.wordmark { display: flex; align-items: center; height: 44px; margin: 0; font: italic 700 22px/1 var(--font-display); letter-spacing: .06em; white-space: nowrap; }
+.wordmark span { margin-left: .3em; color: var(--gold); }
+h1 { margin: 26px 0 0; font: italic 700 34px/1 var(--font-display); letter-spacing: -.035em; }
+.lede { margin: 12px 0 0; font-size: 17px; font-weight: 300; line-height: 1.4; color: var(--muted); }
+/* Email / Phone */
+.switch { display: flex; margin-top: 30px; padding: 4px; border-radius: 26px; background: #f2f2ef; }
+.switch button { flex: 1; height: 42px; border: 0; border-radius: 21px; background: none; color: #8a8a86; font: 700 11px/1 var(--font-body); letter-spacing: .2em; cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--gold-gradient); color: var(--on-gold); }
+.field { margin-top: 26px; }
+.field + .field { margin-top: 22px; }
+label, .label { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 700; letter-spacing: .2em; color: #4a4a48; }
+input { width: 100%; height: 58px; padding: 0 18px; border: 1px solid #ebebe7; border-radius: var(--radius-box); background: #f5f5f2;
+  color: var(--ink); font: 500 17px/1 var(--font-body); outline: none; -webkit-appearance: none; appearance: none; }
+input::placeholder { color: #a3a3a0; }
+input:focus { border-color: var(--gold); background: #fffdf6; box-shadow: 0 0 0 3px rgba(224, 184, 76, .16); }
+.phone { display: flex; gap: 10px; }
+.country { flex: none; display: flex; align-items: center; gap: 6px; height: 58px; padding: 0 18px; border: 1px solid #ebebe7; border-radius: var(--radius-box); background: #f5f5f2; font-size: 17px; font-weight: 500; }
+.note { display: flex; gap: 12px; margin: 22px 0 0; font-size: 14px; font-weight: 300; line-height: 1.45; color: var(--muted); }
+.note svg { flex: none; margin-top: 1px; }
+[hidden] { display: none !important; }
+.foot { margin-top: auto; padding-top: 32px; }
+.go { width: 100%; height: 58px; border: 0; border-radius: 29px; background: var(--gold-gradient); color: var(--on-gold); font: 700 12px/1 var(--font-body); letter-spacing: .24em; cursor: pointer; }
+.go:active { transform: translateY(1px); }
+.terms { margin: 14px 0 0; font-size: 11.5px; font-weight: 300; text-align: center; color: #8a8a86; }
+.terms span { color: var(--muted); }
+:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 3px; }
+input:focus-visible { outline: none; }
+</style>
+</head>
+<body>
+<form class="signin" id="signin" novalidate>
+  <!-- Sign in is the first page while the Offer is hidden: the wordmark takes the back arrow's place. -->
+  <p class="wordmark">MIRROR <span>21</span></p>
+
+  <h1>SIGN IN.</h1>
+  <p class="lede">So your steps and journal are saved, on any phone.</p>
+
+  <div class="switch" role="group" aria-label="Sign in with">
+    <button type="button" data-mode="email" aria-pressed="false">EMAIL</button>
+    <button type="button" data-mode="phone" aria-pressed="true">PHONE</button>
+  </div>
+
+  <div class="field">
+    <label for="name">FIRST NAME</label>
+    <input id="name" type="text" autocomplete="given-name" autocapitalize="words" placeholder="Your first name">
+  </div>
+
+  <div class="field" data-for="phone">
+    <span class="label" id="phoneLabel">MOBILE NUMBER</span>
+    <div class="phone">
+      <span class="country" aria-label="United States, +1"><span aria-hidden="true">🇺🇸</span> +1</span>
+      <input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(941) 555 0123" aria-labelledby="phoneLabel">
+    </div>
+  </div>
+
+  <div class="field" data-for="email" hidden>
+    <label for="email">EMAIL</label>
+    <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="you@example.com">
+  </div>
+
+  <p class="note">
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#f6efdc"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#896a00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span id="noteText">No password. We’ll text you a 6-digit code each time you sign in.</span>
+  </p>
+
+  <div class="foot">
+    <button class="go" type="submit">SIGN IN</button>
+    <p class="terms">By continuing you agree to the <span>Terms</span> and <span>Privacy policy</span>.</p>
+  </div>
+</form>
+<script>
+(() => {
+  // Email / Phone swaps the second field and the note's wording.
+  const notes = { phone: 'No password. We’ll text you a 6-digit code each time you sign in.', email: 'No password. We’ll email you a 6-digit code each time you sign in.' };
+  document.querySelectorAll('.switch button').forEach(button => button.addEventListener('click', () => {
+    const mode = button.dataset.mode;
+    document.querySelectorAll('.switch button').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+    document.querySelectorAll('[data-for]').forEach(field => { field.hidden = field.dataset.for !== mode; });
+    document.getElementById('noteText').textContent = notes[mode];
+  }));
+  // Preview: any input, even none, signs in.
+  document.getElementById('signin').addEventListener('submit', event => { event.preventDefault(); location.href = '04-map-start.html'; });
+  document.documentElement.dataset.mirrorReady = 'true';
+})();
+</script>
+</body>
+</html>

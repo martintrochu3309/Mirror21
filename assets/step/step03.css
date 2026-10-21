@@ -1,0 +1,29 @@
+/* Mirror 21 · Steps 03 onwards — additions on top of tokens.css, step.css and step02.css. */
+
+/* Learn opens straight on the moves, without a title */
+h1.step-label { margin-bottom: 0; }
+.step-label + .moves { margin-top: 26px; }
+
+/* Example OPTIONS: three choices in one box, the one with the biggest difference picked */
+.options { list-style: none; margin: 10px 0 0; padding: 0; border: 1px solid var(--rule); border-radius: var(--radius-box); overflow: hidden; }
+.option { display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; font-size: 15px; line-height: 1.4; font-weight: 300; color: var(--muted); }
+.option + .option { border-top: 1px solid var(--rule); }
+.option-mark { flex: none; width: 18px; height: 18px; margin-top: 1px; border-radius: 9px; border: 1.5px solid var(--locked-border); display: flex; align-items: center; justify-content: center; }
+.option.is-picked { background: var(--gold-tint); color: var(--ink); font-weight: 500; }
+.option.is-picked .option-mark { border: none; background: var(--gold); color: var(--on-gold); }
+/* Step 04's sort: each row named (CONTROL / INFLUENCE / OUT OF MY HANDS); what's out of your hands is parked, greyed */
+.option-key { display: block; margin-bottom: 3px; font-size: var(--eyebrow-size); font-weight: 700; letter-spacing: 0.23em; color: var(--muted); }
+.option.is-picked .option-key { color: var(--gold-text); }
+.option.is-parked { color: #a3a39f; }
+.option.is-parked .option-key { color: #a3a39f; }
+/* A short list of example lines (Step 04's IN THE WAY) */
+.ex-list { list-style: none; margin: 10px 0 0; padding: 0; }
+.ex-list li + li { margin-top: 4px; }
+.ex-block > .ex-text { margin-top: 10px; }
+.ex-impact { margin: 10px 0 0; font-size: 16px; line-height: 1.5; font-weight: 300; color: var(--muted); }
+.ex-impact b { font-weight: 500; color: var(--ink); }
+
+/* Act: the promise row's node is a lock, gold once committed */
+.node--lock { color: var(--muted); }
+.row.is-active .node--lock, .row.is-done .node--lock { color: var(--on-gold); }
+.row.is-active .node--lock { background: var(--gold-tint); }

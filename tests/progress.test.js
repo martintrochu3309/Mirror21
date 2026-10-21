@@ -90,10 +90,10 @@ test('handoff example is 79 percent with seven check-ins', () => {
 });
 
 test('restoring stored progress rejects invalid answers and keeps the start time', () => {
-  const state = model.normalize({ version: 1, startedAt: now - DAY, answers: { 1: 'invalid', 2: 'no', 3: 'notyet', 22: 'yes' }, lessons: { 1: true, 2: 'bad' }, change: 'x'.repeat(300) }, now);
+  const state = model.normalize({ version: 1, startedAt: now - DAY, answers: { 1: 'invalid', 2: 'no', 3: 'notyet', 22: 'yes' }, lessons: { 1: true, 2: 'bad' }, change: 'x'.repeat(700) }, now);
   assert.deepEqual(state.answers, { 2: 'no', 3: 'no' }, 'Saved NOT YET answers become NO');
   assert.deepEqual(state.lessons, { 1: true });
-  assert.equal(state.change.length, 240);
+  assert.equal(state.change.length, 600);
   assert.equal(state.startedAt, now - DAY);
 });
 

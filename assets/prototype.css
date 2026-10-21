@@ -211,9 +211,60 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .day-mark.yes { background: linear-gradient(#f2cf6c,#e0b84c); color: #101010; box-shadow: 0 4px #b8922f; }
 .day-mark.partly { background: linear-gradient(90deg,#e0b84c 50%,#ffffff 50%); color: #101010; box-shadow: inset 0 0 0 2px #e0b84c, 0 4px #cdb46a; }
 .day-mark.no { background: #ffffff; color: #896a00; box-shadow: inset 0 0 0 2px #e0b84c, 0 4px #e3cf8f; }
-/* Demo only: small reset gear at the top right of My Path, My Mirror and My Journey. */
-.demo-reset { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 14px; z-index: 30; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid rgba(0,0,0,.06); border-radius: 50%; background: rgba(255,255,255,.85); color: #8a8a86; cursor: pointer; }
-.demo-reset:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
+/* Small settings gear at the top right of My Path, My Mirror and My Journey. */
+.settings-gear { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 14px; z-index: 30; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid rgba(0,0,0,.06); border-radius: 50%; background: rgba(255,255,255,.85); color: #8a8a86; cursor: pointer; }
+.settings-gear:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
+
+/* Settings: a white sheet over the page that rises in (0.3s) and scrolls on its own. */
+.settings { position: absolute; inset: 0; z-index: 40; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; padding: max(16px, env(safe-area-inset-top)) 22px calc(48px + env(safe-area-inset-bottom)); background: #ffffff; color: #111111; font: 500 15px/1.35 'Neue Haas Display', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; animation: settings-in .3s cubic-bezier(.2,.8,.2,1); }
+.settings { scrollbar-width: none; }
+.settings::-webkit-scrollbar { display: none; }
+.settings.is-closing { animation: settings-out .2s ease-in forwards; }
+@keyframes settings-in { from { opacity: 0; transform: translateY(28px); } }
+@keyframes settings-out { to { opacity: 0; transform: translateY(28px); } }
+.settings-close { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 -2px 0 auto; padding: 0; border: 1px solid #e4e4e0; border-radius: 50%; background: #ffffff; color: #111111; cursor: pointer; }
+.settings h2 { margin: 10px 0 0; font: italic 700 34px/1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: -.03em; }
+.settings h3 { margin: 26px 0 10px; font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .23em; color: #896a00; }
+.settings h2 + h3 { margin-top: 22px; }
+.settings-group { margin: 0; padding: 0; list-style: none; border-radius: 20px; background: #f5f5f2; overflow: hidden; }
+.settings-group li + li { border-top: 1px solid #e8e8e4; }
+.settings-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; margin: 0; padding: 12px 18px; box-sizing: border-box; border: 0; background: none; color: inherit; font: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
+.settings-row.is-tinted { background: #f8f0cf; }
+button.settings-row, label.settings-row { cursor: pointer; }
+button.settings-row:active, label.settings-row:active { background: #ececE8; }
+.settings-row:focus-visible, label.settings-row:has(.settings-time:focus-visible) { outline: 2px solid #896a00; outline-offset: -2px; }
+.settings-close:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
+.settings-text { flex: 1; min-width: 0; }
+.settings-title { display: block; font-size: 15px; font-weight: 500; }
+.settings-sub { display: block; margin-top: 3px; font-size: 12.5px; font-weight: 300; color: #8a8a86; }
+.settings-chev { flex: none; color: #b5b5b0; }
+.settings-value { font-weight: 300; color: #646461; }
+.settings-group:last-of-type .settings-title { color: #646461; }
+/* The phone's time picker opens from anywhere on the row. */
+.settings-time { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+.settings-switch { flex: none; position: relative; width: 46px; height: 28px; border-radius: 14px; background: #dededb; transition: background .2s ease; }
+.settings-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s ease; }
+[aria-checked="true"] > .settings-switch { background: linear-gradient(110deg, #d8ad3e, #ffef9a 53%, #d8ad3e); }
+[aria-checked="true"] > .settings-switch::after { transform: translateX(18px); }
+@media (prefers-reduced-motion: reduce) { .settings, .settings.is-closing { animation: none; } .settings-switch, .settings-switch::after { transition: none; } }
+
+/* Save my journal as PDF: only the journal prints; the app stays on screen. */
+.journal-print { display: none; }
+@media print {
+  @page { margin: 18mm 16mm; }
+  body { background: #ffffff !important; }
+  body > :not(.journal-print) { display: none !important; }
+  .journal-print { display: block; color: #111111; font: 300 11.5pt/1.5 'Neue Haas Display', Arial, Helvetica, sans-serif; }
+  .journal-print h1 { margin: 4pt 0 2pt; font: italic 700 28pt/1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: -.02em; }
+  .journal-print h2 { margin: 3pt 0 8pt; font: italic 700 15pt/1.15 'Magistral', Arial, Helvetica, sans-serif; text-transform: uppercase; letter-spacing: -.01em; }
+  .journal-print-brand, .journal-print-meta, .journal-print-label, .journal-print dt { margin: 0; font-weight: 700; font-size: 7.5pt; letter-spacing: .2em; color: #896a00; }
+  .journal-print-date { margin: 0 0 18pt; color: #646461; }
+  .journal-print section { padding: 14pt 0; border-top: 1px solid #dededb; break-inside: avoid; }
+  .journal-print dl { margin: 0 0 8pt; }
+  .journal-print dd { margin: 1pt 0 6pt; }
+  .journal-print-promise { margin: 1pt 0 0; font-style: italic; font-weight: 500; }
+  .journal-print-result { margin: 6pt 0 0; color: #646461; }
+}
 /* Welcome tile keeps its gold number on hover (the page's a:hover rule would turn it black). */
 .welcome-step:hover { color: #e0b84c; }
 /* START sits on 00 until Welcome is done: give the row room for the bubble. */

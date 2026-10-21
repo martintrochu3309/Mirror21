@@ -7,7 +7,8 @@
   const write = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
   const map = '04-map-start.html';
   const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // One-time note from the map's step card: Watch plays its arrival sequence. Used up on any step page.
+  // One-time note from the map's step card (the step number) or the check-in ('light:' + step): Watch
+  // plays its arrival sequence, from black or from white. Used up on any step page.
   let arrival = null;
   try { arrival = sessionStorage.getItem('mirror21-intro'); sessionStorage.removeItem('mirror21-intro'); } catch {}
 
@@ -44,11 +45,27 @@
   document.title = 'Mirror 21 · Step ' + pad(step) + ' · ' + { checkin: 'Check in', watch: 'Watch', learn: 'Learn', act: 'Act' }[screenName];
 
   // Step bar: Watch · Learn · Act, with Check in first from Step 02. Each part fills gold as it is done.
+  // Labels under it: gold once that part is done, black (white on Watch) for this screen, grey to come.
   const bar = document.getElementById('stepBar');
   const barKey = 'mirror21-bar-' + step;
-  const parts = step >= 2 ? 4 : 3;
-  const fills = Array.from({ length: parts }, () => bar.appendChild(document.createElement('span')).appendChild(document.createElement('i')));
-  function draw(values) { values.forEach((value, i) => fills[i].style.setProperty('--fill', value * 100 + '%')); }
+  const names = step >= 2 ? ['checkin', 'watch', 'learn', 'act'] : ['watch', 'learn', 'act'];
+  const parts = names.map(name => {
+    const part = bar.appendChild(document.createElement('div'));
+    part.className = 'bar-part';
+    const fill = part.appendChild(document.createElement('span')).appendChild(document.createElement('i'));
+    const label = part.appendChild(document.createElement('b'));
+    label.className = 'bar-label';
+    label.textContent = name === 'checkin' ? 'CHECK IN' : name.toUpperCase();
+    return { fill, label, current: name === screenName };
+  });
+  function draw(values) {
+    values.forEach((value, i) => {
+      const { fill, label, current } = parts[i];
+      fill.style.setProperty('--fill', value * 100 + '%');
+      label.classList.toggle('is-done', value === 1);
+      label.classList.toggle('is-current', current && value < 1);
+    });
+  }
   function paint(values) {
     const pct = Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 100);
     bar.setAttribute('aria-valuenow', String(pct));
@@ -82,7 +99,7 @@
   if (screenName === 'checkin') checkinScreen();
   if (screenName === 'watch') watchScreen();
   if (screenName === 'learn') learnScreen();
-  if (screenName === 'act') (steps.lesson(step) === 2 ? act02Screen : actScreen)();
+  if (screenName === 'act') (steps.lesson(step) === 2 ? act02Screen : steps.lesson(step) >= 3 ? twoBoxActScreen : actScreen)();
 
   fitTitles();
   document.fonts.ready.then(fitTitles);
@@ -225,12 +242,16 @@
     arrive();
 
     // From the map: on black, the title (0.2s), then Kevin once his image has loaded (0.6s), then the
-    // controls (0.2s). With reduce motion, one 0.3s fade. Only when the map's card opened this screen.
+    // controls (0.2s). From the check-in: on white, Kevin first (0.5s), then the title and controls
+    // together (0.2s); Safari's bar turns black once he covers the white. With reduce motion, one 0.3s
+    // fade. Only when the map's card or the check-in opened this screen.
     function arrive() {
       const root = document.documentElement;
-      if (arrival !== String(step)) { root.classList.remove('intro'); return; }
+      const light = arrival === 'light:' + step;
+      const tint = color => document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+      if (!light && arrival !== String(step)) { root.classList.remove('intro', 'intro-light'); tint('#000000'); return; }
       arriving = true;
-      const done = () => { arriving = false; root.classList.remove('intro', 'show-text', 'show-image', 'show-controls'); };
+      const done = () => { arriving = false; tint('#000000'); root.classList.remove('intro', 'intro-light', 'show-text', 'show-image', 'show-controls'); };
       if (reduceMotion()) {
         root.classList.remove('intro');
         screen.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'ease-out' }).finished.then(done, done);
@@ -239,6 +260,16 @@
       const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
       root.classList.add('intro');
       requestAnimationFrame(() => requestAnimationFrame(async () => {
+        if (light) {
+          await still.decode().catch(() => {});
+          root.classList.add('show-image');
+          await pause(500);
+          tint('#000000');
+          root.classList.add('show-text', 'show-controls');
+          await pause(200);
+          done();
+          return;
+        }
         root.classList.add('show-text');
         await Promise.all([pause(200), still.decode().catch(() => {})]);
         root.classList.add('show-image');
@@ -292,13 +323,23 @@
       if (!state.answers[previous] || committed) return;
       record.checkedIn = true; record.screen = 'watch'; save();
     });
+    // White to dark: the check-in fades to white, and the note tells Watch to arrive from that white.
+    let leaving = false;
+    next.addEventListener('click', event => {
+      if (leaving) { event.preventDefault(); return; }
+      leaving = true;
+      try { sessionStorage.setItem('mirror21-intro', 'light:' + step); } catch {}
+      if (reduceMotion()) return;
+      event.preventDefault(); document.querySelector('.screen').classList.add('is-leaving');
+      setTimeout(() => { location.href = next.href; }, 200);
+    });
     render();
   }
 
   function learnScreen() {
     document.getElementById('next').href = href('act');
     // Step 02: your own THERE from the step before, read-only.
-    if (steps.lesson(step) === 2) showPreviousThere();
+    if (steps.lesson(step) === 2) showEarlier();
     if (committed) return;
     // The Learn third fills as the reader scrolls towards YOUR TURN.
     let queued = false;
@@ -312,18 +353,29 @@
     measure();
   }
 
-  // Answers brought forward from the step before are shown read-only, marked "FROM STEP NN".
-  function showPreviousThere() {
-    const there = (state.responses[step - 1]?.THERE || '').trim();
-    document.querySelectorAll('[data-from="there"]').forEach(el => { el.textContent = there; });
-    document.querySelectorAll('[data-from-step]').forEach(el => { el.textContent = 'FROM STEP ' + pad(step - 1); });
+  // Answers brought forward from an earlier step (the step before unless given) are shown read-only,
+  // marked "FROM STEP NN": data-from names the answer (there, move…), in the user's own words.
+  function showEarlier(from = step - 1) {
+    document.querySelectorAll('[data-from]').forEach(el => {
+      const words = (state.responses[from]?.[el.dataset.from.toUpperCase()] || '').trim();
+      el.textContent = words.charAt(0).toUpperCase() + words.slice(1);
+    });
+    document.querySelectorAll('[data-from-step]').forEach(el => { el.textContent = 'FROM STEP ' + pad(from); });
   }
 
   // Answer boxes open with a fixed sentence starter in grey, set in front of the box: the user only
   // finishes the sentence. The first line of typing starts right after it.
+  // A long starter ("The move that matters most is") leaves no room for a word after it, and the box
+  // would split that word: then the answer starts on the line below the starter instead.
   function fitStarter(box) {
     const starter = box.parentElement.querySelector('.starter');
-    const indent = () => { box.style.textIndent = starter.offsetWidth + 'px'; };
+    const indent = () => {
+      const style = getComputedStyle(box);
+      const room = box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - starter.offsetWidth;
+      const ownLine = room < 80;
+      box.style.textIndent = ownLine ? '0px' : starter.offsetWidth + 'px';
+      box.style.paddingTop = ownLine ? 14 + parseFloat(style.lineHeight) + 'px' : '';
+    };
     indent();
     document.fonts.ready.then(indent);
   }
@@ -351,10 +403,10 @@
   }
 
   // Lock the promise for good, word for word as the next check-in will show it, then return to the map.
-  function commitPromise(words) {
+  function commitPromise(promise) {
     state.lessons[step] = true;
     record.committedAt = new Date().toISOString();
-    state.dayChanges[step] = promiseFor(words).slice(0, 240);
+    state.dayChanges[step] = promise.slice(0, 600);
     state.change = state.dayChanges[step];
   }
   function returnToMap() { setTimeout(() => { location.href = map; }, 1500); }
@@ -432,7 +484,7 @@
       record.stage = stage;
       Object.assign(record, extra || {});
       document.getElementById('notYetNote').hidden = true;
-      if (stage === 6) commitPromise(written('step'));
+      if (stage === 6) commitPromise(promiseFor(written('step')));
       save(); refreshBar(); render(true);
       if (stage === 6) returnToMap();
     }
@@ -477,7 +529,7 @@
     const $ = id => document.getElementById(id);
     const box = $('action'), rowAction = $('rowAction'), rowPromise = $('rowPromise'), hold = $('hold');
     const action = () => (answers.ACTION || '').trim();
-    showPreviousThere();
+    showEarlier();
     $('lockedText').textContent = 'Your promise is locked. Step ' + pad(step + 1) + ' starts by asking how it went.';
     if (committed) record.stage = 3;
     if (!committed) { record.act = PROGRESS[record.stage] ?? PROGRESS[0]; save(); }
@@ -511,7 +563,7 @@
       record.stage = stage;
       record.act = PROGRESS[stage];
       Object.assign(record, extra || {});
-      if (stage === 3) commitPromise(action());
+      if (stage === 3) commitPromise(promiseFor(action()));
       save(); refreshBar(); render(true);
       if (stage === 3) returnToMap();
     }
@@ -530,6 +582,103 @@
     // Tapping "Yes, I could prove it." redoes the proof check before committing.
     $('proved').addEventListener('click', () => { if (record.stage === 2) go(1); });
     holdToCommit(hold, $('holdFill'), () => go(3));
+    render(false);
+  }
+
+  // Steps 03–06 · One answer read-only from an earlier step, two boxes, a YES / NOT SURE check, then MY PROMISE.
+  // Stages: 0 first box · 1 second box · 2 check · 3 promise · 4 committed. Each box saves the user's typed words
+  // under its data-answer key. Per lesson: the step the read-only answer comes from, the box NOT SURE sends you
+  // back to (its hint sits in that row), and the promise, built from the boxes (numbers are box indexes).
+  function twoBoxActScreen() {
+    const lessonSetup = {
+      3: { from: 1, back: 1, promise: ['Today, I will ', 1, '.'] },
+      4: { from: 3, back: 1, promise: ['Today, I will ', 1, '.'] },
+      5: { from: 1, back: 0, promise: ['Today, when ', 0, ', I will pause and ', 1, '. If it doesn’t come, I’ll run through it once in my head.'] },
+      6: { from: 1, back: 1, promise: ['Today, I will ', 1, '.'] }
+    }[steps.lesson(step)];
+    const PROGRESS = [0.1, 0.35, 0.6, 0.85, 1];
+    const answers = state.responses[step] ||= {};
+    const isCommitted = () => Boolean(state.lessons[step]);
+    const $ = id => document.getElementById(id);
+    const boxes = [$('boxOne'), $('boxTwo')];
+    const keys = boxes.map(box => box.dataset.answer);
+    const rows = [$('rowOne'), $('rowTwo')], rowPromise = $('rowPromise'), hold = $('hold');
+    const written = i => (answers[keys[i]] || '').trim();
+    // The user's words inside the promise, without a closing full stop (the sentence carries its own).
+    const inPromise = i => written(i).replace(/[\s.,;:!?]+$/, '');
+    const promiseText = () => lessonSetup.promise.map(part => typeof part === 'number' ? inPromise(part) : part).join('');
+    showEarlier(lessonSetup.from);
+    $('lockedText').textContent = 'Your promise is locked. Step ' + pad(step + 1) + ' starts by asking how it went.';
+    if (committed) record.stage = 4;
+    if (!committed) { record.act = PROGRESS[record.stage] ?? PROGRESS[0]; save(); }
+    boxes.forEach(fitStarter);
+
+    function mark(row, active, done) {
+      row.classList.toggle('is-active', active); row.classList.toggle('is-done', done);
+      row.classList.toggle('is-locked', !active && !done);
+      row.setAttribute('aria-disabled', !active && !done ? 'true' : 'false');
+    }
+    // MY PROMISE forms live: the user's words in place, "…" in grey until written.
+    function renderPromise() {
+      $('promise').replaceChildren(...lessonSetup.promise.map(part => {
+        if (typeof part !== 'number') return document.createTextNode(part);
+        const words = document.createElement('span');
+        words.className = 'promise-rest' + (inPromise(part) ? '' : ' is-empty');
+        words.textContent = inPromise(part) || '…';
+        return words;
+      }));
+    }
+    function render(scroll) {
+      const s = record.stage;
+      boxes.forEach((box, i) => {
+        if (box.value !== (answers[keys[i]] || '')) box.value = answers[keys[i]] || '';
+        box.readOnly = isCommitted();
+      });
+      boxes[1].disabled = s < 1;
+      mark(rows[0], s === 0, s >= 1);
+      mark(rows[1], s === 1 || s === 2, s >= 3);
+      mark(rowPromise, s === 3, s === 4);
+      $('oneNextRow').hidden = s !== 0;
+      $('oneNext').disabled = !written(0);
+      $('twoNextRow').hidden = s !== 1;
+      $('twoNext').disabled = !written(1);
+      $('proofQ').hidden = s !== 2;
+      $('proofYes').disabled = $('proofNotSure').disabled = s !== 2;
+      $('proved').hidden = s < 3;
+      $('proved').disabled = s === 4;
+      $('proofHint').hidden = !(record.notSure && s === lessonSetup.back);
+      renderPromise();
+      hold.disabled = s !== 3 || !written(0) || !written(1);
+      $('commitBlock').hidden = s === 4;
+      $('lockedBlock').hidden = s !== 4;
+      if (scroll) scrollToRow(s >= 3 ? rowPromise : rows[Math.min(s, 1)], s <= 1);
+    }
+
+    function go(stage, extra) {
+      if (isCommitted()) return;
+      record.stage = stage;
+      record.act = PROGRESS[stage];
+      Object.assign(record, extra || {});
+      if (stage === 4) commitPromise(promiseText());
+      save(); refreshBar(); render(true);
+      if (stage === 4) returnToMap();
+    }
+
+    // Typing autosaves; Return (or the arrow) moves on.
+    const advance = [() => { if (written(0) && record.stage === 0) go(1); },
+      () => { if (written(1) && record.stage === 1) go(2, { notSure: false }); }];
+    boxes.forEach((box, i) => {
+      box.addEventListener('input', () => { if (isCommitted()) return; answers[keys[i]] = box.value; save(); render(false); });
+      box.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); advance[i](); } });
+    });
+    $('oneNext').addEventListener('click', advance[0]);
+    $('twoNext').addEventListener('click', advance[1]);
+    $('proofYes').addEventListener('click', () => go(3));
+    // NOT SURE goes back to the box the check is about, with its hint.
+    $('proofNotSure').addEventListener('click', () => { go(lessonSetup.back, { notSure: true }); boxes[lessonSetup.back].focus(); });
+    // Tapping the check's answer redoes the check before committing.
+    $('proved').addEventListener('click', () => { if (record.stage === 3) go(2); });
+    holdToCommit(hold, $('holdFill'), () => go(4));
     render(false);
   }
 })();

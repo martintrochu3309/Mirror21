@@ -7,8 +7,8 @@
   }
   const filename = pageFilename(location.pathname);
   const maps = ['04-map-start.html'];
-  const stepPages = ['step-checkin.html','step-watch.html','step-learn.html','step-act.html','step02-learn.html','step02-act.html'];
-  const pages = new Set(['01-offer.html','18-my-mirror.html','19-my-journey.html', ...maps, ...stepPages]);
+  const stepPages = ['step-checkin.html','step-watch.html','step-learn.html','step-act.html','step02-learn.html','step02-act.html','step03-learn.html','step03-act.html','step04-learn.html','step04-act.html','step05-learn.html','step05-act.html','step06-learn.html','step06-act.html'];
+  const pages = new Set(['01-offer.html','02-sign-in.html','18-my-mirror.html','19-my-journey.html', ...maps, ...stepPages]);
   // Restore known internal links before attaching handlers that match exported hrefs.
   document.querySelectorAll('a[href]').forEach(link => {
     const href = link.getAttribute('href');
@@ -288,45 +288,152 @@
     week.children[0].textContent='WEEK '+stats.week;week.children[1].textContent=weekThemes[stats.week-1];
     week.setAttribute('aria-label','Week '+stats.week+', '+weekThemes[stats.week-1].toLowerCase());
   }
-  // Demo only: a small gear at the top right resets this device's steps.
-  function addResetGear() {
-    const gear=document.createElement('button');gear.type='button';gear.className='demo-reset';gear.setAttribute('aria-label','Reset all steps (demo)');
+  // The small gear at the top right opens Settings.
+  function addSettingsGear() {
+    const gear=document.createElement('button');gear.type='button';gear.className='settings-gear';gear.setAttribute('aria-label','Settings');gear.setAttribute('aria-haspopup','dialog');
     gear.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>';
-    gear.addEventListener('click',()=> {
-      if(!confirm('Reset all steps? This clears your answers on this device.'))return;
-      const matches=key=>key==='mirror21-progress'||/^mirror21-(audio|bar|watched|seen)-\d+$/.test(key)||/^mirror21-scroll-\d+-\d+$/.test(key);
-      for(const storage of [localStorage,sessionStorage]) {
-        try { Array.from({length:storage.length},(_,i)=>storage.key(i)).filter(matches).forEach(key=>storage.removeItem(key)); } catch {}
-      }
-      location.href=currentMap;
-    });
+    gear.addEventListener('click',()=>openSettings(gear));
     document.querySelector('.app-frame').append(gear);
   }
+  const forget=matches=>{
+    for(const storage of [localStorage,sessionStorage]) {
+      try { Array.from({length:storage.length},(_,i)=>storage.key(i)).filter(matches).forEach(key=>storage.removeItem(key)); } catch {}
+    }
+  };
+  // Start over clears the course (steps, journal, bar and video positions) and keeps the settings;
+  // Delete my data clears everything Mirror 21 saved in this browser. Both open My Path at Step 01.
+  function startOver() {
+    if(!confirm('Start over? This clears your steps and journal on this phone.'))return;
+    forget(key=>key==='mirror21-progress'||/^mirror21-(audio|bar|watched|seen)-\d+$/.test(key)||/^mirror21-scroll-\d+-\d+$/.test(key));
+    location.href=currentMap;
+  }
+  function deleteData() {
+    if(!confirm('Delete your data? This removes your steps, journal and settings from this phone.'))return;
+    forget(key=>key.startsWith('mirror21-'));
+    location.href=currentMap;
+  }
+  // Settings: a scrolling sheet over the page. Toggles and the reminder time only remember the choice
+  // for now (nothing is sent yet); rows without an action are placeholders for parts still to build.
+  function openSettings(gear) {
+    if(document.querySelector('.settings'))return;
+    const installed=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+    const sections=[
+      ['REMINDERS',[
+        !installed&&{title:'Add Mirror 21 to your home screen',sub:'Needed on iPhone for reminders to work',tinted:true},
+        {title:'Daily step reminder',sub:'When your next step unlocks',flag:['mirror21-reminder-daily',true]},
+        {title:'Reminder time',time:true},
+        {title:'Evening check-in nudge',sub:'A reminder to keep today’s promise',flag:['mirror21-reminder-evening',false]}
+      ]],
+      ['VIDEO',[{title:'Captions',sub:'Show Kevin’s words on screen',flag:['mirror21-captions',true]}]],
+      ['YOUR COURSE',[{title:'How Mirror 21 works',sub:'Replay the welcome with Kevin'},{title:'Save my journal as PDF',sub:'Every promise and answer, in one file',action:printJournal}]],
+      ['HELP',[{title:'Questions and answers'},{title:'Contact us',sub:'We usually reply within a day'}]],
+      ['ABOUT',[{title:'Daily Xcellence'},{title:'The Pocket Mirror',sub:'Free reflections from Kevin'},{title:'Privacy policy'},{title:'Terms and refund policy'}]],
+      ['YOUR DATA',[{title:'Start over',sub:'Clears your steps and journal on this phone',action:startOver},{title:'Delete my data',sub:'Removes everything Mirror 21 saved on this phone',action:deleteData}]]
+    ];
+    const chevron='<svg class="settings-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+    const row=item=>{
+      const tag=item.flag||item.action?'button':item.time?'label':'div';
+      const line=el(tag,'settings-row'+(item.tinted?' is-tinted':''));
+      if(tag==='button')line.type='button';
+      const text=el('span','settings-text');text.append(el('span','settings-title',item.title));
+      if(item.sub)text.append(el('span','settings-sub',item.sub));
+      line.append(text);
+      if(item.flag){
+        const [key,on]=item.flag;
+        line.setAttribute('role','switch');line.setAttribute('aria-checked',String(read(key)===null?on:read(key)==='true'));
+        line.append(el('span','settings-switch'));
+        line.addEventListener('click',()=>{const next=line.getAttribute('aria-checked')!=='true';line.setAttribute('aria-checked',String(next));write(key,String(next));});
+      } else if(item.time){
+        // Same time as the map's bell; the phone's own time picker sets it.
+        const value=el('span','settings-value'),input=el('input','settings-time');
+        input.type='time';input.setAttribute('aria-label','Reminder time');input.value=read('mirror21-reminder')||'09:00';
+        const show=()=>{value.textContent=input.value.replace(/^0(?=\d)/,'');};show();
+        input.addEventListener('change',()=>{if(input.value){write('mirror21-reminder',input.value);show();}});
+        input.addEventListener('click',()=>{try{input.showPicker();}catch{}});
+        line.append(value);line.insertAdjacentHTML('beforeend',chevron);line.append(input);
+      } else {
+        if(item.action)line.addEventListener('click',item.action);
+        line.insertAdjacentHTML('beforeend',chevron);
+      }
+      const li=el('li');li.append(line);return li;
+    };
+    const sheet=el('section','settings');
+    sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');sheet.setAttribute('aria-labelledby','settings-title');
+    const close=el('button','settings-close');close.type='button';close.setAttribute('aria-label','Close settings');
+    close.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    const title=el('h2',null,'SETTINGS');title.id='settings-title';
+    sheet.append(close,title);
+    sections.forEach(([name,items])=>{
+      const list=el('ul','settings-group');items.filter(Boolean).forEach(item=>list.append(row(item)));
+      sheet.append(el('h3',null,name),list);
+    });
+    const shut=()=>{
+      removeEventListener('keydown',onKey);
+      const done=()=>{sheet.remove();gear.focus();};
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches)return done();
+      sheet.classList.add('is-closing');sheet.addEventListener('animationend',done,{once:true});
+    };
+    const onKey=event=>{if(event.key==='Escape')shut();};
+    close.addEventListener('click',shut);addEventListener('keydown',onKey);
+    document.querySelector('.app-frame').append(sheet);
+    close.focus({preventScroll:true});
+  }
+  // Save my journal as PDF: a print-only copy of every written step; the phone's print sheet saves it as a PDF.
+  function printJournal() {
+    document.querySelector('.journal-print')?.remove();
+    const doc=el('article','journal-print');
+    doc.append(el('p','journal-print-brand','MIRROR 21'),el('h1',null,'MY JOURNAL'),
+      el('p','journal-print-date',new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})));
+    const written=committedSteps();
+    if(!written.length)doc.append(el('p','journal-print-empty','No steps written yet.'));
+    written.forEach(d=>{
+      const entry=el('section'),date=dateOf(d),answer=state.answers[d];
+      entry.append(el('p','journal-print-meta','STEP '+pad(d)+(date?' · '+date:'')),el('h2',null,MirrorSteps.title(d)));
+      const rows=answersOf(d);
+      if(rows.length){const dl=el('dl');rows.forEach(([label,text])=>dl.append(el('dt',null,label),el('dd',null,text.trim())));entry.append(dl);}
+      entry.append(el('p','journal-print-label','MY PROMISE'),el('p','journal-print-promise',state.dayChanges[d]||''));
+      if(answer)entry.append(el('p','journal-print-result','Promise '+results[answer]+'.'));
+      doc.append(entry);
+    });
+    document.body.append(doc);
+    // The title names the saved file.
+    const pageTitle=document.title;document.title='Mirror 21 Journal';
+    addEventListener('afterprint',()=>{document.title=pageTitle;doc.remove();},{once:true});
+    print();
+  }
+  const el=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
+  const committedSteps=()=>Array.from({length:21},(_,i)=>i+1).filter(d=>state.lessons[d]);
+  const dateOf=d=>{
+    const at=state.steps[d]?.committedAt;if(!at)return '';
+    const when=new Date(at);
+    return when.toLocaleDateString('en-GB',{weekday:'short'}).toUpperCase()+' '+when.getDate()+' '+when.toLocaleDateString('en-GB',{month:'short'}).toUpperCase();
+  };
+  // Only the step's own answers, full sentences, as Act wrote them.
+  const answersOf=d=>{
+    const r=state.responses[d]||{};
+    // Steps 02–06 save typed words only: put each back after its sentence starter.
+    const said=(label,starter,key)=>[label,r[key]?.trim()?starter+' '+r[key].trim():''];
+    const proof=['PROOF','Yes, I could prove it.'];
+    const rows={
+      2:[said('ACTION','Today I will','ACTION'),proof],
+      3:[said('MOVE','The move that matters most is','MOVE'),said('ACTION','Today I will','ACTION'),proof],
+      4:[said('IN THE WAY','The thing that could stop me is','WAY'),said('ACTION','Today I will','ACTION'),['CONTROL','Yes, it’s in my control.']],
+      5:[said('MOMENT','When','MOMENT'),said('RESPONSE','I will pause and','RESPONSE'),['READY','Yes, I’ll know the moment when it comes.']],
+      6:[said('EASY','The old habit is easy because','EASY'),said('CHANGE','Today I will','CHANGE'),proof]
+    }[MirrorSteps.lesson(d)]||[['HERE',r.HERE],['THERE',r.THERE],['TEST','Yes, that’s what I actually want.'],['STEP',r.STEP]];
+    return rows.filter(([,text])=>text&&text.trim());
+  };
+  const results={yes:'kept',partly:'partly kept',no:'not kept'};
   // My Journey: every committed step in the user's own words, read-only, then today's step.
   function renderJourney() {
     const stats=summary(),list=document.querySelector('#journey'),scroll=document.querySelector('.journey-scroll');
-    const committedSteps=Array.from({length:21},(_,i)=>i+1).filter(d=>state.lessons[d]);
+    const written=committedSteps();
     const today=stats.today&&stats.active?stats.today:null;
-    const shown=today?[...committedSteps,today]:committedSteps;
+    const shown=today?[...written,today]:written;
     const weeks=['SEE IT','OWN IT','CHANGE IT'];
-    const results={yes:'kept',partly:'partly kept',no:'not kept'};
     const lock='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
     const chevron='<svg class="entry-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-    const el=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
-    const dateOf=d=>{
-      const at=state.steps[d]?.committedAt;if(!at)return '';
-      const when=new Date(at);
-      return when.toLocaleDateString('en-GB',{weekday:'short'}).toUpperCase()+' '+when.getDate()+' '+when.toLocaleDateString('en-GB',{month:'short'}).toUpperCase();
-    };
-    // Only the step's own answers, full sentences, as Act wrote them.
-    const answersOf=d=>{
-      const r=state.responses[d]||{};
-      const rows=MirrorSteps.lesson(d)===2
-        ? [['ACTION',r.ACTION?.trim()?'Today I will '+r.ACTION.trim():''],['PROOF','Yes, I could prove it.']]
-        : [['HERE',r.HERE],['THERE',r.THERE],['TEST','Yes, that’s what I actually want.'],['STEP',r.STEP]];
-      return rows.filter(([,text])=>text&&text.trim());
-    };
-    const latestGraded=committedSteps.filter(d=>state.answers[d]).pop();
+    const latestGraded=written.filter(d=>state.answers[d]).pop();
     list.replaceChildren();
     let week=0,openEntry=null;
     shown.forEach((d,i)=>{
@@ -371,7 +478,7 @@
       }
       entry.append(rail,body);list.append(entry);
     });
-    const left=21-committedSteps.length;
+    const left=21-written.length;
     document.querySelector('#journeyFooter').textContent=left===0?'All 21 steps written.':left===1?'1 more step to write.':left+' more steps to write.';
     // Open on the latest graded step.
     if(openEntry)requestAnimationFrame(()=>{scroll.scrollTop=Math.max(0,scroll.scrollTop+openEntry.getBoundingClientRect().top-scroll.getBoundingClientRect().top-24);});
@@ -379,7 +486,7 @@
   if(maps.includes(filename))renderMap(true);
   if(filename==='18-my-mirror.html')renderMirror();
   if(filename==='19-my-journey.html')renderJourney();
-  if(maps.includes(filename)||filename==='18-my-mirror.html'||filename==='19-my-journey.html')addResetGear();
+  if(maps.includes(filename)||filename==='18-my-mirror.html'||filename==='19-my-journey.html')addSettingsGear();
   document.querySelectorAll('nav a').forEach(link=> { if(link.textContent.includes('MY PATH'))link.href=currentMap; });
   const close=document.querySelector('a[aria-label="Close and go back to the map"]');if(close)close.href=currentMap;
   function carried(href) {

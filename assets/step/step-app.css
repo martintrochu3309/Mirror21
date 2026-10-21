@@ -4,6 +4,12 @@
 /* Step bar (step.css): 3 parts for Step 01, 4 from Step 02 (Check in first), built by step.js.
    Opening a screen first draws the bar as it was, without animating. */
 .progress.is-instant span i { transition: none; }
+/* Each part has its label underneath: gold once done, black on this screen, grey still to come. */
+.progress .bar-part { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.progress .bar-part > span { flex: none; }
+.bar-label { font-size: 9px; line-height: 1; font-weight: 700; letter-spacing: 0.16em; white-space: nowrap; color: var(--locked-number); transition: color 400ms ease; }
+.bar-label.is-done { color: var(--gold-text); }
+.bar-label.is-current { color: var(--ink); }
 
 /* Step 01 TEST answer carries the same gold tick as Step 02's "Yes, I could prove it." */
 .answered--btn { display: flex; align-items: center; gap: 8px; }
