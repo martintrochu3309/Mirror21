@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Step 08 · Act</title>
+<!-- Step 08 · Spot your old habit. Same layout as Step 03, with three boxes and no check. -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step02.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step03.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261021-signin">
+<script src="../assets/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/step/step.js?v=20261021-signin" defer></script>
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="progress" id="stepBar" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  </div>
+
+  <div class="step-label" id="stepLabel">STEP 08</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Spot the old habit that gets in the way of your move.</p>
+
+  <div class="rows">
+
+    <!-- 01 MY MOVE — read-only, from Step 03, in the user's own words (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">MY MOVE
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 03</span>
+        </div>
+        <p class="question">YOUR MOVE</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="move"></p>
+      </div>
+    </section>
+
+    <!-- 02 WHEN — when the old habit shows up -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">WHEN</div>
+        <label class="question" for="boxOne">WHEN IT SHOWS UP</label>
+        <p class="prompt">When does the old habit that gets in the way of your move usually show up?</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">It usually happens when </span>
+          <textarea class="answer-box" id="boxOne" data-answer="WHEN" rows="3" maxlength="200" aria-label="When it shows up. It usually happens when"></textarea>
+        </div>
+        <div class="next-row" id="oneNextRow" style="display: flex">
+          <button class="next" id="oneNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 WHAT — the behaviour, as a fact -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">WHAT <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said when it shows up"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <label class="question" for="boxTwo">WHAT I ACTUALLY DO</label>
+        <p class="prompt">The behaviour, not the excuse.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">What I actually do is </span>
+          <textarea class="answer-box" id="boxTwo" data-answer="WHAT" rows="3" maxlength="200" aria-label="What I actually do. What I actually do is"></textarea>
+        </div>
+        <div class="next-row" id="twoNextRow" style="display: flex" hidden>
+          <button class="next" id="twoNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 PAYOFF — what the habit gives (no check: the arrow goes to MY PROMISE) -->
+    <section class="row is-locked" id="rowThree">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">PAYOFF <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said what you actually do"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <label class="question" for="boxThree">WHAT I GET FROM IT</label>
+        <p class="prompt">What it does for you in the moment.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">It gives me </span>
+          <textarea class="answer-box" id="boxThree" data-answer="PAYOFF" rows="3" maxlength="200" aria-label="What I get from it. It gives me"></textarea>
+        </div>
+        <div class="next-row" id="threeNextRow" style="display: flex" hidden>
+          <button class="next" id="threeNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MY PROMISE — built from WHEN, locked with I'M COMMITTED -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, when <span class="promise-rest is-empty">…</span>, I will catch my old habit as it starts and name it. If it doesn’t show up, I will look back at the last time it did.</p>
+
+        <div id="commitBlock">
+          <button class="hold" id="hold" disabled aria-describedby="holdHelp">
+            <span class="hold-fill" id="holdFill"></span>
+            <span class="hold-label hold-label--lg">I’M COMMITTED</span>
+          </button>
+          <p class="hold-help" id="holdHelp">Press and hold. Once committed, your promise can’t be changed.</p>
+        </div>
+
+        <div id="lockedBlock" hidden>
+          <div class="locked-row">
+            <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+            COMMITTED
+          </div>
+          <p class="done-text" id="lockedText" style="margin-top: 12px"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

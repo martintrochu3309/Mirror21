@@ -1,6 +1,7 @@
-// User-invoked restart: clear only this browser's Mirror 21 attempt, bar and watch positions.
+// User-invoked restart: clear only this browser's Mirror 21 attempt, bar and watch positions, and which
+// block summaries have been opened.
 (() => {
-  const matches = key => key === 'mirror21-progress' || /^mirror21-(audio|bar|watched|seen)-\d+$/.test(key) || /^mirror21-scroll-\d+-\d+$/.test(key);
+  const matches = key => key === 'mirror21-progress' || /^mirror21-(audio|bar|watched|seen|block)-\d+$/.test(key) || /^mirror21-scroll-\d+-\d+$/.test(key);
   try {
     for (const storage of [localStorage, sessionStorage]) {
       const keys = Array.from({length:storage.length},(_,i)=>storage.key(i));

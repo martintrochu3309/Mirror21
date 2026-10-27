@@ -99,7 +99,44 @@
   if (screenName === 'checkin') checkinScreen();
   if (screenName === 'watch') watchScreen();
   if (screenName === 'learn') learnScreen();
-  if (screenName === 'act') (steps.lesson(step) === 2 ? act02Screen : steps.lesson(step) >= 3 ? twoBoxActScreen : actScreen)();
+  if (screenName === 'act') { (steps.lesson(step) === 2 ? act02Screen : steps.lesson(step) >= 3 ? twoBoxActScreen : actScreen)(); seeAnExample(); }
+
+  // Act · "See an example": a quiet link between a box's helper line and the box. It opens in place to show
+  // the box's sentence starter in grey and an example answer in italics. Only the question being answered
+  // shows it (its row active and its Next arrow still showing), so there is at most one on screen; it closes
+  // again once the user moves on. Answered boxes, read-only rows, checks and the promise never show it.
+  function seeAnExample() {
+    const chevron = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+    const blocks = Array.from(document.querySelectorAll('.starter-wrap')).map(wrap => {
+      const box = wrap.querySelector('textarea');
+      const key = box && (box.dataset.answer || box.dataset.field || box.id).toUpperCase();
+      const words = key && steps.example(step, key);
+      if (!words) return null;
+      const example = document.createElement('div'); example.className = 'example'; example.hidden = true;
+      const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'example-toggle';
+      const text = document.createElement('p'); text.className = 'example-text'; text.id = 'example-' + key.toLowerCase(); text.hidden = true;
+      const starter = document.createElement('span'); starter.className = 'example-starter'; starter.textContent = wrap.querySelector('.starter').textContent.trim();
+      const answer = document.createElement('em'); answer.textContent = words;
+      text.append(starter, ' ', answer);
+      toggle.setAttribute('aria-controls', text.id);
+      const show = open => { text.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); toggle.innerHTML = (open ? 'Hide example' : 'See an example') + ' ' + chevron; toggle.classList.toggle('is-open', open); };
+      show(false);
+      toggle.addEventListener('click', () => show(text.hidden));
+      example.append(toggle, text);
+      wrap.before(example);
+      return { example, row: wrap.closest('.row'), show };
+    }).filter(Boolean);
+    const sync = () => blocks.forEach(({ example, row, show }) => {
+      const next = row.querySelector('.next-row');
+      const answering = row.classList.contains('is-active') && Boolean(next) && !next.hidden;
+      // Only touch what changes: the observer below would otherwise wake itself up.
+      if (!answering && !example.hidden) show(false);
+      if (example.hidden !== !answering) example.hidden = !answering;
+    });
+    sync();
+    const rows = document.querySelector('.rows');
+    if (rows) new MutationObserver(sync).observe(rows, { subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] });
+  }
 
   fitTitles();
   document.fonts.ready.then(fitTitles);
@@ -110,7 +147,8 @@
   document.documentElement.dataset.mirrorReady = 'true';
 
   // Watch: Start → Mid (playing / paused) → Finish, from the Watch screen handoff.
-  // Learn appears only at Finish, once 90% of the video has actually been watched (no scrubbing).
+  // Learn appears at Finish once 90% of the video is reached. The timeline can be dragged freely either way,
+  // so dragging past 90% counts as watched (for now).
   function watchScreen() {
     const screen = document.getElementById('watch');
     const player = document.getElementById('player');
@@ -164,8 +202,16 @@
       if (welcome) write(watchedKey, 'true');
       else if (!committed) { record.watched = true; record.watch = 1; save(); }
     }
+    const scrub = document.getElementById('scrub'), knob = document.getElementById('knob');
+    function showTimes() {
+      document.getElementById('scrubAt').textContent = clock(at * total);
+      document.getElementById('scrubTotal').textContent = total ? clock(total) : '';
+      scrub.setAttribute('aria-valuenow', String(Math.round(at * 100)));
+      scrub.setAttribute('aria-valuetext', clock(at * total) + (total ? ' of ' + clock(total) : ''));
+    }
     function progress(p) {
-      at = p; line.style.width = p * 100 + '%';
+      at = p; line.style.width = p * 100 + '%'; knob.style.left = p * 100 + '%';
+      showTimes();
       if (watched) return;
       if (p >= 0.9) markWatched();
       else if (!welcome && !committed && p > record.watch) {
@@ -197,16 +243,49 @@
       set('paused'); keep();
     }
 
+    // Dragging the timeline: playback holds while the finger is down (the picture follows it), then carries
+    // on from there if it was playing. Arrow keys move 5 seconds.
+    let dragging = false, wasPlaying = false;
+    function seek(p) {
+      p = Math.min(Math.max(p, 0), 1);
+      progress(p);
+      if (!fake && player.duration) player.currentTime = p * player.duration;
+    }
+    const pointAt = event => { const r = line.parentElement.getBoundingClientRect(); return (event.clientX - r.left) / r.width; };
+    scrub.addEventListener('pointerdown', event => {
+      if (current !== 'playing' && current !== 'paused') return;
+      event.preventDefault();
+      dragging = true; wasPlaying = current === 'playing';
+      scrub.setPointerCapture(event.pointerId);
+      screen.classList.add('scrubbing'); clearTimeout(immerse);
+      if (fake) cancelAnimationFrame(raf); else player.pause();
+      seek(pointAt(event));
+    });
+    scrub.addEventListener('pointermove', event => { if (dragging) seek(pointAt(event)); });
+    const release = () => {
+      if (!dragging) return;
+      dragging = false; screen.classList.remove('scrubbing');
+      if (at >= 1) { finish(); return; }
+      if (wasPlaying) play(); else keep();
+    };
+    scrub.addEventListener('pointerup', release);
+    scrub.addEventListener('pointercancel', release);
+    scrub.addEventListener('keydown', event => {
+      const jump = event.key === 'ArrowRight' ? 5 : event.key === 'ArrowLeft' ? -5 : 0;
+      if (!jump || !total) return;
+      event.preventDefault(); seek(at + jump / total);
+    });
+
     player.addEventListener('loadedmetadata', () => {
       if (!Number.isFinite(player.duration)) return;
       total = player.duration;
       if (at) player.currentTime = at * player.duration;
-      showHint();
+      showHint(); showTimes();
     });
-    player.addEventListener('timeupdate', () => { if (current === 'playing' && player.duration) progress(player.currentTime / player.duration); });
-    player.addEventListener('ended', () => { progress(1); finish(); });
+    player.addEventListener('timeupdate', () => { if (current === 'playing' && !dragging && player.duration) progress(player.currentTime / player.duration); });
+    player.addEventListener('ended', () => { if (dragging) return; progress(1); finish(); });
     // Paused by the phone (a call, headphones unplugged, leaving the app): show the paused state.
-    player.addEventListener('pause', () => { if (current === 'playing' && !player.ended) { set('paused'); keep(); } });
+    player.addEventListener('pause', () => { if (current === 'playing' && !player.ended && !dragging) { set('paused'); keep(); } });
     document.addEventListener('visibilitychange', () => { if (document.hidden && fake && current === 'playing') pause(); });
     addEventListener('pagehide', keep);
 
@@ -214,9 +293,9 @@
     screen.addEventListener('click', event => {
       if (arriving && !event.target.closest('.close')) { event.preventDefault(); event.stopPropagation(); }
     }, true);
-    // Tap anywhere to play / pause; Finish only reacts to its buttons. Swiping does nothing.
+    // Tap anywhere to play / pause; Finish only reacts to its buttons. Swiping does nothing; the timeline drags.
     screen.addEventListener('click', event => {
-      if (event.target.closest('.close, .end')) return;
+      if (event.target.closest('.close, .end, .scrub')) return;
       if (current === 'playing') pause(); else if (current !== 'finish') play();
     });
     document.getElementById('again').addEventListener('click', play);
@@ -355,12 +434,19 @@
 
   // Answers brought forward from an earlier step (the step before unless given) are shown read-only,
   // marked "FROM STEP NN": data-from names the answer (there, move…), in the user's own words.
+  // A row marked data-from-of="N" takes its answer from Step N instead (Step 07 shows two earlier steps).
+  // An answer typed after a sentence starter (Step 08's) names it in data-starter: it shows in grey in front.
   function showEarlier(from = step - 1) {
+    const fromOf = el => Number(el.closest('[data-from-of]')?.dataset.fromOf) || from;
     document.querySelectorAll('[data-from]').forEach(el => {
-      const words = (state.responses[from]?.[el.dataset.from.toUpperCase()] || '').trim();
-      el.textContent = words.charAt(0).toUpperCase() + words.slice(1);
+      const words = (state.responses[fromOf(el)]?.[el.dataset.from.toUpperCase()] || '').trim();
+      if (!el.dataset.starter) { el.textContent = words.charAt(0).toUpperCase() + words.slice(1); return; }
+      const starter = document.createElement('span');
+      starter.className = 'starter-text';
+      starter.textContent = el.dataset.starter;
+      el.replaceChildren(starter, ' ' + words);
     });
-    document.querySelectorAll('[data-from-step]').forEach(el => { el.textContent = 'FROM STEP ' + pad(from); });
+    document.querySelectorAll('[data-from-step]').forEach(el => { el.textContent = 'FROM STEP ' + pad(fromOf(el)); });
   }
 
   // Answer boxes open with a fixed sentence starter in grey, set in front of the box: the user only
@@ -585,33 +671,54 @@
     render(false);
   }
 
-  // Steps 03–06 · One answer read-only from an earlier step, two boxes, a YES / NOT SURE check, then MY PROMISE.
-  // Stages: 0 first box · 1 second box · 2 check · 3 promise · 4 committed. Each box saves the user's typed words
-  // under its data-answer key. Per lesson: the step the read-only answer comes from, the box NOT SURE sends you
-  // back to (its hint sits in that row), and the promise, built from the boxes (numbers are box indexes).
+  // Steps 03–12 · Answers read-only from earlier steps, one to three boxes, a YES / NOT SURE check, then MY PROMISE.
+  // Stages: one per box (0, 1…), then check, promise, committed (two boxes: 2 · 3 · 4). Each box saves the user's
+  // typed words under its data-answer key. Per lesson: the step the read-only answer comes from, the box NOT SURE
+  // sends you back to (its hint sits in that row), and the promise, built from the boxes (numbers are box indexes)
+  // and earlier answers ({ from: step, key }). A page without the check (Steps 07–12) goes from the last box
+  // straight to MY PROMISE.
   function twoBoxActScreen() {
     const lessonSetup = {
       3: { from: 1, back: 1, promise: ['Today, I will ', 1, '.'] },
       4: { from: 3, back: 1, promise: ['Today, I will ', 1, '.'] },
       5: { from: 1, back: 0, promise: ['Today, when ', 0, ', I will pause and ', 1, '. If it doesn’t come, I’ll run through it once in my head.'] },
-      6: { from: 1, back: 1, promise: ['Today, I will ', 1, '.'] }
+      6: { from: 1, back: 1, promise: ['Today, I will ', 1, '.'] },
+      7: { from: 1, promise: ['Today, after I ', 0, ', I will ', 1, '.'] },
+      8: { from: 3, promise: ['Today, when ', 0, ', I will catch my old habit as it starts and name it. If it doesn’t show up, I will look back at the last time it did.'] },
+      9: { from: 1, promise: ['Today, when ', { from: 8, key: 'WHEN' }, ', I will pause and ', 0, '. If the moment doesn’t come, I will run through it once in my head.'] },
+      10: { from: 1, promise: ['Today, when ', { from: 8, key: 'WHEN' }, ', I will pause, say “', 1, '”, and ', { from: 9, key: 'SWAP' }, '. If the moment doesn’t come, I will run through it once in my head.'] },
+      11: { from: 1, promise: ['Today, I will tell ', 0, ' what I’m changing, and that I will report back on ', 1, '.'] },
+      12: { from: 1, promise: ['Today, I will do my move, or at least ', 0, '.'] }
     }[steps.lesson(step)];
-    const PROGRESS = [0.1, 0.35, 0.6, 0.85, 1];
     const answers = state.responses[step] ||= {};
     const isCommitted = () => Boolean(state.lessons[step]);
     const $ = id => document.getElementById(id);
-    const boxes = [$('boxOne'), $('boxTwo')];
+    // A box is a textarea, or a date (Step 11): a hidden date input over a box that shows the day in plain words.
+    const boxes = Array.from(document.querySelectorAll('[data-answer]'));
+    const isDate = i => boxes[i].type === 'date';
     const keys = boxes.map(box => box.dataset.answer);
-    const rows = [$('rowOne'), $('rowTwo')], rowPromise = $('rowPromise'), hold = $('hold');
+    const rows = boxes.map(box => box.closest('.row')), rowPromise = $('rowPromise'), hold = $('hold');
+    const hasCheck = Boolean($('proofQ'));
+    const last = boxes.length - 1, CHECK = boxes.length, PROMISE = CHECK + 1, DONE = PROMISE + 1;
+    // Act's share per stage: the boxes spread over 10–60%, then check 60%, promise 85%, committed 100%.
+    const PROGRESS = [...boxes.map((box, i) => 0.1 + 0.5 * i / boxes.length), 0.6, 0.85, 1];
     const written = i => (answers[keys[i]] || '').trim();
-    // The user's words inside the promise, without a closing full stop (the sentence carries its own).
-    const inPromise = i => written(i).replace(/[\s.,;:!?]+$/, '');
-    const promiseText = () => lessonSetup.promise.map(part => typeof part === 'number' ? inPromise(part) : part).join('');
+    // The user's words inside the promise, without a closing full stop or their own quotation marks
+    // (the sentence carries its own: Step 10 quotes MY LINE).
+    // A date reads in plain words, as seen from today ("Sunday", or "Sunday 9 November" beyond the coming week).
+    const inPromise = part => typeof part === 'number' && isDate(part) ? steps.plainDate(written(part), new Date())
+      : (typeof part === 'number' ? written(part) : (state.responses[part.from]?.[part.key] || '').trim())
+        .replace(/^["“]+\s*/, '').replace(/[\s.,;:!?"”]+$/, '');
+    const promiseText = () => lessonSetup.promise.map(part => typeof part === 'string' ? part : inPromise(part)).join('');
     showEarlier(lessonSetup.from);
     $('lockedText').textContent = 'Your promise is locked. Step ' + pad(step + 1) + ' starts by asking how it went.';
-    if (committed) record.stage = 4;
+    if (committed) record.stage = DONE;
     if (!committed) { record.act = PROGRESS[record.stage] ?? PROGRESS[0]; save(); }
-    boxes.forEach(fitStarter);
+    boxes.forEach((box, i) => { if (!isDate(i)) fitStarter(box); });
+    // The report-back day can be tomorrow at the earliest.
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    const isoDay = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    boxes.forEach((box, i) => { if (isDate(i)) box.min = isoDay(tomorrow); });
 
     function mark(row, active, done) {
       row.classList.toggle('is-active', active); row.classList.toggle('is-done', done);
@@ -621,7 +728,7 @@
     // MY PROMISE forms live: the user's words in place, "…" in grey until written.
     function renderPromise() {
       $('promise').replaceChildren(...lessonSetup.promise.map(part => {
-        if (typeof part !== 'number') return document.createTextNode(part);
+        if (typeof part === 'string') return document.createTextNode(part);
         const words = document.createElement('span');
         words.className = 'promise-rest' + (inPromise(part) ? '' : ' is-empty');
         words.textContent = inPromise(part) || '…';
@@ -633,25 +740,30 @@
       boxes.forEach((box, i) => {
         if (box.value !== (answers[keys[i]] || '')) box.value = answers[keys[i]] || '';
         box.readOnly = isCommitted();
+        if (!isDate(i)) return;
+        const shown = box.parentElement.querySelector('.date-shown');
+        shown.textContent = written(i) ? steps.plainDate(written(i)) : 'pick a day';
+        shown.classList.toggle('is-empty', !written(i));
       });
-      boxes[1].disabled = s < 1;
-      mark(rows[0], s === 0, s >= 1);
-      mark(rows[1], s === 1 || s === 2, s >= 3);
-      mark(rowPromise, s === 3, s === 4);
-      $('oneNextRow').hidden = s !== 0;
-      $('oneNext').disabled = !written(0);
-      $('twoNextRow').hidden = s !== 1;
-      $('twoNext').disabled = !written(1);
-      $('proofQ').hidden = s !== 2;
-      $('proofYes').disabled = $('proofNotSure').disabled = s !== 2;
-      $('proved').hidden = s < 3;
-      $('proved').disabled = s === 4;
-      $('proofHint').hidden = !(record.notSure && s === lessonSetup.back);
+      rows.forEach((row, i) => {
+        boxes[i].disabled = s < i;
+        mark(row, s === i || (i === last && s === CHECK), i === last ? s >= PROMISE : s > i);
+        row.querySelector('.next-row').hidden = s !== i;
+        row.querySelector('.next').disabled = !written(i);
+      });
+      mark(rowPromise, s === PROMISE, s === DONE);
+      if (hasCheck) {
+        $('proofQ').hidden = s !== CHECK;
+        $('proofYes').disabled = $('proofNotSure').disabled = s !== CHECK;
+        $('proved').hidden = s < PROMISE;
+        $('proved').disabled = s === DONE;
+        $('proofHint').hidden = !(record.notSure && s === lessonSetup.back);
+      }
       renderPromise();
-      hold.disabled = s !== 3 || !written(0) || !written(1);
-      $('commitBlock').hidden = s === 4;
-      $('lockedBlock').hidden = s !== 4;
-      if (scroll) scrollToRow(s >= 3 ? rowPromise : rows[Math.min(s, 1)], s <= 1);
+      hold.disabled = s !== PROMISE || boxes.some((box, i) => !written(i));
+      $('commitBlock').hidden = s === DONE;
+      $('lockedBlock').hidden = s !== DONE;
+      if (scroll) scrollToRow(s >= PROMISE ? rowPromise : rows[Math.min(s, last)], s <= last);
     }
 
     function go(stage, extra) {
@@ -659,26 +771,36 @@
       record.stage = stage;
       record.act = PROGRESS[stage];
       Object.assign(record, extra || {});
-      if (stage === 4) commitPromise(promiseText());
+      if (stage === DONE) commitPromise(promiseText());
       save(); refreshBar(); render(true);
-      if (stage === 4) returnToMap();
+      if (stage === DONE) returnToMap();
     }
 
-    // Typing autosaves; Return (or the arrow) moves on.
-    const advance = [() => { if (written(0) && record.stage === 0) go(1); },
-      () => { if (written(1) && record.stage === 1) go(2, { notSure: false }); }];
+    // Typing autosaves; Return (or the arrow) moves on. The last box leads to the check, or straight to the promise.
+    const advance = i => {
+      if (!written(i) || record.stage !== i) return;
+      if (i < last) go(i + 1);
+      else go(hasCheck ? CHECK : PROMISE, { notSure: false });
+    };
     boxes.forEach((box, i) => {
-      box.addEventListener('input', () => { if (isCommitted()) return; answers[keys[i]] = box.value; save(); render(false); });
-      box.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); advance[i](); } });
+      const keep = () => { if (isCommitted()) return; answers[keys[i]] = box.value; save(); render(false); };
+      box.addEventListener('input', keep);
+      if (isDate(i)) {
+        box.addEventListener('change', keep);
+        // Tapping anywhere on the box opens the calendar (iPhone does this by itself).
+        box.addEventListener('click', () => { if (!isCommitted() && !box.disabled) try { box.showPicker(); } catch {} });
+      }
+      box.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); advance(i); } });
+      rows[i].querySelector('.next').addEventListener('click', () => advance(i));
     });
-    $('oneNext').addEventListener('click', advance[0]);
-    $('twoNext').addEventListener('click', advance[1]);
-    $('proofYes').addEventListener('click', () => go(3));
-    // NOT SURE goes back to the box the check is about, with its hint.
-    $('proofNotSure').addEventListener('click', () => { go(lessonSetup.back, { notSure: true }); boxes[lessonSetup.back].focus(); });
-    // Tapping the check's answer redoes the check before committing.
-    $('proved').addEventListener('click', () => { if (record.stage === 3) go(2); });
-    holdToCommit(hold, $('holdFill'), () => go(4));
+    if (hasCheck) {
+      $('proofYes').addEventListener('click', () => go(PROMISE));
+      // NOT SURE goes back to the box the check is about, with its hint.
+      $('proofNotSure').addEventListener('click', () => { go(lessonSetup.back, { notSure: true }); boxes[lessonSetup.back].focus(); });
+      // Tapping the check's answer redoes the check before committing.
+      $('proved').addEventListener('click', () => { if (record.stage === PROMISE) go(CHECK); });
+    }
+    holdToCommit(hold, $('holdFill'), () => go(DONE));
     render(false);
   }
 })();

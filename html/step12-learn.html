@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Step 12 · Learn</title>
+<!-- Step 12 · Set a minimum. Same layout as Step 03, with four moves and Step 02's FAILS / PASSES marks. -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step02.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step03.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261021-signin">
+<script src="../assets/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/step/step.js?v=20261021-signin" defer></script>
+</head>
+<body data-screen="learn">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="progress" id="stepBar" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  </div>
+
+  <h1 class="step-label" id="stepLabel">STEP 12</h1>
+
+  <ol class="moves" style="list-style: none; padding: 0; margin-bottom: 0">
+    <li class="move"><div class="move-num">01</div><div class="move-body"><div class="move-key">MOVE</div><p class="move-text">Start with the move you chose in Step 3. Your minimum is a smaller version of that move, not something new.</p></div></li>
+    <li class="move"><div class="move-num">02</div><div class="move-body"><div class="move-key">SHRINK</div><p class="move-text">Keep the same action and the same target. Cut how much of it you do.</p></div></li>
+    <li class="move"><div class="move-num">03</div><div class="move-body"><div class="move-key">TEST</div><p class="move-text">Could you do it on your worst day? Does it still count as the same move? It has to pass both.</p></div></li>
+    <li class="move"><div class="move-num move-num--final">04</div><div class="move-body"><div class="move-key">USE</div><p class="move-text">Do the full version when you can, and the minimum when you can’t. Either one keeps the move alive.</p></div></li>
+  </ol>
+
+  <div class="pull">
+    <p>The minimum isn’t the goal. <em>It’s what keeps you going on the days you’d otherwise stop.</em></p>
+  </div>
+
+  <div class="example-label">EXAMPLE</div>
+  <div class="ex">
+    <div class="ex-block"><div class="ex-key">MOVE</div><p class="ex-text">Get up at 6:30 every day, weekends included.</p></div>
+
+    <!-- SHRINK: Step 02's FAILS / PASSES marks, each above its line -->
+    <div class="ex-block">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <svg width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#ffffff" stroke="#e0b84c" stroke-width="2"/></svg>
+        <div class="ex-key">SHRINK · FAILS</div>
+      </div>
+      <p class="ex-text ex-text--fail">“On bad days, get up at 7:30.”</p>
+      <p class="ex-note">That moves the target.</p>
+    </div>
+    <div class="ex-block">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <svg width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#e0b84c" stroke="#e0b84c" stroke-width="2"/></svg>
+        <div class="ex-key ex-key--gold">SHRINK · PASSES</div>
+      </div>
+      <p class="ex-text" style="color: var(--ink)">“Feet on the floor at 6:30, even if I’m slow after that.”</p>
+      <p class="ex-note">Same time, less effort.</p>
+    </div>
+
+    <div class="ex-block">
+      <div class="ex-key">TEST</div>
+      <p class="ex-impact">Could I do it on my worst day? <b>Yes.</b></p>
+      <p class="ex-impact">Is it still the same move? <b>Yes.</b></p>
+    </div>
+
+    <!-- Fixed example copy (same for every user): the promise MY MINIMUM makes -->
+    <div class="ex-block">
+      <div class="ex-key ex-key--gold">MY PROMISE</div>
+      <div class="inbox">Today, I will do my move, or at least get my feet on the floor at 6:30, even if I’m slow after that.</div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- Not pinned: the button sits at the end of the content. -->
+  <a class="btn btn--gold learn-end" id="next" href="step12-act.html">
+    YOUR TURN
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+</main>
+</body>
+</html>

@@ -173,7 +173,7 @@
     }
     welcomeRow.append(welcome);path.append(welcomeRow);
     for(let d=1;d<=21;d++) {
-      if(d===1||d===8||d===15) { const divider=document.createElement('div'); divider.className='week-divider'; divider.textContent='WEEK '+Math.ceil(d/7);path.append(divider); }
+      if(d===1||d===8||d===15) { const divider=document.createElement('div'); divider.className='week-divider'; divider.textContent='BLOCK '+Math.ceil(d/7);path.append(divider); }
       // Committed = HOLD TO COMMIT done, check-in still to come (plain white). The check-in at the start of the
       // next step then shows full (yes), half (partly) or ring-only (no) gold. Done steps open again from
       // Watch to rewatch and redo; that never changes their check-in or the step that is open now.
@@ -210,6 +210,20 @@
       } else row.append(step);
       path.append(row);
     }
+    // Block tiles: one beside each block's last step (07, 14, 21), on the right, the size of a step tile, with a
+    // check mark. Grey and locked until that step is committed (and the block has its summary), then black
+    // until its summary has been opened once, then white with a gold check.
+    const check='<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    const blockSpots=[1,2,3].map(n=> {
+      const info=MirrorSteps.block(n),open=info.ready&&Boolean(state.lessons[info.last]),seen=read('mirror21-block-'+n)==='true';
+      const spot=document.createElement('div');spot.className='block-spot'+(open?' open':'');spot.dataset.after=String(info.last);
+      const label=document.createElement('span');label.className='block-label';label.textContent='BLOCK '+n;
+      const tile=document.createElement(open?'a':'button');tile.className='progress-step block-tile'+(open?(seen?' committed':' block-new'):'');tile.innerHTML=check;
+      tile.setAttribute('aria-label','Block '+n+', '+info.name.toLowerCase()+', '+(open?'summary':'locked'));
+      if(open) tile.href='block.html?block='+n;
+      else { tile.type='button'; tile.addEventListener('click',()=> { const note=document.createElement('span');note.className='progress-bubble block-note';note.textContent='Opens after Step '+pad(info.last);spot.querySelector('.block-note')?.remove();spot.prepend(note);tile.setAttribute('aria-label',note.textContent); }); }
+      spot.append(label,tile);path.append(spot);return spot;
+    });
     scroll.replaceChildren(path);
     const ns='http://www.w3.org/2000/svg';
     const trail=document.createElementNS(ns,'svg');trail.classList.add('journey-trail');trail.setAttribute('aria-hidden','true');
@@ -229,9 +243,10 @@
         const rect=row.querySelector('.progress-step').getBoundingClientRect();
         return {x:rect.left+rect.width/2-bounds.left,y:rect.top+rect.height/2-bounds.top};
       });
-      for(let i=0;i<points.length-1;i++) {
-        const a=points[i],b=points[i+1],connector=document.createElementNS(ns,'g');
-        connector.setAttribute('class','journey-segment'+(i+1<stats.today?' reached':''));
+      // Footprints from one tile to the next, gold once reached.
+      const walk=(a,b,reached)=> {
+        const connector=document.createElementNS(ns,'g');
+        connector.setAttribute('class','journey-segment'+(reached?' reached':''));
         const dx=b.x-a.x,dy=b.y-a.y,distance=Math.hypot(dx,dy);
         const available=Math.max(0,distance-72),count=Math.max(1,Math.floor(available/17));
         const angle=Math.atan2(dy,dx)*180/Math.PI+90;
@@ -248,7 +263,14 @@
           foot.append(toe,heel);connector.append(foot);
         }
         trail.append(connector);
-      }
+      };
+      for(let i=0;i<points.length-1;i++) walk(points[i],points[i+1],i+1<stats.today);
+      // Each block tile sits 110px right of the centre line, level with its last step, joined to it by footprints.
+      blockSpots.forEach(spot=> {
+        const from=points[Number(spot.dataset.after)-1],to={x:bounds.width/2+110,y:from.y};
+        spot.style.left=to.x+'px';spot.style.top=to.y+'px';
+        walk(from,to,spot.classList.contains('open'));
+      });
       words.forEach(word=> {
         const point=points[Number(word.dataset.anchor)-1];
         word.style.top=(point.y-word.offsetHeight/2)+'px';
@@ -264,7 +286,7 @@
     requestAnimationFrame(drawJourney);
     const header=document.querySelector('.app-frame > div[style*="top: 59px"] > div');
     const lines=header.querySelectorAll('p');
-    lines[0].textContent='WEEK '+Math.ceil((stats.today||21)/7);
+    lines[0].textContent='BLOCK '+Math.ceil((stats.today||21)/7);
     lines[1].textContent=stats.complete?'21 STEPS COMPLETE':'STEP '+pad(stats.today||21)+' OF 21';
     lines[2].textContent=stepsToGo(stats);
     document.querySelector('[role="status"]')?.remove();
@@ -283,10 +305,10 @@
     const rings=container.querySelectorAll('[aria-label="Where I stand"] svg');
     // Follow-through \u00b7 check-ins \u00b7 steps to go (the ring fills as steps are committed).
     [[stats.checkIns?stats.points/stats.checkIns:0,stats.percent+'%','Follow-through so far, '+stats.percent+' percent'],[stats.checkIns/21,pad(stats.checkIns),stats.checkIns+' of 21 check-ins'],[stats.committed/21,String(stats.stepsToGo),stepsToGo(stats)]].forEach(([ratio,value,aria],i)=> { rings[i].querySelector('text').textContent=value;rings[i].setAttribute('aria-label',aria);rings[i].querySelectorAll('circle')[1].setAttribute('stroke-dashoffset',(314.16*(1-ratio)).toFixed(2)); });
-    // The current week and its theme, e.g. WEEK 1 \u00b7 SEE IT.
+    // The current block and its theme, e.g. BLOCK 1 \u00b7 SEE IT.
     const week=container.querySelector('[aria-label="Where I stand"] > div:last-child');
-    week.children[0].textContent='WEEK '+stats.week;week.children[1].textContent=weekThemes[stats.week-1];
-    week.setAttribute('aria-label','Week '+stats.week+', '+weekThemes[stats.week-1].toLowerCase());
+    week.children[0].textContent='BLOCK '+stats.week;week.children[1].textContent=weekThemes[stats.week-1];
+    week.setAttribute('aria-label','Block '+stats.week+', '+weekThemes[stats.week-1].toLowerCase());
   }
   // The small gear at the top right opens Settings.
   function addSettingsGear() {
@@ -304,7 +326,7 @@
   // Delete my data clears everything Mirror 21 saved in this browser. Both open My Path at Step 01.
   function startOver() {
     if(!confirm('Start over? This clears your steps and journal on this phone.'))return;
-    forget(key=>key==='mirror21-progress'||/^mirror21-(audio|bar|watched|seen)-\d+$/.test(key)||/^mirror21-scroll-\d+-\d+$/.test(key));
+    forget(key=>key==='mirror21-progress'||/^mirror21-(audio|bar|watched|seen|block)-\d+$/.test(key)||/^mirror21-scroll-\d+-\d+$/.test(key));
     location.href=currentMap;
   }
   function deleteData() {
@@ -411,7 +433,7 @@
   // Only the step's own answers, full sentences, as Act wrote them.
   const answersOf=d=>{
     const r=state.responses[d]||{};
-    // Steps 02–06 save typed words only: put each back after its sentence starter.
+    // Steps 02–12 save typed words only: put each back after its sentence starter (Step 11's date in plain words).
     const said=(label,starter,key)=>[label,r[key]?.trim()?starter+' '+r[key].trim():''];
     const proof=['PROOF','Yes, I could prove it.'];
     const rows={
@@ -419,7 +441,13 @@
       3:[said('MOVE','The move that matters most is','MOVE'),said('ACTION','Today I will','ACTION'),proof],
       4:[said('IN THE WAY','The thing that could stop me is','WAY'),said('ACTION','Today I will','ACTION'),['CONTROL','Yes, it’s in my control.']],
       5:[said('MOMENT','When','MOMENT'),said('RESPONSE','I will pause and','RESPONSE'),['READY','Yes, I’ll know the moment when it comes.']],
-      6:[said('EASY','The old habit is easy because','EASY'),said('CHANGE','Today I will','CHANGE'),proof]
+      6:[said('EASY','The old habit is easy because','EASY'),said('CHANGE','Today I will','CHANGE'),proof],
+      7:[said('ANCHOR','Every day, I','ANCHOR'),said('ACTION','Straight after, I will','ACTION')],
+      8:[said('WHEN','It usually happens when','WHEN'),said('WHAT','What I actually do is','WHAT'),said('PAYOFF','It gives me','PAYOFF')],
+      9:[said('SWAP','Instead, I will','SWAP')],
+      10:[said('WHY','This really matters to me because','WHY'),said('LINE','My line is','LINE')],
+      11:[said('PERSON','I will tell','PERSON'),['REPORT BACK',r.DATE?'I will report back on '+MirrorSteps.plainDate(r.DATE)+'.':'']],
+      12:[said('MINIMUM','On a bad day, the least I will do is','MINIMUM')]
     }[MirrorSteps.lesson(d)]||[['HERE',r.HERE],['THERE',r.THERE],['TEST','Yes, that’s what I actually want.'],['STEP',r.STEP]];
     return rows.filter(([,text])=>text&&text.trim());
   };
@@ -439,7 +467,7 @@
     shown.forEach((d,i)=>{
       if(Math.ceil(d/7)!==week){
         week=Math.ceil(d/7);
-        const divider=el('div','journey-week'),name=el('span','journey-week-label','WEEK '+week+' ');
+        const divider=el('div','journey-week'),name=el('span','journey-week-label','BLOCK '+week+' ');
         name.append(el('b',null,'· '+weeks[week-1]));divider.append(name);list.append(divider);
       }
       const isToday=d===today,answer=state.answers[d],next=shown[i+1];

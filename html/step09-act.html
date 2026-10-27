@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Step 09 · Act</title>
+<!-- Step 09 · Break the habit. Same layout as Step 03, with three read-only rows, one box and no check. -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step02.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step03.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261021-signin">
+<script src="../assets/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/step/step.js?v=20261021-signin" defer></script>
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="progress" id="stepBar" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  </div>
+
+  <div class="step-label" id="stepLabel">STEP 09</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Swap your old habit for something better.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">THERE
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 01</span>
+        </div>
+        <p class="question">WHERE YOU’RE GOING</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="there"></p>
+      </div>
+    </section>
+
+    <!-- 02 MY OLD HABIT — read-only, Step 08's WHEN and WHAT after their starters -->
+    <section class="row row-static is-done" data-from-of="8">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">WHEN · WHAT
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 08</span>
+        </div>
+        <p class="question">MY OLD HABIT</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="when" data-starter="It usually happens when"></p>
+        <p class="mine-text" style="margin-top: 6px" data-from="what" data-starter="What I actually do is"></p>
+      </div>
+    </section>
+
+    <!-- 03 WHAT IT GIVES ME — read-only, Step 08's PAYOFF after its starter -->
+    <section class="row row-static is-done" data-from-of="8">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">PAYOFF
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 08</span>
+        </div>
+        <p class="question">WHAT IT GIVES ME</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="payoff" data-starter="It gives me"></p>
+      </div>
+    </section>
+
+    <!-- 04 SWAP — the replacement (no check: the arrow goes to MY PROMISE) -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">SWAP</div>
+        <label class="question" for="boxOne">MY SWAP</label>
+        <p class="prompt">Something that gives you the same thing, and moves you towards where you want to be.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">Instead, I will </span>
+          <textarea class="answer-box" id="boxOne" data-answer="SWAP" rows="3" maxlength="200" aria-label="My swap. Instead, I will"></textarea>
+        </div>
+        <div class="next-row" id="oneNextRow" style="display: flex">
+          <button class="next" id="oneNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MY PROMISE — built from Step 08's WHEN and MY SWAP, locked with I'M COMMITTED -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, when <span class="promise-rest is-empty">…</span>, I will pause and <span class="promise-rest is-empty">…</span>. If the moment doesn’t come, I will run through it once in my head.</p>
+
+        <div id="commitBlock">
+          <button class="hold" id="hold" disabled aria-describedby="holdHelp">
+            <span class="hold-fill" id="holdFill"></span>
+            <span class="hold-label hold-label--lg">I’M COMMITTED</span>
+          </button>
+          <p class="hold-help" id="holdHelp">Press and hold. Once committed, your promise can’t be changed.</p>
+        </div>
+
+        <div id="lockedBlock" hidden>
+          <div class="locked-row">
+            <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+            COMMITTED
+          </div>
+          <p class="done-text" id="lockedText" style="margin-top: 12px"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

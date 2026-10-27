@@ -1,0 +1,53 @@
+/* Block summary page. Depends on tokens.css and step.css (screen column, gold button). */
+
+.block-screen { text-align: center; }
+
+/* Top: round back button on the left, MIRROR 21 centred */
+.block-top { position: relative; display: flex; align-items: center; justify-content: center; height: 44px; }
+.block-back {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--rule); background: var(--bg); color: var(--ink);
+}
+.block-logo { font: italic 700 18px/1 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+.block-logo span { color: var(--gold); }
+
+/* Heading */
+.block-eyebrow { margin: 30px 0 0; font-size: var(--eyebrow-size); font-weight: 700; letter-spacing: 0.23em; color: var(--muted); }
+.block-title { margin: 12px auto 0; max-width: 300px; font: italic 700 44px/0.98 var(--font-display); letter-spacing: -0.035em; }
+.block-sub { margin: 14px 0 0; font-size: var(--intro-size); line-height: 1.5; font-weight: 300; color: var(--muted); }
+
+/* BLOCK 1 · BLOCK 2 · BLOCK 3 */
+.block-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 26px; }
+.block-bar-part { display: flex; flex-direction: column; gap: 10px; }
+.block-bar-part:nth-child(1) { text-align: left; }
+.block-bar-part:nth-child(3) { text-align: right; }
+.block-bar-fill { display: block; height: 6px; border-radius: 3px; background: var(--track); }
+.block-bar-part.is-done .block-bar-fill { background: var(--gold); }
+.block-bar-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; color: #a3a39e; }
+.block-bar-part.is-here .block-bar-label { color: var(--ink); }
+
+/* The skills, on a dotted gold rail */
+.block-skills { list-style: none; margin: 34px 0 0; padding: 0; text-align: left; }
+.block-skill { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 18px; padding-bottom: 30px; }
+.block-skill:not(:last-child)::before {
+  content: ''; position: absolute; left: 19px; top: 44px; bottom: 4px;
+  border-left: 2px dotted var(--gold);
+}
+.block-skill-num {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(#2a2a2a, #111); color: var(--gold);
+  font: italic 700 15px/1 var(--font-display);
+}
+.block-skill-name { margin: 8px 0 0; font: italic 700 var(--question-size)/1.1 var(--font-display); letter-spacing: -0.02em; }
+.block-skill-line { margin: 6px 0 0; font-size: 16px; line-height: 1.45; font-weight: 300; color: var(--muted); }
+.block-promise { margin-top: 14px; padding: 12px 16px 14px; border: 1px solid var(--rule); border-radius: 14px; background: var(--surface); }
+.block-promise-label { margin: 0; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; color: var(--muted); }
+.block-promise-text { margin: 6px 0 0; font-size: 15px; line-height: 1.45; font-weight: 500; color: var(--ink); }
+.block-promise-text.is-empty { color: #a3a39e; font-weight: 400; }
+
+/* Closing lines and BACK TO STEPS */
+.block-end { margin-top: 8px; padding-top: 30px; border-top: 1px solid var(--rule); }
+.block-closing { margin: 0; font: italic 700 26px/1.15 var(--font-display); letter-spacing: -0.02em; }
+.block-next { margin: 8px 0 0; font-size: 17px; line-height: 1.5; font-weight: 300; color: var(--muted); }
+.block-end .btn { margin-top: 26px; }

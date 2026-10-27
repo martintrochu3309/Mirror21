@@ -274,3 +274,13 @@ button.settings-row:active, label.settings-row:active { background: #ececE8; }
 .app-frame > div[style*="top: 59px"] { top: max(59px, calc(env(safe-area-inset-top) + 12px)) !important; }
 .mirror-scroll { padding-top: max(59px, calc(env(safe-area-inset-top) + 12px)); padding-bottom: max(130px, calc(env(safe-area-inset-bottom) + 110px)); }
 .course-tabs { bottom: max(24px, calc(env(safe-area-inset-bottom) + 8px)); }
+/* Block tiles: beside the last step of each block (07, 14, 21), placed by the map script (left/top = tile centre).
+   Locked: a grey step tile. Open and not yet seen: black like today's step. Seen: white with a gold check. */
+.block-spot { position: absolute; z-index: 1; transform: translate(-50%, -50%); }
+.block-label { position: absolute; left: 50%; bottom: calc(100% + 14px); transform: translateX(-50%); white-space: nowrap; font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .18em; color: #a3a39e; }
+.block-spot.open .block-label { color: #896a00; }
+.block-tile { text-decoration: none; }
+.block-tile.block-new { background: linear-gradient(#2a2a2a,#111); color: #e0b84c; box-shadow: 0 7px 0 #000, inset 0 2px rgba(255,255,255,.22); }
+/* The locked note lines up with the tile's right edge, so it stays on screen. */
+.block-note { position: absolute; right: 0; bottom: calc(100% + 8px); margin: 0; white-space: nowrap; z-index: 2; }
+.block-spot:has(.block-note) .block-label { visibility: hidden; }

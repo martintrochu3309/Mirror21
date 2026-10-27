@@ -72,11 +72,23 @@ body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antia
 .hint.is-resume svg { display: none; }
 [data-state=playing] .hint, [data-state=paused] .hint, [data-state=finish] .hint { opacity: 0; }
 
-/* Mid: video progress (display only) */
-.line { position: absolute; left: var(--m); right: var(--m); bottom: calc(var(--sb) + 6px); height: 3px; border-radius: 2px;
-  background: rgba(255,255,255,.3); opacity: 0; transition: opacity .4s; pointer-events: none; }
+/* Mid: the timeline. A thin gold line while playing; drag it (anywhere on its 40px strip) to go back or
+   forward. While dragging, and when paused, it thickens and shows a handle and the times either side.
+   Hidden at Start and Finish, and when paused on a rewatch (WATCH AGAIN and the button sit there). */
+.scrub { position: absolute; left: var(--m); right: var(--m); bottom: var(--sb); height: 40px; opacity: 0; pointer-events: none;
+  transition: opacity .4s; touch-action: none; cursor: pointer; }
+[data-state=playing] .scrub, [data-state=paused]:not(.is-watched) .scrub, .scrubbing .scrub { opacity: 1; pointer-events: auto; }
+.line { position: absolute; left: 0; right: 0; bottom: 6px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.3);
+  transition: height .15s; }
 .line i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--gold); }
-[data-state=playing] .line, [data-state=paused] .line { opacity: 1; }
+.knob { position: absolute; top: 50%; left: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--gold);
+  box-shadow: 0 1px 4px rgba(0,0,0,.4); opacity: 0; transform: scale(.5); transition: opacity .15s, transform .15s; }
+.scrub-time { position: absolute; bottom: 18px; left: 0; font-size: 11px; font-weight: 700; letter-spacing: .1em; color: rgba(255,255,255,.92);
+  font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .15s; }
+.scrub-total { left: auto; right: 0; }
+.scrubbing .line, [data-state=paused] .line { height: 5px; }
+.scrubbing .knob, [data-state=paused] .knob { opacity: 1; transform: none; }
+.scrubbing .scrub-time, [data-state=paused] .scrub-time { opacity: 1; }
 
 .soon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 8px 14px; border-radius: 20px; white-space: nowrap;
   background: rgba(0,0,0,.55); font-size: 11px; font-weight: 700; letter-spacing: .16em; opacity: 0; transition: opacity .4s; pointer-events: none; }
@@ -86,7 +98,6 @@ body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antia
 .end { position: absolute; left: var(--m); right: var(--m); bottom: calc(var(--sb) + 20px); display: flex; flex-direction: column; align-items: center; gap: 14px;
   opacity: 0; transform: translateY(24px); transition: opacity .5s, transform .5s; pointer-events: none; }
 [data-state=finish] .end, .is-watched[data-state=paused] .end { opacity: 1; transform: none; pointer-events: auto; }
-[data-state=paused].is-watched .line { opacity: 0; }
 .again { font-size: 12px; font-weight: 700; letter-spacing: .13em; color: rgba(255,255,255,.92); padding: 6px 10px; }
 /* Same gold as the app's primary buttons (YOUR TURN), black label, no arrow (agreed change from the handoff's deep gold). */
 .learn { display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border-radius: 29px;

@@ -49,7 +49,11 @@
     <span id="hintText">BEST WITH SOUND</span>
   </p>
 
-  <div class="line"><i id="line"></i></div>
+  <!-- Timeline: the thin gold line, draggable to go back or forward (a 40px-tall touch strip around it). -->
+  <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Video position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <span class="scrub-time" id="scrubAt">0:00</span><span class="scrub-time scrub-total" id="scrubTotal"></span>
+    <div class="line"><i id="line"></i><b class="knob" id="knob"></b></div>
+  </div>
   <p class="soon">VIDEO COMING SOON</p>
 
   <div class="end">
