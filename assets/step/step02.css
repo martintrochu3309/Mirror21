@@ -9,9 +9,9 @@
 .from span { color: var(--muted); }
 .mine-text { margin: 6px 0 0; font-size: var(--answer-size); line-height: 1.45; font-weight: 300; font-style: italic; color: var(--ink); }
 
-/* Proof test rows in the example: circle + verdict in the label column */
-.ex-verdict { padding-top: 3px; }
-.ex-verdict .ex-key { padding-top: 6px; }
+/* Proof test rows in the example: circle + verdict on one line, above the words */
+.ex-verdict { display: flex; align-items: center; gap: 10px; }
+.ex-verdict .ex-key { padding-top: 0; }
 .ex-text--fail { color: #8a8a86; }
 .ex-note { margin: 6px 0 0; font-size: 15px; line-height: 1.45; font-weight: 500; color: var(--muted); }
 .ex-block { padding: 16px 0; border-bottom: 1px solid var(--rule); }

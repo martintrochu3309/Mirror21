@@ -35,7 +35,8 @@
 .entry-meta .date { color: var(--muted); }
 .entry-chev { margin-left: auto; flex: none; color: var(--muted); transition: transform 300ms ease; }
 .entry.is-open .entry-chev { transform: rotate(180deg); }
-.entry-title { margin: 6px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 20px; line-height: 1.1; letter-spacing: -0.02em; text-transform: uppercase; }
+/* One line, 16px; a title still too long shrinks just enough to fit (set by prototype.js). */
+.entry-title { margin: 6px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 16px; line-height: 1.15; letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
 .entry-promise { margin: 10px 0 0; font-size: var(--move-text-size); line-height: 1.45; font-weight: 300; font-style: italic; color: var(--ink); }
 .entry.is-open .entry-promise { display: none; }
 .entry-detail { display: none; }

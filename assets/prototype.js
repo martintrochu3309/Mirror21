@@ -298,13 +298,31 @@
     container.querySelector(':scope > p')?.remove();
     const days=container.querySelector('[aria-label="Steps so far"]');
     days.classList.add('days-so-far');
-    days.querySelector('div > p:last-child').textContent=stats.checkIns+' OF 21';
     // Dots match the check-in icons: full, half or ring-only gold; committed is plain white.
     const dotLook={yes:['#e0b84c','2px solid #e0b84c'],partly:['linear-gradient(90deg,#e0b84c 50%,#ffffff 50%)','2px solid #e0b84c'],no:['#ffffff','2px solid #e0b84c']};
     days.querySelectorAll('span[title]').forEach((dot,i)=> { const d=i+1,answer=state.answers[d],committed=state.lessons[d]&&!answer;const [background,border]=answer?dotLook[answer]:committed?['#ffffff','1px solid #c9c9c5']:d===stats.today?['#ffffff','2px solid #111111']:['#e4e4e0','0'];dot.style.background=background;dot.style.border=border;dot.title='Step '+d+(answer?': '+labels[answer]:committed?': committed, not checked in yet':d===stats.today?': today':''); });
     const rings=container.querySelectorAll('[aria-label="Where I stand"] svg');
-    // Follow-through \u00b7 check-ins \u00b7 steps to go (the ring fills as steps are committed).
-    [[stats.checkIns?stats.points/stats.checkIns:0,stats.percent+'%','Follow-through so far, '+stats.percent+' percent'],[stats.checkIns/21,pad(stats.checkIns),stats.checkIns+' of 21 check-ins'],[stats.committed/21,String(stats.stepsToGo),stepsToGo(stats)]].forEach(([ratio,value,aria],i)=> { rings[i].querySelector('text').textContent=value;rings[i].setAttribute('aria-label',aria);rings[i].querySelectorAll('circle')[1].setAttribute('stroke-dashoffset',(314.16*(1-ratio)).toFixed(2)); });
+    // Follow-through \u00b7 steps to go (fills as steps are committed) \u00b7 missed: NO answers out of check-ins so far.
+    const graded=Object.keys(state.answers).map(Number).filter(d=>d>=1&&d<=21).sort((a,b)=>a-b);
+    const missed=graded.filter(d=>state.answers[d]==='no');
+    [[stats.checkIns?stats.points/stats.checkIns:0,stats.percent+'%','Follow-through so far, '+stats.percent+' percent'],[stats.committed/21,String(stats.stepsToGo),stepsToGo(stats)],[stats.checkIns?missed.length/stats.checkIns:0,String(missed.length),missed.length+' missed of '+stats.checkIns+' check-ins','OF '+stats.checkIns]].forEach(([ratio,value,aria,sub],i)=> { rings[i].querySelector('text').textContent=value;if(sub)rings[i].querySelectorAll('text')[1].textContent=sub;rings[i].setAttribute('aria-label',aria);rings[i].querySelectorAll('circle')[1].setAttribute('stroke-dashoffset',(314.16*(1-ratio)).toFixed(2)); });
+    // Worth a second look: the latest NO, otherwise the latest PARTLY, with its locked promise (two lines at
+    // most) and REVISIT STEP NN, which reopens it from Watch like a done step on the map. Nothing to look at:
+    // a short line instead.
+    const look=missed.at(-1)??graded.filter(d=>state.answers[d]==='partly').at(-1);
+    const tag=document.querySelector('#secondLookTag'),body=document.querySelector('#secondLookBody');
+    if(tag&&body){
+      tag.textContent=look?(state.answers[look]==='no'?'MISSED':'PARTLY'):'';
+      if(!look) body.replaceChildren(el('p','second-look-none','Nothing missed so far. Keep going.'));
+      else {
+        const step=el('div','second-look-step'),text=el('div','second-look-text');
+        text.append(el('p','second-look-name',MirrorSteps.title(look)),el('p','second-look-promise',(state.dayChanges[look]||'').trim()));
+        step.append(el('span','second-look-num',pad(look)),text);
+        const revisit=el('a','second-look-revisit','REVISIT STEP '+pad(look)+' ');revisit.href='step-watch.html?step='+look;
+        revisit.insertAdjacentHTML('beforeend','<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>');
+        body.replaceChildren(step,revisit);
+      }
+    }
     // The current block and its theme, e.g. BLOCK 1 \u00b7 SEE IT.
     const week=container.querySelector('[aria-label="Where I stand"] > div:last-child');
     week.children[0].textContent='BLOCK '+stats.week;week.children[1].textContent=weekThemes[stats.week-1];
@@ -334,19 +352,10 @@
     forget(key=>key.startsWith('mirror21-'));
     location.href=currentMap;
   }
-  // Settings: a scrolling sheet over the page. Toggles and the reminder time only remember the choice
-  // for now (nothing is sent yet); rows without an action are placeholders for parts still to build.
+  // Settings: a scrolling sheet over the page. Rows without an action are placeholders for parts still to build.
   function openSettings(gear) {
     if(document.querySelector('.settings'))return;
-    const installed=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
     const sections=[
-      ['REMINDERS',[
-        !installed&&{title:'Add Mirror 21 to your home screen',sub:'Needed on iPhone for reminders to work',tinted:true},
-        {title:'Daily step reminder',sub:'When your next step unlocks',flag:['mirror21-reminder-daily',true]},
-        {title:'Reminder time',time:true},
-        {title:'Evening check-in nudge',sub:'A reminder to keep today’s promise',flag:['mirror21-reminder-evening',false]}
-      ]],
-      ['VIDEO',[{title:'Captions',sub:'Show Kevin’s words on screen',flag:['mirror21-captions',true]}]],
       ['YOUR COURSE',[{title:'How Mirror 21 works',sub:'Replay the welcome with Kevin'},{title:'Save my journal as PDF',sub:'Every promise and answer, in one file',action:printJournal}]],
       ['HELP',[{title:'Questions and answers'},{title:'Contact us',sub:'We usually reply within a day'}]],
       ['ABOUT',[{title:'Daily Xcellence'},{title:'The Pocket Mirror',sub:'Free reflections from Kevin'},{title:'Privacy policy'},{title:'Terms and refund policy'}]],
@@ -354,29 +363,11 @@
     ];
     const chevron='<svg class="settings-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
     const row=item=>{
-      const tag=item.flag||item.action?'button':item.time?'label':'div';
-      const line=el(tag,'settings-row'+(item.tinted?' is-tinted':''));
-      if(tag==='button')line.type='button';
+      const line=el(item.action?'button':'div','settings-row');
+      if(item.action){line.type='button';line.addEventListener('click',item.action);}
       const text=el('span','settings-text');text.append(el('span','settings-title',item.title));
       if(item.sub)text.append(el('span','settings-sub',item.sub));
-      line.append(text);
-      if(item.flag){
-        const [key,on]=item.flag;
-        line.setAttribute('role','switch');line.setAttribute('aria-checked',String(read(key)===null?on:read(key)==='true'));
-        line.append(el('span','settings-switch'));
-        line.addEventListener('click',()=>{const next=line.getAttribute('aria-checked')!=='true';line.setAttribute('aria-checked',String(next));write(key,String(next));});
-      } else if(item.time){
-        // Same time as the map's bell; the phone's own time picker sets it.
-        const value=el('span','settings-value'),input=el('input','settings-time');
-        input.type='time';input.setAttribute('aria-label','Reminder time');input.value=read('mirror21-reminder')||'09:00';
-        const show=()=>{value.textContent=input.value.replace(/^0(?=\d)/,'');};show();
-        input.addEventListener('change',()=>{if(input.value){write('mirror21-reminder',input.value);show();}});
-        input.addEventListener('click',()=>{try{input.showPicker();}catch{}});
-        line.append(value);line.insertAdjacentHTML('beforeend',chevron);line.append(input);
-      } else {
-        if(item.action)line.addEventListener('click',item.action);
-        line.insertAdjacentHTML('beforeend',chevron);
-      }
+      line.append(text);line.insertAdjacentHTML('beforeend',chevron);
       const li=el('li');li.append(line);return li;
     };
     const sheet=el('section','settings');
@@ -433,7 +424,7 @@
   // Only the step's own answers, full sentences, as Act wrote them.
   const answersOf=d=>{
     const r=state.responses[d]||{};
-    // Steps 02–12 save typed words only: put each back after its sentence starter (Step 11's date in plain words).
+    // Steps 02–15 save typed words only: put each back after its sentence starter (Step 11's date in plain words).
     const said=(label,starter,key)=>[label,r[key]?.trim()?starter+' '+r[key].trim():''];
     const proof=['PROOF','Yes, I could prove it.'];
     const rows={
@@ -447,7 +438,11 @@
       9:[said('SWAP','Instead, I will','SWAP')],
       10:[said('WHY','This really matters to me because','WHY'),said('LINE','My line is','LINE')],
       11:[said('PERSON','I will tell','PERSON'),['REPORT BACK',r.DATE?'I will report back on '+MirrorSteps.plainDate(r.DATE)+'.':'']],
-      12:[said('MINIMUM','On a bad day, the least I will do is','MINIMUM')]
+      12:[said('MINIMUM','On a bad day, the least I will do is','MINIMUM')],
+      13:[['HARD DAY',r.DATE?'My hard day is '+MirrorSteps.plainDate(r.DATE)+'.':''],said('SLIP POINT','The point it’s most likely to slip is','SLIP'),
+        ['TOOL',{minimum:'My minimum.',swap:'My swap and my line.'}[r.TOOL]||''],said('GETTING READY','Today, to get ready, I will','READY')],
+      14:[['DECISION',{raise:'Raise the bar.',hold:'Make it hold.'}[r.DECISION]||''],r.DECISION==='raise'?said('NEW BAR','My one small increase is','NEWBAR'):['','']],
+      15:[said('STORY','If I miss, the story I’d tell myself is','STORY'),said('RESTART RULE','If I miss, I will restart','RULE')]
     }[MirrorSteps.lesson(d)]||[['HERE',r.HERE],['THERE',r.THERE],['TEST','Yes, that’s what I actually want.'],['STEP',r.STEP]];
     return rows.filter(([,text])=>text&&text.trim());
   };
@@ -508,9 +503,20 @@
     });
     const left=21-written.length;
     document.querySelector('#journeyFooter').textContent=left===0?'All 21 steps written.':left===1?'1 more step to write.':left+' more steps to write.';
+    fitEntryTitles();
     // Open on the latest graded step.
     if(openEntry)requestAnimationFrame(()=>{scroll.scrollTop=Math.max(0,scroll.scrollTop+openEntry.getBoundingClientRect().top-scroll.getBoundingClientRect().top-24);});
   }
+  // Step titles stay on one line: a long one shrinks just enough to fit (as on the Watch screen).
+  function fitEntryTitles() {
+    document.querySelectorAll('.entry-title').forEach(title=> {
+      title.style.fontSize='';
+      const range=document.createRange();range.selectNodeContents(title);
+      const needed=range.getBoundingClientRect().width,available=title.clientWidth;
+      if(needed>available)title.style.fontSize=Math.floor(parseFloat(getComputedStyle(title).fontSize)*available/needed*0.985*10)/10+'px';
+    });
+  }
+  if(filename==='19-my-journey.html'){document.fonts.ready.then(fitEntryTitles);let lastWidth=innerWidth;addEventListener('resize',()=>{if(innerWidth!==lastWidth){lastWidth=innerWidth;fitEntryTitles();}});}
   if(maps.includes(filename))renderMap(true);
   if(filename==='18-my-mirror.html')renderMirror();
   if(filename==='19-my-journey.html')renderJourney();

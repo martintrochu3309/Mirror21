@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Step 15 · Act</title>
+<!-- Step 15 · Know how to restart. Same layout as Step 03: three read-only rows, two boxes, no check. -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step02.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step03.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261021-signin">
+<script src="../assets/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/step/step.js?v=20261021-signin" defer></script>
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="progress" id="stepBar" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  </div>
+
+  <div class="step-label" id="stepLabel">STEP 15</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Decide now how you’ll come back from a miss.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">THERE
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 01</span>
+        </div>
+        <p class="question">WHERE YOU’RE GOING</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="there"></p>
+      </div>
+    </section>
+
+    <!-- 02 MY MOVE — read-only, the current move: Step 14's new bar if raised, otherwise the Step 03 move -->
+    <section class="row row-static is-done" data-from-of="3">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">MY MOVE
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 03</span>
+        </div>
+        <p class="question">YOUR MOVE</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="move"></p>
+      </div>
+    </section>
+
+    <!-- 03 MY MINIMUM — read-only, Step 12's MINIMUM after its starter -->
+    <section class="row row-static is-done" data-from-of="12">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="from">MINIMUM
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span data-from-step>FROM STEP 12</span>
+        </div>
+        <p class="question">MY MINIMUM</p>
+        <p class="mine-text" style="margin-top: 10px" data-from="minimum" data-starter="On a bad day, the least I will do is"></p>
+      </div>
+    </section>
+
+    <!-- 04 DROP THE STORY — the story I'd tell -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">DROP THE STORY</div>
+        <label class="question" for="boxOne">THE STORY I’D TELL</label>
+        <p class="prompt">Write it down, so you’ll recognise it when it shows up.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">If I miss, the story I’d tell myself is </span>
+          <textarea class="answer-box" id="boxOne" data-answer="STORY" rows="3" maxlength="200" aria-label="The story I’d tell. If I miss, the story I’d tell myself is"></textarea>
+        </div>
+        <div class="next-row" id="oneNextRow" style="display: flex">
+          <button class="next" id="oneNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 RESTART POINT — my restart rule (no check: the arrow goes to MY PROMISE) -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <div class="eyebrow">RESTART POINT <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve written the story"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <label class="question" for="boxTwo">MY RESTART RULE</label>
+        <p class="prompt">Your next chance, with your minimum.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">If I miss, I will restart </span>
+          <textarea class="answer-box" id="boxTwo" data-answer="RULE" rows="3" maxlength="200" aria-label="My restart rule. If I miss, I will restart"></textarea>
+        </div>
+        <div class="next-row" id="twoNextRow" style="display: flex" hidden>
+          <button class="next" id="twoNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MY PROMISE — the same words for everyone, locked with I'M COMMITTED once both boxes are filled -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">My restart rule is set. Today, I will do my move, or at least my minimum, if it’s due.</p>
+
+        <div id="commitBlock">
+          <button class="hold" id="hold" disabled aria-describedby="holdHelp">
+            <span class="hold-fill" id="holdFill"></span>
+            <span class="hold-label hold-label--lg">I’M COMMITTED</span>
+          </button>
+          <p class="hold-help" id="holdHelp">Press and hold. Once committed, your promise can’t be changed.</p>
+        </div>
+
+        <div id="lockedBlock" hidden>
+          <div class="locked-row">
+            <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+            COMMITTED
+          </div>
+          <p class="done-text" id="lockedText" style="margin-top: 12px"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

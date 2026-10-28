@@ -48,3 +48,22 @@ a.icon-btn { flex: none; text-decoration: none; }
 .example-toggle.is-open svg { transform: rotate(180deg); }
 .example-text { margin: 8px 0 0; font-size: 16px; line-height: 1.45; font-weight: 300; color: var(--muted); }
 .example-text em { font-style: italic; color: var(--example-ink); }
+/* Step 13 · a choice of tool: two full-width buttons, the chosen one black; its saved words underneath. */
+.pills--stack { flex-direction: column; }
+.pills--stack .pill { flex: none; }
+.choice-words:not(:empty) { margin-top: 14px; }
+/* A row only asked after a certain choice (Step 14's MY NEW BAR) stays hidden until then. */
+.row[hidden] { display: none; }
+
+/* Step 14 · MY RECORD: one line per earlier step, its check-in in the map's marks. */
+.record { list-style: none; margin: 12px 0 0; padding: 0; }
+.record-line { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; column-gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 15px; line-height: 1.3; }
+.record-line:last-child { border-bottom: 0; }
+.record-num { font: italic 700 13px/1 var(--font-display); color: var(--gold-text); }
+.record-title { font-weight: 300; color: var(--ink); }
+.record-mark { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: var(--ink); }
+.record-mark::before { content: ''; width: 12px; height: 12px; border-radius: 50%; box-sizing: border-box; border: 2px solid var(--gold); }
+.record-mark.yes::before { background: var(--gold); }
+.record-mark.partly::before { background: linear-gradient(90deg, var(--gold) 50%, #fff 50%); }
+.record-mark.none { color: var(--locked-number); }
+.record-mark.none::before { border-color: var(--locked-border); }

@@ -367,8 +367,10 @@
     const notes = state.responses[previous] ||= {};
     const choices = document.getElementById('choices');
     const next = document.getElementById('next');
-    // The exact promise locked at I'M COMMITTED, word for word.
-    document.getElementById('commitText').textContent = (state.dayChanges[previous] || notes.STEP || '').trim();
+    // The exact promise locked at I'M COMMITTED, word for word. Step 13's plans a day ahead, so its check-in
+    // grades only today's part: "Today, I will [getting ready]."
+    const ready = steps.lesson(previous) === 13 && (state.responses[previous]?.READY || '').trim().replace(/[\s.,;:!?]+$/, '');
+    document.getElementById('commitText').textContent = ready ? 'Today, I will ' + ready + '.' : (state.dayChanges[previous] || notes.STEP || '').trim();
     next.href = href('watch');
 
     // "Yesterday" must stay true; without a commit time, "Last time" always is.
@@ -436,10 +438,18 @@
   // marked "FROM STEP NN": data-from names the answer (there, move…), in the user's own words.
   // A row marked data-from-of="N" takes its answer from Step N instead (Step 07 shows two earlier steps).
   // An answer typed after a sentence starter (Step 08's) names it in data-starter: it shows in grey in front.
+  // MY MOVE is the current move: from Step 15 on, Step 14's new bar if the user raised the bar there (the Step 03
+  // move itself is never changed).
   function showEarlier(from = step - 1) {
-    const fromOf = el => Number(el.closest('[data-from-of]')?.dataset.fromOf) || from;
+    const raised = step > 14 && state.responses[14]?.DECISION === 'raise' && (state.responses[14].NEWBAR || '').trim();
+    // The step a row's answer comes from: Step 14 for the move once raised.
+    const fromOf = el => {
+      const of = Number(el.closest('[data-from-of]')?.dataset.fromOf) || from;
+      return raised && of === 3 && el.closest('.row')?.querySelector('[data-from="move"]') ? 14 : of;
+    };
     document.querySelectorAll('[data-from]').forEach(el => {
-      const words = (state.responses[fromOf(el)]?.[el.dataset.from.toUpperCase()] || '').trim();
+      const key = el.dataset.from.toUpperCase();
+      const words = (key === 'MOVE' && fromOf(el) === 14 ? raised : state.responses[fromOf(el)]?.[key] || '').trim();
       if (!el.dataset.starter) { el.textContent = words.charAt(0).toUpperCase() + words.slice(1); return; }
       const starter = document.createElement('span');
       starter.className = 'starter-text';
@@ -671,11 +681,11 @@
     render(false);
   }
 
-  // Steps 03–12 · Answers read-only from earlier steps, one to three boxes, a YES / NOT SURE check, then MY PROMISE.
+  // Steps 03–15 · Answers read-only from earlier steps, one to four boxes, a YES / NOT SURE check, then MY PROMISE.
   // Stages: one per box (0, 1…), then check, promise, committed (two boxes: 2 · 3 · 4). Each box saves the user's
   // typed words under its data-answer key. Per lesson: the step the read-only answer comes from, the box NOT SURE
   // sends you back to (its hint sits in that row), and the promise, built from the boxes (numbers are box indexes)
-  // and earlier answers ({ from: step, key }). A page without the check (Steps 07–12) goes from the last box
+  // and earlier answers ({ from: step, key }). A page without the check (Steps 07–15) goes from the last box
   // straight to MY PROMISE.
   function twoBoxActScreen() {
     const lessonSetup = {
@@ -688,37 +698,90 @@
       9: { from: 1, promise: ['Today, when ', { from: 8, key: 'WHEN' }, ', I will pause and ', 0, '. If the moment doesn’t come, I will run through it once in my head.'] },
       10: { from: 1, promise: ['Today, when ', { from: 8, key: 'WHEN' }, ', I will pause, say “', 1, '”, and ', { from: 9, key: 'SWAP' }, '. If the moment doesn’t come, I will run through it once in my head.'] },
       11: { from: 1, promise: ['Today, I will tell ', 0, ' what I’m changing, and that I will report back on ', 1, '.'] },
-      12: { from: 1, promise: ['Today, I will do my move, or at least ', 0, '.'] }
+      12: { from: 1, promise: ['Today, I will do my move, or at least ', 0, '.'] },
+      // Step 13: the promise follows the chosen tool, in the user's own words from Steps 12, or 9 and 10.
+      13: { from: 1, promise: answers => [
+        'On ', 0, ', I will ',
+        ...answers.TOOL === 'minimum' ? ['do at least my minimum: ', { from: 12, key: 'MINIMUM' }]
+          : answers.TOOL === 'swap' ? ['pause, say “', { from: 10, key: 'LINE' }, '”, and ', { from: 9, key: 'SWAP' }]
+          : [{ empty: true }],
+        '. Today, I will ', 3, '.'] },
+      // Step 14: raise the bar (MY NEW BAR) or make it hold (the Step 03 move).
+      14: { from: 1, promise: answers =>
+        answers.DECISION === 'raise' ? ['Today, I will start my new bar: ', 1, '.']
+        : answers.DECISION === 'hold' ? ['Today, I will do my full move: ', { from: 3, key: 'MOVE' }, '.']
+        : ['Today, I will ', { empty: true }, '.'] },
+      // Step 15: the same words for everyone; the boxes hold the story and the restart rule.
+      15: { from: 1, promise: ['My restart rule is set. Today, I will do my move, or at least my minimum, if it’s due.'] }
     }[steps.lesson(step)];
     const answers = state.responses[step] ||= {};
     const isCommitted = () => Boolean(state.lessons[step]);
     const $ = id => document.getElementById(id);
-    // A box is a textarea, or a date (Step 11): a hidden date input over a box that shows the day in plain words.
+    // A box is a textarea; a date (Steps 11 and 13): a hidden date input over a box that shows the day in plain
+    // words; or a choice (Step 13's tool): a hidden input set by its row's [data-choice] buttons.
     const boxes = Array.from(document.querySelectorAll('[data-answer]'));
     const isDate = i => boxes[i].type === 'date';
+    const isChoice = i => boxes[i].type === 'hidden';
     const keys = boxes.map(box => box.dataset.answer);
     const rows = boxes.map(box => box.closest('.row')), rowPromise = $('rowPromise'), hold = $('hold');
     const hasCheck = Boolean($('proofQ'));
-    const last = boxes.length - 1, CHECK = boxes.length, PROMISE = CHECK + 1, DONE = PROMISE + 1;
+    const CHECK = boxes.length, PROMISE = CHECK + 1, DONE = PROMISE + 1;
+    // A box marked data-when="KEY=value" is only asked after that choice (Step 14's MY NEW BAR, after RAISE THE
+    // BAR); otherwise its row is hidden and skipped.
+    const needed = i => { const [key, value] = (boxes[i].dataset.when || '').split('='); return !key || answers[key] === value; };
+    const lastNeeded = () => boxes.reduce((found, box, i) => needed(i) ? i : found, 0);
     // Act's share per stage: the boxes spread over 10–60%, then check 60%, promise 85%, committed 100%.
     const PROGRESS = [...boxes.map((box, i) => 0.1 + 0.5 * i / boxes.length), 0.6, 0.85, 1];
     const written = i => (answers[keys[i]] || '').trim();
     // The user's words inside the promise, without a closing full stop or their own quotation marks
     // (the sentence carries its own: Step 10 quotes MY LINE).
     // A date reads in plain words, as seen from today ("Sunday", or "Sunday 9 November" beyond the coming week).
+    // { empty: true } stands for words still to come (Step 13 before a tool is chosen).
     const inPromise = part => typeof part === 'number' && isDate(part) ? steps.plainDate(written(part), new Date())
+      : part.empty ? ''
       : (typeof part === 'number' ? written(part) : (state.responses[part.from]?.[part.key] || '').trim())
         .replace(/^["“]+\s*/, '').replace(/[\s.,;:!?"”]+$/, '');
-    const promiseText = () => lessonSetup.promise.map(part => typeof part === 'string' ? part : inPromise(part)).join('');
+    const parts = () => typeof lessonSetup.promise === 'function' ? lessonSetup.promise(answers) : lessonSetup.promise;
+    const promiseText = () => parts().map(part => typeof part === 'string' ? part : inPromise(part)).join('');
     showEarlier(lessonSetup.from);
+    // MY RECORD (Step 14): every earlier step's check-in, one line each with its title, in the map's marks
+    // (YES full gold, PARTLY half gold, NO a gold ring). No percentages or score: the user decides.
+    if ($('record')) $('record').replaceChildren(...Array.from({ length: step - 1 }, (_, n) => {
+      const d = n + 1, answer = state.answers[d];
+      const line = document.createElement('li'); line.className = 'record-line';
+      const num = document.createElement('span'); num.className = 'record-num'; num.textContent = pad(d);
+      const title = document.createElement('span'); title.className = 'record-title'; title.textContent = steps.title(d);
+      const mark = document.createElement('span'); mark.className = 'record-mark ' + (answer || 'none');
+      mark.textContent = { yes: 'YES', partly: 'PARTLY', no: 'NO' }[answer] || '—';
+      line.append(num, title, mark);
+      return line;
+    }));
     $('lockedText').textContent = 'Your promise is locked. Step ' + pad(step + 1) + ' starts by asking how it went.';
     if (committed) record.stage = DONE;
     if (!committed) { record.act = PROGRESS[record.stage] ?? PROGRESS[0]; save(); }
-    boxes.forEach((box, i) => { if (!isDate(i)) fitStarter(box); });
-    // The report-back day can be tomorrow at the earliest.
-    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-    const isoDay = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    boxes.forEach((box, i) => { if (isDate(i)) box.min = isoDay(tomorrow); });
+    boxes.forEach(box => { if (box.tagName === 'TEXTAREA') fitStarter(box); });
+    // A day can be tomorrow at the earliest; data-days caps how far ahead (Step 13: seven days).
+    const isoDay = days => { const d = new Date(); d.setDate(d.getDate() + days); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    boxes.forEach((box, i) => { if (isDate(i)) { box.min = isoDay(1); if (box.dataset.days) box.max = isoDay(Number(box.dataset.days)); } });
+    // A choice shows, under its buttons, the earlier words it stands for (data-shows="step:KEY:starter|…").
+    function renderChoice(i) {
+      const row = rows[i], picked = written(i);
+      row.querySelectorAll('[data-choice]').forEach(button => {
+        const on = button.dataset.choice === picked;
+        button.classList.toggle('pill--ink', on); button.classList.toggle('pill--outline', !on);
+        button.setAttribute('aria-pressed', String(on));
+        button.disabled = isCommitted() || record.stage < i;
+      });
+      const shown = row.querySelector('.choice-words'), button = row.querySelector('[data-choice="' + picked + '"]');
+      if (!shown) return;
+      shown.replaceChildren(...(button?.dataset.shows ? button.dataset.shows.split('|') : []).map(spec => {
+        const [from, key, starter] = spec.split(':');
+        const line = document.createElement('p'); line.className = 'mine-text';
+        const lead = document.createElement('span'); lead.className = 'starter-text'; lead.textContent = starter;
+        line.append(lead, ' ' + (state.responses[from]?.[key] || '').trim());
+        return line;
+      }));
+    }
 
     function mark(row, active, done) {
       row.classList.toggle('is-active', active); row.classList.toggle('is-done', done);
@@ -727,7 +790,7 @@
     }
     // MY PROMISE forms live: the user's words in place, "…" in grey until written.
     function renderPromise() {
-      $('promise').replaceChildren(...lessonSetup.promise.map(part => {
+      $('promise').replaceChildren(...parts().map(part => {
         if (typeof part === 'string') return document.createTextNode(part);
         const words = document.createElement('span');
         words.className = 'promise-rest' + (inPromise(part) ? '' : ' is-empty');
@@ -740,12 +803,15 @@
       boxes.forEach((box, i) => {
         if (box.value !== (answers[keys[i]] || '')) box.value = answers[keys[i]] || '';
         box.readOnly = isCommitted();
+        if (isChoice(i)) renderChoice(i);
         if (!isDate(i)) return;
         const shown = box.parentElement.querySelector('.date-shown');
         shown.textContent = written(i) ? steps.plainDate(written(i)) : 'pick a day';
         shown.classList.toggle('is-empty', !written(i));
       });
+      const last = lastNeeded();
       rows.forEach((row, i) => {
+        row.hidden = !needed(i);
         boxes[i].disabled = s < i;
         mark(row, s === i || (i === last && s === CHECK), i === last ? s >= PROMISE : s > i);
         row.querySelector('.next-row').hidden = s !== i;
@@ -760,7 +826,7 @@
         $('proofHint').hidden = !(record.notSure && s === lessonSetup.back);
       }
       renderPromise();
-      hold.disabled = s !== PROMISE || boxes.some((box, i) => !written(i));
+      hold.disabled = s !== PROMISE || boxes.some((box, i) => needed(i) && !written(i));
       $('commitBlock').hidden = s === DONE;
       $('lockedBlock').hidden = s !== DONE;
       if (scroll) scrollToRow(s >= PROMISE ? rowPromise : rows[Math.min(s, last)], s <= last);
@@ -776,10 +842,12 @@
       if (stage === DONE) returnToMap();
     }
 
-    // Typing autosaves; Return (or the arrow) moves on. The last box leads to the check, or straight to the promise.
+    // Typing autosaves; Return (or the arrow) moves on to the next box still to ask. The last box leads to the
+    // check, or straight to the promise.
     const advance = i => {
       if (!written(i) || record.stage !== i) return;
-      if (i < last) go(i + 1);
+      const next = boxes.findIndex((box, j) => j > i && needed(j));
+      if (next > -1) go(next);
       else go(hasCheck ? CHECK : PROMISE, { notSure: false });
     };
     boxes.forEach((box, i) => {
@@ -790,6 +858,13 @@
         // Tapping anywhere on the box opens the calendar (iPhone does this by itself).
         box.addEventListener('click', () => { if (!isCommitted() && !box.disabled) try { box.showPicker(); } catch {} });
       }
+      // Changing a choice after moving on goes back to it, since the questions after it may change (Step 14).
+      if (isChoice(i)) rows[i].querySelectorAll('[data-choice]').forEach(button => button.addEventListener('click', () => {
+        if (isCommitted() || record.stage < i) return;
+        const changed = answers[keys[i]] !== button.dataset.choice;
+        box.value = answers[keys[i]] = button.dataset.choice; save();
+        if (changed && record.stage > i) go(i); else render(false);
+      }));
       box.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); advance(i); } });
       rows[i].querySelector('.next').addEventListener('click', () => advance(i));
     });

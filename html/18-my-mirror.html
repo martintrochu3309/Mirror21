@@ -34,7 +34,6 @@ a:focus-visible{outline:2px solid #896a00;outline-offset:4px}
   <section class="days-so-far" aria-label="Steps so far" style="margin-top: 18px; padding: 16px 18px 14px; border-radius: 24px; background: #f7f7f5">
     <div style="display: flex; justify-content: space-between; align-items: baseline">
       <p style="margin: 0; font: 700 10px/1.4 'Neue Haas Display', Arial, sans-serif; letter-spacing: .2em; color: #646461">STEPS SO FAR</p>
-      <p style="margin: 0; font: 700 10px/1.4 'Neue Haas Display', Arial, sans-serif; letter-spacing: .14em">0 OF 21</p>
     </div>
     <div style="display: flex; justify-content: space-between; margin-top: 12px">
       
@@ -118,16 +117,6 @@ a:focus-visible{outline:2px solid #896a00;outline-offset:4px}
         </div>
       
         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
-          <svg viewBox="0 0 112 112" width="88" height="88" role="img" aria-label="0 of 21 check-ins">
-            <circle cx="56" cy="56" r="50" fill="none" stroke="#e6e6e2" stroke-width="7"></circle>
-            <circle cx="56" cy="56" r="50" fill="none" stroke="#e0b84c" stroke-width="7" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 56 56)"></circle>
-            <text x="56" y="58" text-anchor="middle" fill="#111111" style="font: 700 26px 'Magistral', Arial, sans-serif">00</text>
-            <text x="56" y="76" text-anchor="middle" fill="#646461" style="font: 700 8px 'Neue Haas Display', Arial, sans-serif; letter-spacing: .16em">OF 21</text>
-          </svg>
-          <span style="font: italic 700 11px/1.1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: .04em">CHECK-INS</span>
-        </div>
-      
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
           <svg viewBox="0 0 112 112" width="88" height="88" role="img" aria-label="21 steps to go">
             <circle cx="56" cy="56" r="50" fill="none" stroke="#e6e6e2" stroke-width="7"></circle>
             <circle cx="56" cy="56" r="50" fill="none" stroke="#e0b84c" stroke-width="7" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 56 56)"></circle>
@@ -136,12 +125,32 @@ a:focus-visible{outline:2px solid #896a00;outline-offset:4px}
           </svg>
           <span style="font: italic 700 11px/1.1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: .04em">TO GO</span>
         </div>
-      
+
+        <!-- MISSED: NO answers out of check-ins so far, in dark grey (a miss is not a gold achievement) -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
+          <svg viewBox="0 0 112 112" width="88" height="88" role="img" aria-label="0 missed">
+            <circle cx="56" cy="56" r="50" fill="none" stroke="#e6e6e2" stroke-width="7"></circle>
+            <circle cx="56" cy="56" r="50" fill="none" stroke="#646461" stroke-width="7" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 56 56)"></circle>
+            <text x="56" y="58" text-anchor="middle" fill="#111111" style="font: 700 26px 'Magistral', Arial, sans-serif">0</text>
+            <text x="56" y="76" text-anchor="middle" fill="#646461" style="font: 700 8px 'Neue Haas Display', Arial, sans-serif; letter-spacing: .16em">OF 0</text>
+          </svg>
+          <span style="font: italic 700 11px/1.1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: .04em">MISSED</span>
+        </div>
+
     </div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin: 14px 6px 0; padding-top: 12px; border-top: 1px solid #e6e6e2">
       <span style="font: 700 10px/1.4 'Neue Haas Display', Arial, sans-serif; letter-spacing: .2em; color: #896a00">BLOCK 1</span>
       <span style="font: italic 700 15px/1 'Magistral', Arial, Helvetica, sans-serif">SEE IT</span>
     </div>
+  </section>
+
+  <!-- WORTH A SECOND LOOK: the latest NO, or else the latest PARTLY (filled in by prototype.js) -->
+  <section class="second-look" aria-label="Worth a second look">
+    <div class="second-look-top">
+      <p class="second-look-title">WORTH A SECOND LOOK</p>
+      <p class="second-look-tag" id="secondLookTag"></p>
+    </div>
+    <div id="secondLookBody"></div>
   </section>
 
 </div>

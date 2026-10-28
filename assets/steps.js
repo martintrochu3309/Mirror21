@@ -1,6 +1,6 @@
 // The 21 step titles, plus each step's Watch content and where its lesson comes from.
-// Steps 01–12 have their own lessons; Steps 13–18 reuse Step 01's as placeholders,
-// and Steps 19–21 stay unavailable until content arrives. Steps 01–12 have their portrait videos so far.
+// Steps 01–15 have their own lessons; Steps 16–18 reuse Step 01's as placeholders,
+// and Steps 19–21 stay unavailable until content arrives. Steps 01–14 have their portrait videos so far.
 (function (root) {
   const titles = [
     'Welcome to Mirror 21',
@@ -28,12 +28,13 @@
     1: filmed(1, '1:45'), 2: filmed(2, '1:18'), 3: filmed(3, '1:18'),
     4: filmed(4, '1:25'), 5: filmed(5, '1:38'), 6: filmed(6, '1:13'),
     7: filmed(7, '1:20'), 8: filmed(8, '1:27'), 9: filmed(9, '1:30'),
-    10: filmed(10, '1:27'), 11: filmed(11, '1:35'), 12: filmed(12, '1:29')
+    10: filmed(10, '1:27'), 11: filmed(11, '1:35'), 12: filmed(12, '1:29'),
+    13: filmed(13, '1:27'), 14: filmed(14, '1:31')
   };
   const defaults = { video: '', image: '../assets/images/step01-start.jpg', finish: '', duration: '', next: 'LEARN' };
   const available = step => Number.isInteger(step) && step >= 0 && step <= 18;
-  // Lesson (Learn + Act) this step shows: Steps 02–12 have their own; Steps 01 and 13–18 use Step 01's.
-  const lesson = step => step >= 2 && step <= 12 ? step : available(step) && step > 0 ? 1 : null;
+  // Lesson (Learn + Act) this step shows: Steps 02–15 have their own; Steps 01 and 16–18 use Step 01's.
+  const lesson = step => step >= 2 && step <= 15 ? step : available(step) && step > 0 ? 1 : null;
   // Page for a screen of a step: Check in and Watch are shared, Learn and Act follow the lesson.
   const page = (step, screen) => (screen === 'learn' || screen === 'act') && lesson(step) > 1 ? 'step' + String(lesson(step)).padStart(2, '0') + '-' + screen + '.html' : 'step-' + screen + '.html';
   // "See an example" on Act, per lesson and answer box (its data-answer, data-field or id, in capitals): the words
@@ -51,13 +52,17 @@
     9: { SWAP: 'pick up my book.' },
     10: { WHY: 'I’m tired of only being half there.', LINE: '“Be all there tomorrow.”' },
     11: { PERSON: 'Sam, a friend I trust.' },
-    12: { MINIMUM: 'get my feet on the floor at 6:30, even if I’m slow after that.' }
+    12: { MINIMUM: 'get my feet on the floor at 6:30, even if I’m slow after that.' },
+    13: { SLIP: 'Friday at 6:30, when the alarm goes after a late night.', READY: 'put “Friday 6:30, feet on the floor” in my calendar and set Friday’s alarm now.' },
+    14: { NEWBAR: 'being dressed and ready to start my morning by 6:40.' },
+    15: { STORY: '“I’ve blown it this week, I’ll start again on Monday.”', RULE: 'the next morning with feet on the floor at 6:30.' }
   };
   const example = (step, key) => examples[lesson(step)]?.[key] || '';
   // The three blocks of seven steps. Each ends with a summary page (html/block.html?block=N), reached from a tile
   // beside its last step: one skill per step, then the closing lines. A block without skills has no page yet.
   const blocks = [
-    { name: 'MAKE THE MOVE', first: 1, last: 7, closing: ['You’ve made the move.', 'Next, you make it stick.'], skills: [
+    // description: what the block is for (not shown anywhere yet).
+    { name: 'MAKE THE MOVE', description: 'Build the actions.', first: 1, last: 7, closing: ['You’ve made the move.', 'Next, you make it stick.'], skills: [
       ['DIRECTION', 'You know where you’re going.'],
       ['ACTION', 'You can turn an intention into something you can prove you did.'],
       ['PRIORITY', 'You can identify the move that matters most.'],
@@ -66,7 +71,15 @@
       ['SURROUNDINGS', 'You can change your surroundings to make the right behaviour easier.'],
       ['ROUTINE', 'You can link an action to something you already do each day.']
     ] },
-    { name: 'MAKE IT STICK', first: 8, last: 14, skills: [] },
+    { name: 'MAKE IT STICK', description: 'Learn how to sustain and progress them.', first: 8, last: 14, closing: ['You’ve learned how to make it stick.', 'Next, you make it yours.'], skills: [
+      ['PATTERN', 'You can spot your old habit: when it shows up, what you do, and what it gives you.'],
+      ['REPLACEMENT', 'You can swap an old habit for something that gives you the same thing.'],
+      ['REASON', 'You can use your own line at the moment the old habit pulls.'],
+      ['ACCOUNTABILITY', 'You can put your promise where someone else can see it.'],
+      ['MINIMUM', 'You can keep your move going on the days you can’t do it all.'],
+      ['PREPARATION', 'You can plan which tool you’ll use on a hard day, before it arrives.'],
+      ['PROGRESSION', 'You can let the evidence decide when to raise the bar.']
+    ] },
     { name: 'MAKE IT YOURS', first: 15, last: 21, skills: [] }
   ];
   const block = n => blocks[n - 1] ? { number: n, ...blocks[n - 1], ready: blocks[n - 1].skills.length > 0 } : null;

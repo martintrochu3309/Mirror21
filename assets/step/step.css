@@ -77,9 +77,12 @@ button, textarea { font-family: inherit; }
 
 /* ---------- LEARN ---------- */
 .moves { position: relative; margin-top: 34px; display: flex; flex-direction: column; gap: 30px; }
-.moves::before { content: ""; position: absolute; left: 21px; top: 22px; bottom: 60px; width: 2px; background: var(--path-learn); }
+/* The line joins each move's circle to the next one's (22px = circle centre, 30px = gap between moves), so it
+   ends exactly at the last circle, however long the last move's text is. */
 .move { position: relative; display: flex; gap: 18px; }
+.move:not(:last-child)::before { content: ""; position: absolute; left: 21px; top: 22px; bottom: -52px; width: 2px; background: var(--path-learn); }
 .move-num {
+  position: relative; z-index: 1; /* above the line */
   width: 44px; height: 44px; flex: none; border-radius: 22px; background: var(--bg); border: 2px solid var(--gold);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 17px; color: var(--ink);
@@ -95,7 +98,9 @@ button, textarea { font-family: inherit; }
 
 .example-label { margin-top: 40px; font-size: var(--label-size); font-weight: 700; letter-spacing: 0.23em; color: var(--gold-text); }
 .ex { margin-top: 14px; border-top: 1px solid var(--rule); }
-.ex-row { display: grid; grid-template-columns: 70px minmax(0, 1fr); column-gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+/* Example rows: the label above its words, on every step (agreed change from the handoff's label column). */
+.ex-row { padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.ex-row > :not(:first-child) { margin-top: 10px; }
 .ex-key { padding-top: 5px; font-size: var(--eyebrow-size); line-height: 1.5; font-weight: 700; letter-spacing: 0.23em; color: var(--muted); }
 .ex-key--gold { color: var(--gold-text); }
 .ex-text { margin: 0; font-size: var(--answer-size); line-height: 1.45; font-weight: 300; font-style: italic; color: var(--example-ink); }

@@ -25,5 +25,5 @@ h1.step-label { margin-bottom: 0; }
 
 /* Act: the promise row's node is a lock, gold once committed */
 .node--lock { color: var(--muted); }
-.row.is-active .node--lock, .row.is-done .node--lock { color: var(--on-gold); }
-.row.is-active .node--lock { background: var(--gold-tint); }
+/* At MY PROMISE and once committed, the rail's lock matches the COMMITTED mark: shiny gold, black lock. */
+.row.is-active .node--lock, .row.is-done .node--lock { background: var(--gold-gradient); border-color: transparent; color: var(--on-gold); }

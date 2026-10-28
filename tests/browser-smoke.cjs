@@ -458,10 +458,16 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector("#commitText").textContent'),'Today, I will leave my laptop at work tonight.');
 
    await go('18-my-mirror.html');
-   assert.equal(await evaluate('document.querySelector(".days-so-far > div > p:last-child").textContent'),'1 OF 21');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".days-so-far > div:first-child p"),p=>p.textContent)'),['STEPS SO FAR'],'No "OF 21" count');
    assert.equal(await evaluate('document.querySelectorAll(".day-row, h2").length'),0,'No MY STEPS list on My Mirror');
-   const ring3=await evaluate('(()=>{const s=document.querySelectorAll("[aria-label=\\"Where I stand\\"] svg")[2];return {value:s.querySelector("text").textContent,sub:s.querySelectorAll("text")[1].textContent,caption:s.parentElement.querySelector("span").textContent,label:s.getAttribute("aria-label")}})()');
-   assert.deepEqual(ring3,{value:'19',sub:'STEPS',caption:'TO GO',label:'19 steps to go'});
+   const ring=n=>evaluate('(()=>{const s=document.querySelectorAll("[aria-label=\\"Where I stand\\"] svg")['+n+'];return {value:s.querySelector("text").textContent,sub:s.querySelectorAll("text")[1].textContent,caption:s.parentElement.querySelector("span").textContent,label:s.getAttribute("aria-label"),stroke:s.querySelectorAll("circle")[1].getAttribute("stroke")}})()');
+   assert.deepEqual(await ring(1),{value:'19',sub:'STEPS',caption:'TO GO',label:'19 steps to go',stroke:'#e0b84c'},'TO GO in the middle');
+   assert.deepEqual(await ring(2),{value:'0',sub:'OF 1',caption:'MISSED',label:'0 missed of 1 check-ins',stroke:'#646461'},'MISSED on the right, dark grey');
+   // Worth a second look: no NO yet, so the latest PARTLY (Step 01).
+   const secondLook=()=>evaluate('({tag:document.querySelector("#secondLookTag").textContent,num:document.querySelector(".second-look-num")?.textContent,name:document.querySelector(".second-look-name")?.textContent,promise:document.querySelector(".second-look-promise")?.textContent,href:document.querySelector(".second-look-revisit")?.getAttribute("href"),revisit:document.querySelector(".second-look-revisit")?.textContent.trim(),none:document.querySelector(".second-look-none")?.textContent})');
+   assert.deepEqual(await secondLook(),{tag:'PARTLY',num:'01',name:'Know Where You Are Going',promise:'Today, I will say no to one request this week, kindly and clearly.',href:'step-watch.html?step=1',revisit:'REVISIT STEP 01'});
+   const clamp=await evaluate('(()=>{const p=document.querySelector(".second-look-promise"),s=getComputedStyle(p);return {lines:Math.round(p.getBoundingClientRect().height/parseFloat(s.lineHeight)),clamp:s.webkitLineClamp}})()');
+   assert.ok(clamp.lines<=2&&clamp.clamp==='2','The promise shows two lines at most: '+JSON.stringify(clamp));
    assert.equal(await evaluate('document.querySelector("[aria-label=\\"Where I stand\\"] svg text").textContent'),'50%','One PARTLY = 50%');
    assert.equal(await evaluate('document.querySelector("[aria-label=\\"Where I stand\\"] > div:last-child").textContent.replace(/\\s+/g," ").trim()'),'BLOCK 1 SEE IT');
    if(phone)await shot('my-mirror-mobile.png');
@@ -470,14 +476,10 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    const gearBox=await evaluate('(()=>{const r=document.querySelector(".settings-gear").getBoundingClientRect(),f=document.querySelector(".app-frame").getBoundingClientRect();return {right:f.right-r.right,top:r.top-f.top,width:r.width}})()');
    assert.ok(gearBox.top<20&&gearBox.right<20&&gearBox.width<=32,JSON.stringify(gearBox));
    await click('.settings-gear');await wait(400);
-   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".settings h3"),h=>h.textContent)'),['REMINDERS','VIDEO','YOUR COURSE','HELP','ABOUT','YOUR DATA']);
-   const settingsBox=await evaluate('(()=>{const s=document.querySelector(".settings");return {scrolls:s.scrollHeight>s.clientHeight,overflow:getComputedStyle(s).overflowY}})()');
-   assert.ok(settingsBox.scrolls&&settingsBox.overflow==='auto','Settings scrolls: '+JSON.stringify(settingsBox));
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".settings h3"),h=>h.textContent)'),['YOUR COURSE','HELP','ABOUT','YOUR DATA'],'No reminders or video sections');
+   assert.equal(await evaluate('getComputedStyle(document.querySelector(".settings")).overflowY'),'auto','Settings scrolls when it needs to');
    if(phone)await shot('settings-mobile.png');
    const settingRow=text=>'Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes('+JSON.stringify(text)+'))';
-   await evaluate(settingRow('Daily step reminder')+'.click()');
-   assert.equal(await evaluate('localStorage.getItem("mirror21-reminder-daily")'),'false','A toggle remembers its choice');
-   assert.equal(await evaluate(settingRow('Daily step reminder')+'.getAttribute("aria-checked")'),'false');
    await evaluate('window.confirm=()=>false');await evaluate(settingRow('Start over')+'.click()');await wait(300);
    assert.ok(await evaluate('localStorage.getItem("mirror21-progress")!==null'),'Cancel keeps everything');
    await click('.settings-close');await wait(400);
@@ -783,6 +785,160 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await ready('04-map-start.html');
     await go('step-checkin.html?step=13');
     assert.equal(await evaluate('document.querySelector("#commitText").textContent'),promise12,'Step 13’s check-in grades Step 12’s promise');
+   }
+   // Step 13: THERE and MY MOVE read-only; MY HARD DAY (a date, tomorrow to a week ahead), THE SLIP POINT, MY TOOL
+   // (minimum, or swap and line, showing the saved words), GETTING READY; no check. Step 14's check-in grades only
+   // today's preparation.
+   {
+    const stage13=async()=>(await stored()).steps[13].stage;
+    const day=new Date();day.setDate(day.getDate()+2);
+    const iso=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+    const weekday=day.toLocaleDateString('en-GB',{weekday:'long'});
+    const promise13='On '+weekday+', I will pause, say “Be all there tomorrow”, and read ten pages of my book. Today, I will set two alarms for that morning.';
+    await click('.choice[data-choice="yes"]');await wait(300);await click('#next');await ready('step-watch.html');
+    await command('Page.navigate',{url:base+'/html/step-learn?step=13'});await ready('step13-learn.html');
+    assert.equal(await evaluate('document.querySelectorAll(".move").length'),4);
+    await noOverflow();
+    if(phone)await shot('step13-learn-mobile.png',true);
+    await evaluate('scrollTo(0,document.documentElement.scrollHeight)');await wait(500);
+    await click('#next');await ready('step13-act.html');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("[data-from]"),e=>e.textContent)'),['I want to be able to have two evenings a week that are truly mine.','Saying no to extra evening work']);
+    const limits=await evaluate('[document.querySelector("#boxOne").min,document.querySelector("#boxOne").max]');
+    const isoIn=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+    assert.deepEqual(limits,[isoIn(1),isoIn(7)],'The hard day: tomorrow to a week ahead');
+    await evaluate('(()=>{const d=document.querySelector("#boxOne");d.value="'+iso+'";d.dispatchEvent(new Event("change"));})()');await wait(200);
+    await click('#oneNext');await wait(300);assert.equal(await stage13(),1);
+    await typeInto('#boxTwo','the morning after the work dinner');await pressEnter('#boxTwo');assert.equal(await stage13(),2);
+    assert.equal(await evaluate('document.querySelector("#threeNext").disabled'),true,'A tool must be chosen');
+    await click('[data-choice="minimum"]');await wait(200);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".choice-words p"),p=>p.textContent)'),['On a bad day, the least I will do is leave the office by 7pm.'],'The minimum shows its saved words');
+    await click('[data-choice="swap"]');await wait(200);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".choice-words p"),p=>p.textContent)'),['Instead, I will read ten pages of my book','My line is “Be all there tomorrow.”'],'The swap shows the swap and the line');
+    assert.equal(await evaluate('document.querySelector("[data-choice=swap]").getAttribute("aria-pressed")'),'true');
+    await click('#threeNext');await wait(300);assert.equal(await stage13(),3);
+    assert.equal(await evaluate('document.querySelector("#hold").disabled'),true);
+    await typeInto('#boxFour','set two alarms for that morning');await pressEnter('#boxFour');await wait(300);
+    assert.equal(await stage13(),5,'No check: straight to MY PROMISE');
+    assert.equal(await evaluate('document.querySelector("#promise").textContent'),promise13);
+    await noOverflow();
+    if(phone)await shot('step13-act-ready-mobile.png',true);
+    await holdFor(1250);await wait(300);assert.equal(await stage13(),6);
+    const s=await stored();
+    assert.deepEqual([s.responses[13].DATE,s.responses[13].SLIP,s.responses[13].TOOL,s.responses[13].READY,s.dayChanges[13]],[iso,'the morning after the work dinner','swap','set two alarms for that morning',promise13]);
+    await ready('04-map-start.html');
+    await go('step-checkin.html?step=14');
+    assert.equal(await evaluate('document.querySelector("#commitText").textContent'),'Today, I will set two alarms for that morning.','Step 14’s check-in grades only today’s preparation');
+    await go('19-my-journey.html');await click('.entry[data-step="13"] .entry-head');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".entry[data-step=\\"13\\"] .entry-answer dt"),d=>d.textContent)'),['HARD DAY','SLIP POINT','TOOL','GETTING READY']);
+   }
+   // Step 14: THERE, MY MOVE and MY MINIMUM read-only, MY RECORD (every check-in so far), MY DECISION; MY NEW BAR
+   // only when raising the bar. The Step 03 move is never changed. Committing completes Block 2.
+   {
+    const stage14=async()=>(await stored()).steps[14].stage;
+    const promise14='Today, I will start my new bar: leaving the office by 6:30pm.';
+    await go('step-checkin.html?step=14');await click('.choice[data-choice="yes"]');await wait(300);await click('#next');await ready('step-watch.html');
+    await command('Page.navigate',{url:base+'/html/step-learn?step=14'});await ready('step14-learn.html');
+    assert.equal(await evaluate('document.querySelectorAll(".move").length'),4);
+    await noOverflow();
+    if(phone)await shot('step14-learn-mobile.png',true);
+    await evaluate('scrollTo(0,document.documentElement.scrollHeight)');await wait(500);
+    await click('#next');await ready('step14-act.html');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("[data-from]"),e=>e.textContent)'),['I want to be able to have two evenings a week that are truly mine.','Saying no to extra evening work','On a bad day, the least I will do is leave the office by 7pm.']);
+    const answers=(await stored()).answers;
+    const record=await evaluate('Array.from(document.querySelectorAll(".record-line"),l=>[l.querySelector(".record-num").textContent,l.querySelector(".record-title").textContent,l.querySelector(".record-mark").className.replace("record-mark ",""),l.querySelector(".record-mark").textContent])');
+    assert.equal(record.length,13,'One line per step, 01 to 13');
+    assert.deepEqual(record.map(r=>r[2]),[1,2,3,4,5,6,7,8,9,10,11,12,13].map(d=>answers[d]),'Each line shows that step’s check-in');
+    assert.deepEqual(record[0].slice(0,2),['01','Know Where You Are Going']);
+    assert.equal(await evaluate('document.querySelector("#rowTwo").hidden'),true,'MY NEW BAR waits for RAISE THE BAR');
+    // MAKE IT HOLD needs no box: straight to MY PROMISE with the Step 03 move.
+    await click('[data-choice="hold"]');await wait(200);await click('#oneNext');await wait(300);
+    assert.equal(await stage14(),3,'Holding goes straight to MY PROMISE');
+    assert.equal(await evaluate('document.querySelector("#promise").textContent'),'Today, I will do my full move: saying no to extra evening work.');
+    assert.equal(await evaluate('document.querySelector("#hold").disabled'),false);
+    // Changing to RAISE THE BAR goes back to the decision and opens MY NEW BAR.
+    await click('[data-choice="raise"]');await wait(300);
+    assert.equal(await stage14(),0);assert.equal(await evaluate('document.querySelector("#rowTwo").hidden'),false);
+    assert.equal(await evaluate('document.querySelector("#promise").textContent'),'Today, I will start my new bar: ….');
+    await click('#oneNext');await wait(300);assert.equal(await stage14(),1);
+    assert.equal(await evaluate('document.querySelector("#hold").disabled'),true);
+    await typeInto('#boxTwo','leaving the office by 6:30pm');await pressEnter('#boxTwo');await wait(300);
+    assert.equal(await stage14(),3);
+    assert.equal(await evaluate('document.querySelector("#promise").textContent'),promise14);
+    await noOverflow();
+    if(phone)await shot('step14-act-ready-mobile.png',true);
+    await holdFor(1250);await wait(300);assert.equal(await stage14(),4);
+    const s=await stored();
+    assert.deepEqual([s.responses[14].DECISION,s.responses[14].NEWBAR,s.dayChanges[14],s.responses[3].MOVE],['raise','leaving the office by 6:30pm',promise14,'saying no to extra evening work'],'The new bar is kept apart; the Step 03 move is never changed');
+    await ready('04-map-start.html');await wait(400);
+    // Block 2 is complete: its tile opens, black until its summary is seen.
+    const b2=await evaluate('(()=>{const s=document.querySelectorAll(".block-spot")[1];return [s.classList.contains("open"),s.querySelector(".block-tile").className]})()');
+    assert.ok(b2[0]&&/block-new/.test(b2[1]),'B2 opens once Step 14 is committed');
+    await go('block.html?block=2');
+    assert.equal(await evaluate('document.querySelector("#blockTitle").textContent'),'MAKE IT STICK');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".block-skill-name"),e=>e.textContent)'),['PATTERN','REPLACEMENT','REASON','ACCOUNTABILITY','MINIMUM','PREPARATION','PROGRESSION']);
+    const promises=(await stored()).dayChanges;
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".block-promise"),c=>[c.children[0].textContent,c.children[1].textContent])'),[8,9,10,11,12,13,14].map(d=>['YOUR PROMISE · STEP '+steps.pad(d),promises[d]]));
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".block-bar-part"),p=>p.className)'),['block-bar-part is-done','block-bar-part is-done is-here','block-bar-part']);
+    assert.equal(await text('#blockClosing'),'You’ve learned how to make it stick.');
+    await noOverflow();
+    if(phone)await shot('block2-summary-mobile.png',true);
+    // From Step 15 on, MY MOVE is the current move: the new bar.
+    await go('step-checkin.html?step=15');
+    assert.equal(await evaluate('document.querySelector("#commitText").textContent'),promise14,'Step 15’s check-in grades Step 14’s promise');
+   }
+   // Step 15: THERE, MY MOVE (now the current move: Step 14's new bar) and MY MINIMUM read-only; THE STORY I'D TELL,
+   // MY RESTART RULE; no check; the same promise for everyone.
+   {
+    const stage15=async()=>(await stored()).steps[15].stage;
+    const promise15='My restart rule is set. Today, I will do my move, or at least my minimum, if it’s due.';
+    await click('.choice[data-choice="yes"]');await wait(300);await click('#next');await ready('step-watch.html');
+    await command('Page.navigate',{url:base+'/html/step-learn?step=15'});await ready('step15-learn.html');
+    assert.equal(await evaluate('document.querySelectorAll(".move").length'),4);
+    await noOverflow();
+    if(phone)await shot('step15-learn-mobile.png',true);
+    await evaluate('scrollTo(0,document.documentElement.scrollHeight)');await wait(500);
+    await click('#next');await ready('step15-act.html');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("[data-from]"),e=>e.textContent)'),['I want to be able to have two evenings a week that are truly mine.','Leaving the office by 6:30pm','On a bad day, the least I will do is leave the office by 7pm.'],'MY MOVE is the current move: the new bar');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("[data-from-step]"),e=>e.textContent)'),['FROM STEP 01','FROM STEP 14','FROM STEP 12']);
+    assert.equal(await evaluate('document.querySelector("#hold").disabled'),true);
+    await typeInto('#boxOne','“I’ve blown it, I’ll start again next week.”');await pressEnter('#boxOne');assert.equal(await stage15(),1);
+    assert.equal(await evaluate('document.querySelector("#hold").disabled'),true,'Both boxes first');
+    await typeInto('#boxTwo','the next working day, leaving by 7pm');await pressEnter('#boxTwo');await wait(300);
+    assert.equal(await stage15(),3,'No check: straight to MY PROMISE');
+    assert.equal(await evaluate('document.querySelector("#promise").textContent'),promise15);
+    assert.equal(await evaluate('document.querySelector("#hold").disabled'),false);
+    await noOverflow();
+    if(phone)await shot('step15-act-ready-mobile.png',true);
+    await holdFor(1250);await wait(300);assert.equal(await stage15(),4);
+    const s=await stored();
+    assert.deepEqual([s.responses[15].STORY,s.responses[15].RULE,s.dayChanges[15]],['“I’ve blown it, I’ll start again next week.”','the next working day, leaving by 7pm',promise15]);
+    await ready('04-map-start.html');
+    await go('step-checkin.html?step=16');
+    assert.equal(await evaluate('document.querySelector("#commitText").textContent'),promise15,'Step 16’s check-in grades Step 15’s promise');
+    // My Journey: every step title on one line, 16px at most; long ones shrink to fit.
+    await go('19-my-journey.html');
+    const titles=await evaluate('Array.from(document.querySelectorAll(".entry-title"),t=>{const s=getComputedStyle(t),r=document.createRange();r.selectNodeContents(t);return {text:t.textContent,size:parseFloat(s.fontSize),lines:Math.round(t.getBoundingClientRect().height/parseFloat(s.lineHeight)),fits:r.getBoundingClientRect().width<=t.clientWidth+1}})');
+    assert.equal(titles.length,16);
+    for(const t of titles){assert.equal(t.lines,1,JSON.stringify(t));assert.ok(t.size<=16&&t.fits,JSON.stringify(t));}
+    if(phone){console.log('phone: My Journey titles shrunk: '+titles.filter(t=>t.size<16).map(t=>t.text+' '+t.size+'px').join(', '));await evaluate('document.querySelector(".journey-scroll").scrollTop=0');await wait(200);await shot('my-journey-titles-mobile.png');}
+    // My Mirror with a NO: MISSED counts it, and WORTH A SECOND LOOK shows the latest NO before any PARTLY.
+    const setAnswers=changes=>evaluate('(()=>{const s=JSON.parse(localStorage.getItem("mirror21-progress"));Object.assign(s.answers,'+JSON.stringify(changes)+');localStorage.setItem("mirror21-progress",JSON.stringify(s));})()');
+    const kept=(await stored()).answers;
+    await setAnswers({6:'no',9:'no',12:'partly'});
+    await go('18-my-mirror.html');
+    const checkIns=Object.keys((await stored()).answers).length;
+    assert.deepEqual(await ring(2),{value:'2',sub:'OF '+checkIns,caption:'MISSED',label:'2 missed of '+checkIns+' check-ins',stroke:'#646461'});
+    const look=await secondLook();
+    assert.deepEqual([look.tag,look.num,look.name,look.href],['MISSED','09','Break the Habit','step-watch.html?step=9'],'The latest NO comes first, even with a later PARTLY');
+    if(phone){await evaluate('document.querySelector(".mirror-scroll").scrollTop=9999');await wait(200);await shot('my-mirror-second-look-mobile.png');}
+    await click('.second-look-revisit');await ready('step-watch.html');
+    assert.equal(await evaluate('new URLSearchParams(location.search).get("step")'),'9','REVISIT reopens that step from Watch');
+    // Nothing missed or partly: a short line, no tag, no link.
+    await setAnswers(Object.fromEntries(Object.keys(kept).map(d=>[d,'yes'])));
+    await go('18-my-mirror.html');
+    const clear=await secondLook();
+    assert.deepEqual([clear.tag,clear.none,'href' in clear],['','Nothing missed so far. Keep going.',false]);
+    await setAnswers(kept);
    }
    await go('step-checkin.html?step=6');
    assert.equal(await evaluate('document.querySelector("#commitText").textContent'),'Today, when I’m about to open my work email after dinner, I will pause and close the laptop. If it doesn’t come, I’ll run through it once in my head.','Step 06’s check-in grades Step 05’s whole promise');
