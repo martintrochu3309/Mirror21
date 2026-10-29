@@ -44,45 +44,23 @@
     <p>The minimum isn’t the goal. <em>It’s what keeps you going on the days you’d otherwise stop.</em></p>
   </div>
 
-  <div class="example-label">EXAMPLE</div>
-  <div class="ex">
-    <div class="ex-block"><div class="ex-key">MOVE</div><p class="ex-text">Get up at 6:30 every day, weekends included.</p></div>
-
-    <!-- SHRINK: Step 02's FAILS / PASSES marks, each above its line -->
-    <div class="ex-block">
-      <div style="display: flex; align-items: center; gap: 10px">
-        <svg width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#ffffff" stroke="#e0b84c" stroke-width="2"/></svg>
-        <div class="ex-key">SHRINK · FAILS</div>
-      </div>
-      <p class="ex-text ex-text--fail">“On bad days, get up at 7:30.”</p>
-      <p class="ex-note">That moves the target.</p>
-    </div>
-    <div class="ex-block">
-      <div style="display: flex; align-items: center; gap: 10px">
-        <svg width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#e0b84c" stroke="#e0b84c" stroke-width="2"/></svg>
-        <div class="ex-key ex-key--gold">SHRINK · PASSES</div>
-      </div>
-      <p class="ex-text" style="color: var(--ink)">“Feet on the floor at 6:30, even if I’m slow after that.”</p>
-      <p class="ex-note">Same time, less effort.</p>
-    </div>
-
-    <div class="ex-block">
-      <div class="ex-key">TEST</div>
-      <p class="ex-impact">Could I do it on my worst day? <b>Yes.</b></p>
-      <p class="ex-impact">Is it still the same move? <b>Yes.</b></p>
-    </div>
-
-    <!-- Fixed example copy (same for every user): the promise MY MINIMUM makes -->
-    <div class="ex-block">
-      <div class="ex-key ex-key--gold">MY PROMISE</div>
-      <div class="inbox">Today, I will do my move, or at least get my feet on the floor at 6:30, even if I’m slow after that.</div>
-    </div>
-  </div>
+  <!-- Example: the moves above, filled in (same numbers, same order), then the promise they make.
+       Fixed example copy, the same for every user. -->
+  <section class="learn-ex" aria-label="Example">
+    <h2 class="learn-ex-title">EXAMPLE</h2>
+    <ol class="learn-ex-rows">
+    <li class="learn-ex-row"><span class="learn-ex-num">01</span><div class="learn-ex-body"><p class="learn-ex-key">MOVE</p><p class="learn-ex-text">Get up at 6:30 every day, weekends included.</p></div></li>
+    <li class="learn-ex-row"><span class="learn-ex-num">02</span><div class="learn-ex-body"><p class="learn-ex-key">SHRINK</p><p class="learn-ex-text">Not “on bad days, get up at 7:30”. That moves the target. “Feet on the floor at 6:30, even if I’m slow after that”: same time, less effort.</p></div></li>
+    <li class="learn-ex-row"><span class="learn-ex-num">03</span><div class="learn-ex-body"><p class="learn-ex-key">TEST</p><p class="learn-ex-text">Could I do it on my worst day? Yes. Is it still the same move? Yes.</p></div></li>
+    <li class="learn-ex-row"><span class="learn-ex-num">04</span><div class="learn-ex-body"><p class="learn-ex-key">USE</p><p class="learn-ex-text">Up at 6:30 when I can. Feet on the floor at 6:30 when I can’t.</p></div></li>
+    <li class="learn-ex-row"><span class="learn-ex-num learn-ex-num--lock"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><div class="learn-ex-body"><p class="learn-ex-key">MY PROMISE</p><p class="learn-ex-promise"><span class="learn-ex-fixed">Today, I will do my move, or at least</span> get my feet on the floor at 6:30, even if I’m slow after that<span class="learn-ex-fixed">.</span></p></div></li>
+    </ol>
+  </section>
 
   <div class="spacer"></div>
 
   <!-- Not pinned: the button sits at the end of the content. -->
-  <a class="btn btn--gold learn-end" id="next" href="step12-act.html">
+  <a class="btn btn--ink learn-end" id="next" href="step12-act.html">
     YOUR TURN
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
   </a>

@@ -31,7 +31,9 @@
     10: filmed(10, '1:27'), 11: filmed(11, '1:35'), 12: filmed(12, '1:29'),
     13: filmed(13, '1:27'), 14: filmed(14, '1:31')
   };
-  const defaults = { video: '', image: '../assets/images/step01-start.jpg', finish: '', duration: '', next: 'LEARN' };
+  // cover: how much of the screen's height the black fade at the bottom covers (in %), so it can be tuned per
+  // video, e.g. 4: { ...filmed(4, '1:25'), cover: 24 }.
+  const defaults = { video: '', image: '../assets/images/step01-start.jpg', finish: '', duration: '', next: 'LEARN', cover: 30 };
   const available = step => Number.isInteger(step) && step >= 0 && step <= 18;
   // Lesson (Learn + Act) this step shows: Steps 02–15 have their own; Steps 01 and 16–18 use Step 01's.
   const lesson = step => step >= 2 && step <= 15 ? step : available(step) && step > 0 ? 1 : null;

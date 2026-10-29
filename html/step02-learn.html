@@ -65,43 +65,22 @@
     <p>A destination tells you where you’re going. An action tells you <em>what to do today.</em></p>
   </div>
 
-  <div class="example-label">EXAMPLE</div>
-  <div class="ex">
-    <div class="ex-row"><div class="ex-key">THERE</div><p class="ex-text">I want to be able to wake up properly rested and ready for the day.</p></div>
-
-    <div class="ex-row">
-      <div class="ex-verdict">
-        <svg width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#ffffff" stroke="#e0b84c" stroke-width="2"/></svg>
-        <div class="ex-key">FAILS</div>
-      </div>
-      <div>
-        <p class="ex-text ex-text--fail">“Be more disciplined at bedtime.”</p>
-        <p class="ex-note">Could you prove it? No. It’s an intention, not an action.</p>
-      </div>
-    </div>
-
-    <div class="ex-row">
-      <div class="ex-verdict">
-        <svg width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#e0b84c" stroke="#e0b84c" stroke-width="2"/></svg>
-        <div class="ex-key ex-key--gold">PASSES</div>
-      </div>
-      <div>
-        <p class="ex-text" style="color: var(--ink)">“Phone outside the bedroom by 10pm.”</p>
-        <p class="ex-note">You either did it or you didn’t.</p>
-      </div>
-    </div>
-
-    <!-- Fixed example copy from the step content (same for every user): shows the MY ACTION box finished -->
-    <div class="ex-block">
-      <div class="ex-key">IN THE BOX</div>
-      <div class="inbox"><span class="starter-text">Today I will</span> put my phone outside the bedroom by 10pm.</div>
-    </div>
-  </div>
+  <!-- Example: the moves above, filled in (same numbers, same order), then the promise they make.
+       Fixed example copy, the same for every user. -->
+  <section class="learn-ex" aria-label="Example">
+    <h2 class="learn-ex-title">EXAMPLE</h2>
+    <ol class="learn-ex-rows">
+    <li class="learn-ex-row"><span class="learn-ex-num">01</span><div class="learn-ex-body"><p class="learn-ex-key">THERE</p><p class="learn-ex-text">I want to be able to wake up properly rested and ready for the day.</p></div></li>
+    <li class="learn-ex-row"><span class="learn-ex-num">02</span><div class="learn-ex-body"><p class="learn-ex-key">PROOF</p><p class="learn-ex-text">Not “be more disciplined at bedtime”. That’s an intention. “Phone outside the bedroom by 10pm”: I either did it or I didn’t.</p></div></li>
+    <li class="learn-ex-row"><span class="learn-ex-num">03</span><div class="learn-ex-body"><p class="learn-ex-key">ONCE</p><p class="learn-ex-text">Just tonight, once. Then I’ll know what doing it looks like.</p></div></li>
+    <li class="learn-ex-row"><span class="learn-ex-num learn-ex-num--lock"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><div class="learn-ex-body"><p class="learn-ex-key">MY PROMISE</p><p class="learn-ex-promise"><span class="learn-ex-fixed">Today, I will</span> put my phone outside the bedroom by 10pm<span class="learn-ex-fixed">.</span></p></div></li>
+    </ol>
+  </section>
 
   <div class="spacer"></div>
 
   <!-- Not pinned: the button sits at the end of the content. -->
-  <a class="btn btn--gold learn-end" id="next" href="step02-act.html">
+  <a class="btn btn--ink learn-end" id="next" href="step02-act.html">
     YOUR TURN
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
   </a>

@@ -48,7 +48,8 @@
 .entry-answer dt { padding-top: 4px; font-size: var(--eyebrow-size); line-height: 1.4; font-weight: 700; letter-spacing: 0.23em; color: var(--muted); }
 .entry-answer dd { margin: 0; font-size: var(--move-text-size); line-height: 1.45; font-weight: 300; font-style: italic; color: var(--example-ink); }
 .entry-promise-label { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: var(--eyebrow-size); line-height: 1.4; font-weight: 700; letter-spacing: 0.23em; color: var(--gold-text); }
-.entry-locked { margin: 8px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 22px; line-height: 1.2; letter-spacing: -0.02em; color: var(--ink); }
+/* The locked promise in an open entry: the body font, calm, as on Act. */
+.entry-locked { margin: 8px 0 0; font-family: var(--font-body); font-weight: 500; font-size: 20px; line-height: 1.45; color: var(--ink); }
 
 /* Today's step: faded, not clickable */
 .entry.is-today { opacity: 0.55; }

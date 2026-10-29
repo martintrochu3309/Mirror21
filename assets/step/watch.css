@@ -28,6 +28,10 @@ body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antia
 
 /* Fades: strong at Start/Finish, light while playing */
 .fade { position: absolute; left: 0; right: 0; pointer-events: none; transition: opacity .5s; }
+/* The cover: in every state, over the video and under everything else. Solid black at the bottom (and under the
+   home indicator), eased to nothing at the top so there's no visible edge. Height: --cover, per step. */
+.fade.cover { bottom: 0; height: var(--cover, 30%);
+  background: linear-gradient(to top, #000 0%, rgba(0,0,0,.95) 35%, rgba(0,0,0,.6) 65%, rgba(0,0,0,0) 100%); }
 .fade.top { top: 0; height: 260px; background: linear-gradient(rgba(0,0,0,.73), transparent); }
 .fade.bottom { bottom: 0; height: 210px; background: linear-gradient(transparent, rgba(0,0,0,.67)); }
 .fade.end { bottom: 0; height: 300px; opacity: 0; background: linear-gradient(transparent, rgba(0,0,0,.82)); }

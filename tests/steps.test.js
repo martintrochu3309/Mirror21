@@ -61,7 +61,7 @@ test('Watch content: Steps 01–14 have their portrait video with its first and 
  for(let step=1;step<=14;step++){const m=steps.media(step),nn=steps.pad(step);
   assert.deepEqual([m.video,m.image,m.finish],['../Audio-Video/Step'+nn+'-Watch.mp4','../assets/images/step'+nn+'-start.jpg','../assets/images/step'+nn+'-finish.jpg']);}
  for(const step of [0,15,18]){const m=steps.media(step);assert.equal(m.video,'','VIDEO COMING SOON until the portrait video arrives');assert.equal(m.image,'../assets/images/step01-start.jpg');assert.equal(m.finish,'');}
- for(let step=0;step<=18;step++)assert.equal(steps.available(step),true);
+ for(let step=0;step<=18;step++){assert.equal(steps.available(step),true);assert.equal(steps.media(step).cover,30,'The bottom fade covers 30% unless a step sets its own');}
  assert.deepEqual([steps.media(0).next,steps.media(1).next,steps.media(2).next,steps.media(18).next],['MY PATH','LEARN','LEARN','LEARN']);
  assert.deepEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(s=>steps.media(s).duration),['0:37','1:45','1:18','1:18','1:25','1:38','1:13','1:20','1:27','1:30','1:27','1:35','1:29','1:27','1:31','']);
  for(const step of [19,20,21]){assert.equal(steps.available(step),false);assert.equal(steps.media(step),null);}

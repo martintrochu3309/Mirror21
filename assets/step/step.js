@@ -175,6 +175,7 @@
     document.getElementById('stepTitle').textContent = steps.headline(step);
     document.getElementById('nextLabel').textContent = media.next;
     if (fake) screen.classList.add('placeholder'); else player.src = media.video;
+    screen.style.setProperty('--cover', media.cover + '%');
     // Load the finish image (the video's last frame) now, so the end fades straight into it.
     if (media.finish) new Image().src = media.finish;
 
@@ -505,7 +506,8 @@
     state.dayChanges[step] = promise.slice(0, 600);
     state.change = state.dayChanges[step];
   }
-  function returnToMap() { setTimeout(() => { location.href = map; }, 1500); }
+  // After I'M COMMITTED: COMMITTED shows for a moment, then straight back to My Path.
+  function returnToMap() { setTimeout(() => { location.href = map; }, 300); }
 
   function scrollToRow(target, focusBox) {
     setTimeout(() => {
@@ -567,7 +569,11 @@
         box.readOnly = isCommitted();
         document.querySelector('[data-next="' + field + '"]').disabled = !written(field);
       });
-      promise.textContent = promiseText();
+      // "Today, I will" in grey, the user's words in black (as on Learn and the other steps).
+      const words = document.createElement('span');
+      words.className = 'promise-rest' + (written('step') ? '' : ' is-empty');
+      words.textContent = promiseText().slice('Today, I will '.length);
+      promise.replaceChildren('Today, I will ', words);
       document.getElementById('notSureHint').hidden = !(record.notSure && st === 2);
       commit.classList.toggle('is-locked', st < 5);
       commit.hidden = st === 6;

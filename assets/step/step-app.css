@@ -67,3 +67,29 @@ a.icon-btn { flex: none; text-decoration: none; }
 .record-mark.partly::before { background: linear-gradient(90deg, var(--gold) 50%, #fff 50%); }
 .record-mark.none { color: var(--locked-number); }
 .record-mark.none::before { border-color: var(--locked-border); }
+/* Learn · the example: the moves above, filled in, on a full-width grey panel. Same numbers and order as the
+   moves, in white circles with black rings joined by a black line, then MY PROMISE with a lock. Each move's
+   example words are grey; in the promise, the fixed words are light grey and the example's own words black. */
+.learn-ex { margin: 34px calc(var(--pad-x) * -1) 0; padding: 30px var(--pad-x) 34px; background: var(--surface); }
+.learn-ex-title { margin: 0; text-align: center; font: italic 700 22px/1 var(--font-display); letter-spacing: 0.02em; }
+.learn-ex-rows { list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-direction: column; gap: 28px; }
+.learn-ex-row { position: relative; display: flex; gap: 18px; }
+/* The line runs from circle centre to the next circle (18px = centre, 28px = gap) and stops at the last one. */
+.learn-ex-row:not(:last-child)::before { content: ""; position: absolute; left: 17px; top: 18px; bottom: -46px; width: 2px; background: var(--ink); }
+.learn-ex-num { position: relative; z-index: 1; flex: none; display: grid; place-items: center; width: 36px; height: 36px; box-sizing: border-box; border-radius: 50%;
+  border: 2px solid var(--ink); background: var(--bg); font: italic 700 13px/1 var(--font-display); color: var(--ink); }
+.learn-ex-body { min-width: 0; padding-top: 7px; }
+.learn-ex-key { margin: 0; font: italic 700 20px/1.1 var(--font-display); letter-spacing: -0.02em; }
+/* The example's words under each move: the same grey as the move descriptions above. */
+.learn-ex-text { margin: 8px 0 0; font-size: 17px; line-height: 1.45; font-weight: 500; color: var(--muted); }
+.learn-ex-promise { margin: 8px 0 0; font-size: 19px; line-height: 1.45; font-weight: 500; color: var(--ink); }
+.learn-ex-fixed { color: #8a8a86; }
+
+/* YOUR TURN on Learn: black, the arrow right after the words. */
+.btn--ink { background: var(--ink); color: #fff; border: 1px solid transparent; gap: 14px; }
+.btn--ink svg { position: static; transform: none; }
+/* MY PROMISE on Act: the body font, calm, like the promise in the Learn examples. The fixed words are light grey
+   and the user's own words black ("…" in pale grey until written). The heading above stays in Magistral. */
+.promise, .commit-quote { font-family: var(--font-body); font-style: normal; font-weight: 500; font-size: 20px; line-height: 1.45; letter-spacing: 0; color: #8a8a86; }
+.promise .promise-rest, .commit-quote .promise-rest { color: var(--ink); }
+.promise .promise-rest.is-empty, .commit-quote .promise-rest.is-empty { color: #b0b0ac; }
