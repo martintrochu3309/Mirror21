@@ -148,7 +148,7 @@ test('step progress survives storage and rejects bad values', () => {
   state.responses[1] = { HERE: 'Here one', THERE: 'There one', STEP: 'Step one', NOTE: 'Ran out of time' };
   const restored = model.normalize(JSON.parse(JSON.stringify(state)), now);
   assert.deepEqual(restored.steps[1], state.steps[1]);
-  assert.deepEqual(restored.steps[2], { screen: 'checkin', reached: 2, watch: 1, watched: false, learn: 0, stage: 6, notSure: false, checkedIn: false });
+  assert.deepEqual(restored.steps[2], { screen: 'checkin', reached: 2, watch: 1, watched: false, learn: 0, stage: 10, notSure: false, checkedIn: false });
   assert.deepEqual(restored.responses[1], state.responses[1]);
 });
 
@@ -209,4 +209,36 @@ test('Step 00 is excluded from course scoring, lessons and completion', () => {
   const restored = model.normalize({ ...state, answers: { 0: 'yes' }, lessons: { 0: true }, steps: { 0: { screen: 'act' } } }, now);
   assert.deepEqual(restored.answers, {}); assert.deepEqual(restored.lessons, {}); assert.deepEqual(restored.steps, {});
   assert.equal(model.stats(restored, now).checkIns, 0); assert.equal(model.stats(restored, now).today, 1);
+});
+
+test('follow-through score: one decimal over the checks up to a step, and the final tier', () => {
+  const state = model.fresh(now);
+  for (let day = 1; day <= 21; day++) state.lessons[day] = true;
+  const answers = { 1: 'yes', 2: 'yes', 3: 'partly', 4: 'no' };
+  Object.assign(state.answers, answers);
+  assert.deepEqual(model.score(state, 20), { checks: 4, percent: 62.5 });
+  for (let day = 5; day <= 20; day++) state.answers[day] = 'yes';
+  assert.deepEqual(model.score(state, 20), { checks: 20, percent: 92.5 }, 'Step 21 page: Steps 1–20');
+  state.answers[21] = 'no';
+  assert.deepEqual(model.score(state, 21), { checks: 21, percent: 88.1 });
+  assert.equal(model.score(model.fresh(now)).percent, 0);
+  assert.deepEqual([90, 89.9, 75, 74.9, 0].map(model.tier), ['own', 'renting', 'renting', 'again', 'again']);
+});
+
+test('the final check on Step 21 locks with SEE YOUR RESULT (finishedAt), which survives a reload', () => {
+  const state = model.fresh(now);
+  for (let day = 1; day <= 21; day++) state.lessons[day] = true;
+  assert.equal(model.record(state, 21, 'partly'), true);
+  assert.equal(model.record(state, 21, 'yes'), true, 'It can change until SEE YOUR RESULT');
+  state.finishedAt = now;
+  assert.equal(model.checkInLocked(state, 21), true);
+  assert.equal(model.record(state, 21, 'no'), false);
+  const back = model.normalize(JSON.parse(JSON.stringify(state)), now);
+  assert.deepEqual([back.finishedAt, back.answers[21], model.stats(back).complete], [now, 'yes', false]);
+});
+
+test('Act stages up to 10 survive a reload (Step 19 runs to 8)', () => {
+  const state = model.fresh(now);
+  state.steps[19] = { stage: 7 };
+  assert.equal(model.normalize(state, now).steps[19].stage, 7);
 });

@@ -8,7 +8,7 @@
   const filename = pageFilename(location.pathname);
   const maps = ['04-map-start.html'];
   const stepPages = ['step-checkin.html','step-watch.html','step-learn.html','step-act.html','step02-learn.html','step02-act.html','step03-learn.html','step03-act.html','step04-learn.html','step04-act.html','step05-learn.html','step05-act.html','step06-learn.html','step06-act.html'];
-  const pages = new Set(['01-offer.html','02-sign-in.html','18-my-mirror.html','19-my-journey.html', ...maps, ...stepPages]);
+  const pages = new Set(['01-offer.html','02-sign-in.html','18-my-mirror.html','19-my-journey.html','final-check.html','result.html', ...maps, ...stepPages]);
   // Restore known internal links before attaching handlers that match exported hrefs.
   document.querySelectorAll('a[href]').forEach(link => {
     const href = link.getAttribute('href');
@@ -77,8 +77,10 @@
       start.href = step.href;
       const done = dayNumber > 0 && Boolean(state.lessons[dayNumber]);
       const continuing = dayNumber > 0 && !done && model.session(state,dayNumber).label === 'CONTINUE';
-      setActionLabel(start, done ? 'REDO STEP' : continuing ? 'CONTINUE' : 'START STEP');
-      start.setAttribute('aria-label', (done ? 'Redo' : continuing ? 'Continue' : 'Start')+' Step '+dayNumber+': '+title.textContent);
+      // Step 21, once committed, has no next step: its card leads to the final check, then to the result.
+      const finale = dayNumber === 21 && done ? (state.finishedAt ? 'YOUR RESULT' : 'FINAL CHECK') : null;
+      setActionLabel(start, finale || (done ? 'REDO STEP' : continuing ? 'CONTINUE' : 'START STEP'));
+      start.setAttribute('aria-label', finale ? (state.finishedAt ? 'Your result' : 'Final check on Step 21') : (done ? 'Redo' : continuing ? 'Continue' : 'Start')+' Step '+dayNumber+': '+title.textContent);
       start.addEventListener('click', event => {
         if (pageFilename(new URL(start.href).pathname) !== 'step-watch.html') return;
         event.preventDefault();
@@ -183,7 +185,9 @@
       if(current&&!startOnWelcome) { const bubble=document.createElement('span');bubble.className='progress-bubble active-bubble';bubble.textContent=session.label;row.append(bubble); }
       const step=document.createElement(current||done?'a':'button');step.className='progress-step '+(answer||'')+(committed?' committed':'')+(current?' current':'');
       step.textContent=pad(d);step.setAttribute('aria-label','Step '+d+', '+MirrorSteps.title(d)+', '+(answer?labels[answer]+', open to redo':committed?'committed, open to redo':current?'today, '+session.label.toLowerCase():'locked'));
-      if(done) step.href='step-watch.html?step='+d;
+      // Step 21 committed: the final check, then the result (with a bubble, since no step is open any more).
+      if(d===21&&done) { step.href=state.finishedAt?'result.html':'final-check.html'; const bubble=document.createElement('span');bubble.className='progress-bubble active-bubble';bubble.textContent=state.finishedAt?'RESULT':'CHECK IN';row.append(bubble); }
+      else if(done) step.href='step-watch.html?step='+d;
       else if(current) step.href=MirrorSteps.page(d,session.screen)+'?step='+d;
       else { step.type='button'; step.addEventListener('click',()=> { step.title='Opens after Step '+(d-1);step.setAttribute('aria-label',step.title);const note=document.createElement('span');note.className='progress-bubble';note.textContent=step.title;row.querySelector('.progress-bubble')?.remove();row.prepend(note); }); }
       if(current||done) {
@@ -215,7 +219,8 @@
     // until its summary has been opened once, then white with a gold check.
     const check='<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     const blockSpots=[1,2,3].map(n=> {
-      const info=MirrorSteps.block(n),open=info.ready&&Boolean(state.lessons[info.last]),seen=read('mirror21-block-'+n)==='true';
+      // Block 3 ends the course: its summary opens once the final check is done.
+      const info=MirrorSteps.block(n),open=info.ready&&Boolean(state.lessons[info.last])&&(n<3||Boolean(state.finishedAt)),seen=read('mirror21-block-'+n)==='true';
       const spot=document.createElement('div');spot.className='block-spot'+(open?' open':'');spot.dataset.after=String(info.last);
       const label=document.createElement('span');label.className='block-label';label.textContent='BLOCK '+n;
       const tile=document.createElement(open?'a':'button');tile.className='progress-step block-tile'+(open?(seen?' committed':' block-new'):'');tile.innerHTML=check;
@@ -352,11 +357,15 @@
     forget(key=>key.startsWith('mirror21-'));
     location.href=currentMap;
   }
+  // Finished runs kept by START A NEW RUN on the result page (mirror21-runs).
+  const pastRuns=()=>{ try { const runs=JSON.parse(read('mirror21-runs'));return Array.isArray(runs)?runs.length:0; } catch { return 0; } };
   // Settings: a scrolling sheet over the page. Rows without an action are placeholders for parts still to build.
   function openSettings(gear) {
     if(document.querySelector('.settings'))return;
     const sections=[
-      ['YOUR COURSE',[{title:'How Mirror 21 works',sub:'Replay the welcome with Kevin'},{title:'Save my journal as PDF',sub:'Every promise and answer, in one file',action:printJournal}]],
+      ['YOUR COURSE',[{title:'How Mirror 21 works',sub:'Replay the welcome with Kevin'},{title:'Save my journal as PDF',sub:'Every promise and answer, in one file',action:printJournal},
+        // After a new run: the finished runs' results stay one tap away.
+        pastRuns()&&{title:'My past results',sub:pastRuns()===1?'Your finished run':'Your '+pastRuns()+' finished runs',action:()=>{location.href='result.html?run='+pastRuns();}}]],
       ['HELP',[{title:'Questions and answers'},{title:'Contact us',sub:'We usually reply within a day'}]],
       ['ABOUT',[{title:'Daily Xcellence'},{title:'The Pocket Mirror',sub:'Free reflections from Kevin'},{title:'Privacy policy'},{title:'Terms and refund policy'}]],
       ['YOUR DATA',[{title:'Start over',sub:'Clears your steps and journal on this phone',action:startOver},{title:'Delete my data',sub:'Removes everything Mirror 21 saved on this phone',action:deleteData}]]
@@ -424,7 +433,7 @@
   // Only the step's own answers, full sentences, as Act wrote them.
   const answersOf=d=>{
     const r=state.responses[d]||{};
-    // Steps 02–15 save typed words only: put each back after its sentence starter (Step 11's date in plain words).
+    // Steps 02–19 save typed words only (Step 20: no starters): put each back after its sentence starter (Step 11's date in plain words).
     const said=(label,starter,key)=>[label,r[key]?.trim()?starter+' '+r[key].trim():''];
     const proof=['PROOF','Yes, I could prove it.'];
     const rows={
@@ -442,7 +451,19 @@
       13:[['HARD DAY',r.DATE?'My hard day is '+MirrorSteps.plainDate(r.DATE)+'.':''],said('SLIP POINT','The point it’s most likely to slip is','SLIP'),
         ['TOOL',{minimum:'My minimum.',swap:'My swap and my line.'}[r.TOOL]||''],said('GETTING READY','Today, to get ready, I will','READY')],
       14:[['DECISION',{raise:'Raise the bar.',hold:'Make it hold.'}[r.DECISION]||''],r.DECISION==='raise'?said('NEW BAR','My one small increase is','NEWBAR'):['','']],
-      15:[said('STORY','If I miss, the story I’d tell myself is','STORY'),said('RESTART RULE','If I miss, I will restart','RULE')]
+      15:[said('STORY','If I miss, the story I’d tell myself is','STORY'),said('RESTART RULE','If I miss, I will restart','RULE')],
+      16:[said('WORKING','One thing that’s working is','WORKING'),said('NOT YET','One thing that isn’t working yet is','NOTYET')],
+      17:[said('AROUND ME','What happened around me was','AROUND'),said('WHAT I DID','What I did was','DID'),said('MY ACTION','Because that part is mine, today I’ll','ACTION')],
+      // MY KEEP and MY STOP were asked as questions: their answers stand alone ("Nothing yet").
+      18:[['KEEP',r.KEEP],['STOP',r.STOP],said('START','I’ll start','START'),said('FIRST STEP','Today, to begin, I’ll','FIRST')],
+      // The Mirror Method card. The move row only when updated; the tool by name.
+      19:[said('SEE IT','What’s happening now is','SEE'),said('OWN IT','The part that’s mine is','OWN'),
+        r.MOVECHOICE==='update'?said('NEW MOVE','My move is','MOVE'):['MY MOVE','Kept my move.'],
+        ['TOOL',{anchor:'My anchor.',swap:'My swap and my line.',minimum:'My minimum.',restart:'My restart rule.'}[r.TOOL]||''],
+        said('ACTION','Today, I’ll','ACTION')],
+      // The blank card for a new change: no starters, so the answers stand alone.
+      20:[['NEW CHANGE',r.NEWCHANGE],['SEE IT',r.SEE],['OWN IT',r.OWN],['CHANGE IT',r.CHANGEIT],['FIRST MOVE',r.FIRST]],
+      21:[said('HERE NOW','Right now, I','HERENOW'),['WHAT’S NEXT',{keep:'Keep working on this change.',again:'Run the steps again.',new:'Use the method on something new.'}[r.NEXT]||''],said('NEXT ACTION','Today, I’ll','ACTION')]
     }[MirrorSteps.lesson(d)]||[['HERE',r.HERE],['THERE',r.THERE],['TEST','Yes, that’s what I actually want.'],['STEP',r.STEP]];
     return rows.filter(([,text])=>text&&text.trim());
   };

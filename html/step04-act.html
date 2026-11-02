@@ -41,12 +41,9 @@
     <section class="row row-static is-done">
       <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="from">MY MOVE
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span data-from-step>FROM STEP 03</span>
-        </div>
-        <p class="question">YOUR MOVE</p>
-        <p class="mine-text" style="margin-top: 10px" data-from="move"></p>
+        <p class="question">MY MOVE</p>
+        <div class="from"><span data-from-step>FROM STEP 03</span></div>
+        <p class="mine-text" data-from="move" data-starter="My move is"></p>
       </div>
     </section>
 
@@ -54,8 +51,8 @@
     <section class="row" id="rowOne">
       <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="eyebrow">SPOT</div>
         <label class="question" for="boxOne">WHAT’S IN THE WAY</label>
+        <div class="eyebrow">SPOT</div>
         <p class="prompt">The one thing most likely to stop you.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">The thing that could stop me is </span>
@@ -71,8 +68,8 @@
     <section class="row is-locked" id="rowTwo">
       <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="eyebrow">CONTROL <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve named what’s in the way"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <label class="question" for="boxTwo">MY ACTION</label>
+        <div class="eyebrow">CONTROL <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve named what’s in the way"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <p class="prompt">Make it something in your control.</p>
         <p class="hint" id="proofHint" hidden>If you can’t choose it or do it yourself, it’s not in your control. Pick the part that is.</p>
         <div class="starter-wrap">

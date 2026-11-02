@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Your result</title>
+<!-- The final dashboard (result.html, or result.html?run=N for an earlier run). Opens after the final check.
+     Three things kept apart: FOLLOW-THROUGH (the checks), EVIDENCE OF CHANGE (then and now, in their words) and
+     INDEPENDENT APPLICATION (the two Mirror Method cards). Then the 21 steps, and WHAT'S NEXT. -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/block.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/result.css?v=20261021-signin">
+<script src="../assets/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/final.js?v=20261021-signin" defer></script>
+</head>
+<body data-page="result">
+<main class="screen result-screen">
+
+  <div class="block-top">
+    <a class="block-back" href="04-map-start.html" aria-label="Back to My Path">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+    </a>
+    <div class="block-logo" aria-label="Mirror 21">MIRROR <span>21</span></div>
+  </div>
+
+  <p class="block-eyebrow" id="runLabel">YOUR RESULT</p>
+
+  <!-- FOLLOW-THROUGH: what the evening checks measured -->
+  <section class="result-section result-score" aria-labelledby="scoreTitle">
+    <p class="result-kicker" id="scoreTitle">YOUR FOLLOW-THROUGH SCORE</p>
+    <p class="result-percent" id="score">0%</p>
+    <p class="result-note">This shows how consistently you kept your promises. It doesn’t measure how much you’ve changed. Only you can say that.</p>
+    <div class="result-tier">
+      <p class="result-kicker">YOUR TIER</p>
+      <p class="result-tier-name" id="tierName"></p>
+      <p class="result-tier-line" id="tierLine"></p>
+    </div>
+    <p class="result-small">The tier measures follow-through during Mirror 21. It doesn’t certify permanent change or decide what you do next.</p>
+  </section>
+
+  <!-- EVIDENCE OF CHANGE: in their own words -->
+  <section class="result-section" aria-labelledby="changeTitle">
+    <h2 class="result-heading" id="changeTitle">WHERE YOU STARTED → WHERE YOU ARE</h2>
+    <div class="result-compare">
+      <div class="result-then"><p class="result-kicker">THEN · STEP 01</p><p class="result-words" id="hereThen"></p></div>
+      <div class="result-now"><p class="result-kicker">NOW · STEP 21</p><p class="result-words" id="hereNow"></p></div>
+    </div>
+    <p class="result-kicker result-going">WHERE YOU’RE GOING</p>
+    <p class="result-words" id="there"></p>
+  </section>
+
+  <!-- INDEPENDENT APPLICATION: the two cards -->
+  <section class="result-section" aria-labelledby="methodTitle">
+    <h2 class="result-heading" id="methodTitle">YOUR MIRROR METHOD</h2>
+    <div class="method-cards" id="cards"></div>
+    <p class="result-small">These cards show how you used the method, not proof of permanent mastery.</p>
+  </section>
+
+  <!-- The 21 steps: promise and evening result -->
+  <section class="result-section" aria-labelledby="journeyTitle">
+    <h2 class="result-heading" id="journeyTitle">YOUR JOURNEY, IN YOUR WORDS</h2>
+    <details class="result-journey">
+      <summary class="result-journey-toggle"><span class="tools-open">Show all 21 steps</span><span class="tools-close">Hide the steps</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+      <ol class="result-steps" id="journey"></ol>
+    </details>
+    <p class="result-small">Your follow-through history, step by step: not a separate score of change.</p>
+  </section>
+
+  <!-- WHAT'S NEXT: the call to action at the end -->
+  <section class="result-next" aria-labelledby="nextTitle">
+    <p class="result-kicker" id="nextTitle">WHAT’S NEXT</p>
+    <p class="result-next-choice" id="nextChoice"></p>
+    <p class="result-kicker">MY NEXT ACTION</p>
+    <p class="result-next-action" id="nextAction"></p>
+    <button class="btn btn--gold result-new-run" id="newRun" type="button" hidden>
+      START A NEW RUN
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </section>
+
+  <div class="block-end">
+    <p class="block-closing">Mirror 21 ends here.</p>
+    <p class="block-next">The method doesn’t. It starts with you.</p>
+    <div class="result-runs" id="runs" hidden></div>
+    <a class="btn btn--ink" href="04-map-start.html">
+      BACK TO MY PATH
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</main>
+</body>
+</html>

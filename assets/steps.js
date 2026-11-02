@@ -1,6 +1,5 @@
 // The 21 step titles, plus each step's Watch content and where its lesson comes from.
-// Steps 01–15 have their own lessons; Steps 16–18 reuse Step 01's as placeholders,
-// and Steps 19–21 stay unavailable until content arrives. Steps 01–14 have their portrait videos so far.
+// All 21 steps have their own lessons. Steps 01–14 have their portrait videos so far.
 (function (root) {
   const titles = [
     'Welcome to Mirror 21',
@@ -29,19 +28,21 @@
     4: filmed(4, '1:25'), 5: filmed(5, '1:38'), 6: filmed(6, '1:13'),
     7: filmed(7, '1:20'), 8: filmed(8, '1:27'), 9: filmed(9, '1:30'),
     10: filmed(10, '1:27'), 11: filmed(11, '1:35'), 12: filmed(12, '1:29'),
-    13: filmed(13, '1:27'), 14: filmed(14, '1:31')
+    13: filmed(13, '1:27'), 14: filmed(14, '1:31'), 15: filmed(15, '1:20'),
+    16: filmed(16, '1:23'), 17: filmed(17, '1:26'), 18: filmed(18, '1:28'),
+    19: filmed(19, '1:28'), 20: filmed(20, '1:22'), 21: filmed(21, '1:24')
   };
   // cover: how much of the screen's height the black fade at the bottom covers (in %), so it can be tuned per
   // video, e.g. 4: { ...filmed(4, '1:25'), cover: 24 }.
   const defaults = { video: '', image: '../assets/images/step01-start.jpg', finish: '', duration: '', next: 'LEARN', cover: 30 };
-  const available = step => Number.isInteger(step) && step >= 0 && step <= 18;
-  // Lesson (Learn + Act) this step shows: Steps 02–15 have their own; Steps 01 and 16–18 use Step 01's.
-  const lesson = step => step >= 2 && step <= 15 ? step : available(step) && step > 0 ? 1 : null;
+  const available = step => Number.isInteger(step) && step >= 0 && step <= 21;
+  // Lesson (Learn + Act) this step shows: each available step has its own (Step 01's is the generic page).
+  const lesson = step => available(step) && step > 0 ? step : null;
   // Page for a screen of a step: Check in and Watch are shared, Learn and Act follow the lesson.
   const page = (step, screen) => (screen === 'learn' || screen === 'act') && lesson(step) > 1 ? 'step' + String(lesson(step)).padStart(2, '0') + '-' + screen + '.html' : 'step-' + screen + '.html';
   // "See an example" on Act, per lesson and answer box (its data-answer, data-field or id, in capitals): the words
   // that finish the box's sentence starter, from the Learn pages' story of someone who wants to wake up rested.
-  // A box without one (Step 11's date) shows no link.
+  // A box without one (Step 11's date, and Step 20's blank card, on purpose) shows no link.
   const examples = {
     1: { HERE: 'spend most nights on my phone in bed and wake up tired.', THERE: 'wake up properly rested and ready for the day.', STEP: 'put my phone on charge across the room.' },
     2: { ACTION: 'put my phone outside the bedroom by 10pm.' },
@@ -57,7 +58,13 @@
     12: { MINIMUM: 'get my feet on the floor at 6:30, even if I’m slow after that.' },
     13: { SLIP: 'Friday at 6:30, when the alarm goes after a late night.', READY: 'put “Friday 6:30, feet on the floor” in my calendar and set Friday’s alarm now.' },
     14: { NEWBAR: 'being dressed and ready to start my morning by 6:40.' },
-    15: { STORY: '“I’ve blown it this week, I’ll start again on Monday.”', RULE: 'the next morning with feet on the floor at 6:30.' }
+    15: { STORY: '“I’ve blown it this week, I’ll start again on Monday.”', RULE: 'the next morning with feet on the floor at 6:30.' },
+    16: { WORKING: 'using my minimum when I need it.', NOTYET: 'doing my full move after late nights.' },
+    17: { AROUND: 'the night ran late at my friend’s birthday.', DID: 'stay for another hour after saying I’d leave at 11.', ACTION: 'set a 10:45 “time to go” alarm for Saturday’s dinner.' },
+    // MY KEEP and MY STOP are asked as questions (no starter), so their examples are whole answers.
+    18: { KEEP: 'Using my minimum on hard mornings.', STOP: 'Staying out past the time I said I’d leave.', START: 'telling Sam my leaving time before a late night.', FIRST: 'message Sam my leaving time for Saturday’s dinner.' },
+    19: { SEE: 'weekday mornings are holding, and mornings after late nights still slip.', OWN: 'getting up on weekdays, which is working, and staying out past my leaving time.', MOVE: 'getting up at 6:30 every day.', ACTION: 'put my phone on charge in the kitchen tonight, straight after I brush my teeth.' },
+    21: { HERENOW: 'get up at 6:30 most weekdays and wake up rested. Late nights still knock me back.', ACTION: 'put my leaving time for Friday’s dinner in my calendar.' }
   };
   const example = (step, key) => examples[lesson(step)]?.[key] || '';
   // The three blocks of seven steps. Each ends with a summary page (html/block.html?block=N), reached from a tile
@@ -82,7 +89,16 @@
       ['PREPARATION', 'You can plan which tool you’ll use on a hard day, before it arrives.'],
       ['PROGRESSION', 'You can let the evidence decide when to raise the bar.']
     ] },
-    { name: 'MAKE IT YOURS', first: 15, last: 21, skills: [] }
+    // Block 3's summary opens after the final check, just before the result page (see block.js).
+    { name: 'MAKE IT YOURS', description: 'Use the Mirror Method on any change, for the rest of your life.', first: 15, last: 21, closing: ['You’ve learned the method.', 'What you do with it starts with you.'], skills: [
+      ['RESTART', 'You can set a rule to come back after a miss, at your next chance, with your minimum.'],
+      ['HINDSIGHT', 'You can look back over your record and see what’s working and what isn’t yet.'],
+      ['INSIGHT', 'You can separate what happened from what you did, and own your part without blame.'],
+      ['FORESIGHT', 'You can decide what to keep, what to stop and what to start.'],
+      ['METHOD', 'You can run See It, Own It, Change It as one method.'],
+      ['INDEPENDENCE', 'You can use the method on something new, without prompts.'],
+      ['CLARITY', 'You can compare where you started with where you are now, and choose what comes next.']
+    ] }
   ];
   const block = n => blocks[n - 1] ? { number: n, ...blocks[n - 1], ready: blocks[n - 1].skills.length > 0 } : null;
   // A saved date (YYYY-MM-DD) in plain words: within the coming week just the weekday ("Sunday"),
@@ -97,8 +113,49 @@
     const days = Math.round((date - new Date(from.getFullYear(), from.getMonth(), from.getDate())) / 86400000);
     return days >= 1 && days <= 6 ? weekday : full;
   };
+  // The two Mirror Method cards, as Step 21 and the result page show them: Step 19's (guided, the original change)
+  // and Step 20's (on their own, a new change), each answer as its whole sentence, with that step's evening result.
+  // Read-only: the saved answers are never changed.
+  const toolNames = { anchor: 'My anchor.', swap: 'My swap and my line.', minimum: 'My minimum.', restart: 'My restart rule.' };
+  const said = (starter, words) => (words || '').trim() ? (starter ? starter + ' ' : '') + words.trim() : '';
+  function cards(state) {
+    const r19 = state.responses[19] || {}, r20 = state.responses[20] || {};
+    // MY MOVE on the card: the update made there, otherwise the move as it was (Step 14's new bar if raised).
+    const raised = state.responses[14]?.DECISION === 'raise' && state.responses[14].NEWBAR;
+    const move = r19.MOVECHOICE === 'update' ? r19.MOVE : raised || state.responses[3]?.MOVE;
+    return [
+      { step: 19, title: 'MY MIRROR METHOD', result: state.answers[19] || null, rows: [
+        ['SEE IT', said('What’s happening now is', r19.SEE)], ['OWN IT', said('The part that’s mine is', r19.OWN)],
+        ['MY MOVE', said('My move is', move)], ['MY TOOL', toolNames[r19.TOOL] || ''], ['TODAY’S ACTION', said('Today, I’ll', r19.ACTION)]] },
+      { step: 20, title: 'MY MIRROR METHOD: NEW CHANGE', result: state.answers[20] || null, rows: [
+        ['MY NEW CHANGE', said('', r20.NEWCHANGE)], ['SEE IT', said('', r20.SEE)], ['OWN IT', said('', r20.OWN)],
+        ['CHANGE IT', said('', r20.CHANGEIT)], ['MY FIRST MOVE TODAY', said('', r20.FIRST)]] }
+    ];
+  }
+  // An evening result in the map's marks (YES full gold, PARTLY half, NO a ring), or — before it's answered.
+  function resultMark(answer) {
+    const mark = document.createElement('span');
+    mark.className = 'record-mark ' + (answer || 'none');
+    mark.textContent = { yes: 'YES', partly: 'PARTLY', no: 'NO' }[answer] || '—';
+    return mark;
+  }
+  // The cards as closed panels: STEP 19 · MY MIRROR METHOD and its result, opened to show the answers.
+  function cardList(state) {
+    const el = (tag, className, text) => { const node = document.createElement(tag); node.className = className; if (text != null) node.textContent = text; return node; };
+    return cards(state).map(card => {
+      const panel = el('details', 'method-card');
+      const head = el('summary', 'method-card-head');
+      const name = el('span', 'method-card-name');
+      name.append(el('span', 'method-card-step', 'STEP ' + card.step), el('span', 'method-card-title', card.title));
+      head.append(name, resultMark(card.result));
+      const rows = el('dl', 'method-card-rows');
+      card.rows.filter(([, text]) => text).forEach(([label, text]) => { const row = el('div', 'method-card-row'); row.append(el('dt', '', label), el('dd', '', text)); rows.append(row); });
+      panel.append(head, rows);
+      return panel;
+    });
+  }
   const api = {
-    titles, available, lesson, page, plainDate, block, example,
+    titles, available, lesson, page, plainDate, block, example, cards, cardList, resultMark,
     title: step => titles[step] || '',
     // Screen headline: caps with a closing full stop, as in the handoff.
     headline: step => titles[step] ? titles[step].toUpperCase() + '.' : '',

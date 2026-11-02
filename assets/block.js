@@ -1,6 +1,7 @@
 /* Block summary (html/block.html?block=N): the block's skills, one per step, each with that step's locked
    promise word for word. Opens only once the block's last step is committed; otherwise back to My Path.
-   Opening it marks the block seen, so its map tile turns from black to white. */
+   Opening it marks the block seen, so its map tile turns from black to white. Block 3 ends the course: it opens
+   after the final check (finishedAt), and its one button, SEE MY RESULTS, leads to the result page. */
 (() => {
   const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
   const write = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
@@ -9,7 +10,8 @@
   const state = MirrorProgress.normalize(raw);
   const n = Number(new URLSearchParams(location.search).get('block'));
   const info = MirrorSteps.block(n);
-  if (!info || !info.ready || !state.lessons[info.last]) { location.replace('04-map-start.html'); return; }
+  const last = n === 3;
+  if (!info || !info.ready || !state.lessons[info.last] || (last && !state.finishedAt)) { location.replace(last && state.lessons[21] ? 'final-check.html' : '04-map-start.html'); return; }
   write('mirror21-block-' + n, 'true');
 
   const pad = step => String(step).padStart(2, '0');
@@ -41,5 +43,10 @@
 
   $('blockClosing').textContent = info.closing[0];
   $('blockNext').textContent = info.closing[1];
+  if (last) {
+    const button = $('blockButton');
+    button.href = 'result.html';
+    button.firstChild.textContent = 'SEE MY RESULTS ';
+  }
   document.documentElement.dataset.mirrorReady = 'true';
 })();

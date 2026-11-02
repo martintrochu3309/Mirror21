@@ -115,9 +115,11 @@
       const example = document.createElement('div'); example.className = 'example'; example.hidden = true;
       const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'example-toggle';
       const text = document.createElement('p'); text.className = 'example-text'; text.id = 'example-' + key.toLowerCase(); text.hidden = true;
-      const starter = document.createElement('span'); starter.className = 'example-starter'; starter.textContent = wrap.querySelector('.starter').textContent.trim();
+      // A box asked as a question (Step 18's MY KEEP) has no starter: just the example answer.
+      const lead = wrap.querySelector('.starter');
+      const starter = document.createElement('span'); starter.className = 'example-starter'; starter.textContent = lead ? lead.textContent.trim() : '';
       const answer = document.createElement('em'); answer.textContent = words;
-      text.append(starter, ' ', answer);
+      text.append(...lead ? [starter, ' '] : [], answer);
       toggle.setAttribute('aria-controls', text.id);
       const show = open => { text.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); toggle.innerHTML = (open ? 'Hide example' : 'See an example') + ' ' + chevron; toggle.classList.toggle('is-open', open); };
       show(false);
@@ -439,33 +441,39 @@
   // marked "FROM STEP NN": data-from names the answer (there, move…), in the user's own words.
   // A row marked data-from-of="N" takes its answer from Step N instead (Step 07 shows two earlier steps).
   // An answer typed after a sentence starter (Step 08's) names it in data-starter: it shows in grey in front.
-  // MY MOVE is the current move: from Step 15 on, Step 14's new bar if the user raised the bar there (the Step 03
-  // move itself is never changed).
+  // MY MOVE is the current move: from Step 15 on, Step 14's new bar if the user raised the bar there; from Step 20
+  // on, Step 19's updated move if they updated it there (the Step 03 move and the new bar are never changed).
   function showEarlier(from = step - 1) {
     const raised = step > 14 && state.responses[14]?.DECISION === 'raise' && (state.responses[14].NEWBAR || '').trim();
-    // The step a row's answer comes from: Step 14 for the move once raised.
+    const updated = step > 19 && state.responses[19]?.MOVECHOICE === 'update' && (state.responses[19].MOVE || '').trim();
+    // The step a row's answer comes from: Step 19 or 14 for the move once updated or raised.
     const fromOf = el => {
       const of = Number(el.closest('[data-from-of]')?.dataset.fromOf) || from;
-      return raised && of === 3 && el.closest('.row')?.querySelector('[data-from="move"]') ? 14 : of;
+      if (of !== 3 || !el.closest('.row')?.querySelector('[data-from="move"]')) return of;
+      return updated ? 19 : raised ? 14 : 3;
     };
     document.querySelectorAll('[data-from]').forEach(el => {
       const key = el.dataset.from.toUpperCase();
       const words = (key === 'MOVE' && fromOf(el) === 14 ? raised : state.responses[fromOf(el)]?.[key] || '').trim();
       if (!el.dataset.starter) { el.textContent = words.charAt(0).toUpperCase() + words.slice(1); return; }
+      // An answer saved as the whole sentence (Step 01's THERE) already begins with its starter: shown once.
+      const own = words.toLowerCase().startsWith(el.dataset.starter.toLowerCase()) ? words.slice(el.dataset.starter.length).trim() : words;
       const starter = document.createElement('span');
       starter.className = 'starter-text';
       starter.textContent = el.dataset.starter;
-      el.replaceChildren(starter, ' ' + words);
+      el.replaceChildren(starter, ' ' + own);
     });
     document.querySelectorAll('[data-from-step]').forEach(el => { el.textContent = 'FROM STEP ' + pad(fromOf(el)); });
   }
 
   // Answer boxes open with a fixed sentence starter in grey, set in front of the box: the user only
-  // finishes the sentence. The first line of typing starts right after it.
+  // finishes the sentence. The first line of typing starts right after it. A box asked as a question (Step 18's
+  // MY KEEP and MY STOP) has no starter, so an honest "Nothing yet" reads naturally.
   // A long starter ("The move that matters most is") leaves no room for a word after it, and the box
   // would split that word: then the answer starts on the line below the starter instead.
   function fitStarter(box) {
     const starter = box.parentElement.querySelector('.starter');
+    if (!starter) return;
     const indent = () => {
       const style = getComputedStyle(box);
       const room = box.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - starter.offsetWidth;
@@ -687,11 +695,11 @@
     render(false);
   }
 
-  // Steps 03–15 · Answers read-only from earlier steps, one to four boxes, a YES / NOT SURE check, then MY PROMISE.
+  // Steps 03–18 · Answers read-only from earlier steps, one to four boxes, a YES / NOT SURE check, then MY PROMISE.
   // Stages: one per box (0, 1…), then check, promise, committed (two boxes: 2 · 3 · 4). Each box saves the user's
   // typed words under its data-answer key. Per lesson: the step the read-only answer comes from, the box NOT SURE
   // sends you back to (its hint sits in that row), and the promise, built from the boxes (numbers are box indexes)
-  // and earlier answers ({ from: step, key }). A page without the check (Steps 07–15) goes from the last box
+  // and earlier answers ({ from: step, key }). A page without the check (Steps 07–18) goes from the last box
   // straight to MY PROMISE.
   function twoBoxActScreen() {
     const lessonSetup = {
@@ -718,9 +726,26 @@
         : answers.DECISION === 'hold' ? ['Today, I will do my full move: ', { from: 3, key: 'MOVE' }, '.']
         : ['Today, I will ', { empty: true }, '.'] },
       // Step 15: the same words for everyone; the boxes hold the story and the restart rule.
-      15: { from: 1, promise: ['My restart rule is set. Today, I will do my move, or at least my minimum, if it’s due.'] }
+      15: { from: 1, promise: ['My restart rule is set. Today, I will do my move, or at least my minimum, if it’s due.'] },
+      // Step 16: the boxes hold what's working and what isn't yet (Step 17 starts from it); the promise names
+      // the person from Step 11.
+      16: { from: 1, promise: ['Today, I’ll send ', { from: 11, key: 'PERSON' }, ' what I found.'] },
+      // Step 17: from MY ACTION TODAY only (Step 18 brings WHAT I DID and the action forward).
+      17: { from: 1, promise: ['Today, I’ll ', 2, '.'] },
+      // Step 18: from MY FIRST STEP; MY KEEP, MY STOP and MY START are kept for Step 19 and Step 21.
+      18: { from: 1, promise: ['Today, I’ll ', 3, '.'] },
+      // Step 19: the Mirror Method card (SEE, OWN, MOVECHOICE and MOVE, TOOL, ACTION); the promise is TODAY'S
+      // ACTION only. The tool stays on the card.
+      19: { from: 1, promise: ['Today, I’ll ', 5, '.'] },
+      // Step 20: a blank card for a new change (NEWCHANGE, SEE, OWN, CHANGEIT, FIRST), kept apart from Step 19's;
+      // the promise is MY FIRST MOVE TODAY only.
+      20: { from: 1, promise: ['Today, I’ll ', 4, '.'] },
+      // Step 21: MY HERE NOW, WHAT'S NEXT (keep / again / new) and MY NEXT ACTION; the promise is the next action.
+      21: { from: 1, promise: ['Today, I’ll ', 2, '.'] }
     }[steps.lesson(step)];
     const answers = state.responses[step] ||= {};
+    // A choice can start already made (Step 19's KEEP THIS MOVE): data-default.
+    document.querySelectorAll('[data-answer][data-default]').forEach(box => { if (!state.lessons[step] && answers[box.dataset.answer] === undefined) answers[box.dataset.answer] = box.dataset.default; });
     const isCommitted = () => Boolean(state.lessons[step]);
     const $ = id => document.getElementById(id);
     // A box is a textarea; a date (Steps 11 and 13): a hidden date input over a box that shows the day in plain
@@ -750,7 +775,7 @@
     const parts = () => typeof lessonSetup.promise === 'function' ? lessonSetup.promise(answers) : lessonSetup.promise;
     const promiseText = () => parts().map(part => typeof part === 'string' ? part : inPromise(part)).join('');
     showEarlier(lessonSetup.from);
-    // MY RECORD (Step 14): every earlier step's check-in, one line each with its title, in the map's marks
+    // MY RECORD (Steps 14 and 16): every earlier step's check-in, one line each with its title, in the map's marks
     // (YES full gold, PARTLY half gold, NO a gold ring). No percentages or score: the user decides.
     if ($('record')) $('record').replaceChildren(...Array.from({ length: step - 1 }, (_, n) => {
       const d = n + 1, answer = state.answers[d];
@@ -762,13 +787,47 @@
       line.append(num, title, mark);
       return line;
     }));
-    $('lockedText').textContent = 'Your promise is locked. Step ' + pad(step + 1) + ' starts by asking how it went.';
+    // MY SCORE SO FAR (Step 21): follow-through over the Step 01–20 checks, no tier until the final check.
+    if ($('scoreSoFar')) $('scoreSoFar').textContent = model.score(state, 20).percent + '%';
+    // MY TWO CARDS (Step 21): the Step 19 and 20 cards with their evening results, read-only.
+    if ($('cards')) $('cards').replaceChildren(...steps.cardList(state));
+    $('lockedText').textContent = step === 21 ? 'Your promise is locked. Your final check opens on My Path.'
+      : 'Your promise is locked. Step ' + pad(step + 1) + ' starts by asking how it went.';
     if (committed) record.stage = DONE;
     if (!committed) { record.act = PROGRESS[record.stage] ?? PROGRESS[0]; save(); }
     boxes.forEach(box => { if (box.tagName === 'TEXTAREA') fitStarter(box); });
     // A day can be tomorrow at the earliest; data-days caps how far ahead (Step 13: seven days).
     const isoDay = days => { const d = new Date(); d.setDate(d.getDate() + days); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
     boxes.forEach((box, i) => { if (isDate(i)) { box.min = isoDay(1); if (box.dataset.days) box.max = isoDay(Number(box.dataset.days)); } });
+    // MY COMMITMENTS (Step 16): Step 11's report-back day, and Step 13's hard day with its tool, each with its
+    // date. A day still to come is NOT DUE YET, never a miss; the app doesn't know whether a passed one was kept.
+    if ($('commitments')) {
+      const today = isoDay(0), r11 = state.responses[11] || {}, r13 = state.responses[13] || {};
+      const sentence = (starter, words) => {
+        const line = document.createElement('p'); line.className = 'mine-text';
+        const lead = document.createElement('span'); lead.className = 'starter-text'; lead.textContent = starter;
+        line.append(lead, ' ' + words);
+        return line;
+      };
+      const commitment = (name, date, ...lines) => {
+        const due = date > today ? 'later' : date === today ? 'today' : 'past';
+        const item = document.createElement('li'); item.className = 'commitment';
+        const head = document.createElement('div'); head.className = 'commitment-head';
+        const label = document.createElement('span'); label.className = 'commitment-name'; label.textContent = name;
+        const status = document.createElement('span'); status.className = 'commitment-status ' + due;
+        status.textContent = { later: 'NOT DUE YET', today: 'DUE TODAY', past: 'PASSED' }[due];
+        head.append(label, status);
+        item.append(head, ...lines);
+        return item;
+      };
+      const tool = { minimum: 'my minimum: ' + inPromise({ from: 12, key: 'MINIMUM' }) + '.',
+        swap: 'my swap and my line: “' + inPromise({ from: 10, key: 'LINE' }) + '”, and ' + inPromise({ from: 9, key: 'SWAP' }) + '.' }[r13.TOOL];
+      const items = [
+        r11.DATE && commitment('REPORT BACK', r11.DATE, sentence('I will report back on', steps.plainDate(r11.DATE) + '.')),
+        r13.DATE && commitment('MY HARD DAY', r13.DATE, sentence('My hard day is', steps.plainDate(r13.DATE) + '.'), ...tool ? [sentence('My tool is', tool)] : [])
+      ].filter(Boolean);
+      $('commitments').replaceChildren(...items.length ? items : [Object.assign(document.createElement('li'), { className: 'commitment mine-text', textContent: 'No dated commitments yet.' })]);
+    }
     // A choice shows, under its buttons, the earlier words it stands for (data-shows="step:KEY:starter|…").
     function renderChoice(i) {
       const row = rows[i], picked = written(i);
@@ -816,6 +875,8 @@
         shown.classList.toggle('is-empty', !written(i));
       });
       const last = lastNeeded();
+      // A line shown only after a choice (Step 19's "Does this still fit your move?"): data-show-when="KEY=value".
+      document.querySelectorAll('[data-show-when]').forEach(el => { const [key, value] = el.dataset.showWhen.split('='); el.hidden = answers[key] !== value; });
       rows.forEach((row, i) => {
         row.hidden = !needed(i);
         boxes[i].disabled = s < i;
@@ -824,6 +885,8 @@
         row.querySelector('.next').disabled = !written(i);
       });
       mark(rowPromise, s === PROMISE, s === DONE);
+      // With a row hidden in the middle (Step 19's MY UPDATED MOVE), the rows after it number on without a gap.
+      if (boxes.some(box => box.dataset.when)) document.querySelectorAll('.rows > .row:not([hidden]) .node:not(.node--lock)').forEach((node, n) => { node.textContent = pad(n + 1); });
       if (hasCheck) {
         $('proofQ').hidden = s !== CHECK;
         $('proofYes').disabled = $('proofNotSure').disabled = s !== CHECK;

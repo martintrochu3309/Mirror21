@@ -42,12 +42,9 @@
     <section class="row row-static is-done">
       <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="from">THERE
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span data-from-step>FROM STEP 01</span>
-        </div>
-        <p class="question">WHERE YOU’RE GOING</p>
-        <p class="mine-text" style="margin-top: 10px" data-from="there"></p>
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
     </section>
 
@@ -55,12 +52,9 @@
     <section class="row row-static is-done" data-from-of="3">
       <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="from">MY MOVE
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span data-from-step>FROM STEP 03</span>
-        </div>
-        <p class="question">YOUR MOVE</p>
-        <p class="mine-text" style="margin-top: 10px" data-from="move"></p>
+        <p class="question">MY MOVE</p>
+        <div class="from"><span data-from-step>FROM STEP 03</span></div>
+        <p class="mine-text" data-from="move" data-starter="My move is"></p>
       </div>
     </section>
 
@@ -68,8 +62,8 @@
     <section class="row" id="rowOne">
       <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="eyebrow">LOOK AHEAD</div>
         <label class="question" for="boxOne">MY HARD DAY</label>
+        <div class="eyebrow">LOOK AHEAD</div>
         <p class="prompt">The day in the next seven most likely to test your move.</p>
         <div class="starter-wrap date-wrap">
           <div class="answer-box date-box" aria-hidden="true"><span class="starter-text">My hard day is</span> <span class="date-shown is-empty">pick a day</span></div>
@@ -85,8 +79,8 @@
     <section class="row is-locked" id="rowTwo">
       <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="eyebrow">WALK THROUGH <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve picked your hard day"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <label class="question" for="boxTwo">THE SLIP POINT</label>
+        <div class="eyebrow">WALK THROUGH <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve picked your hard day"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <p class="prompt">Picture that day from start to finish.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">The point it’s most likely to slip is </span>
@@ -102,8 +96,8 @@
     <section class="row is-locked" id="rowThree">
       <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="eyebrow">CHOOSE YOUR TOOL <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve found the slip point"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <p class="question">MY TOOL</p>
+        <div class="eyebrow">CHOOSE YOUR TOOL <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve found the slip point"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <p class="prompt">Too hard for the full move? Your minimum. Old habit pulling? Your swap and your line.</p>
         <input type="hidden" id="boxThree" data-answer="TOOL">
         <div class="pills pills--stack" role="group" aria-label="My tool">
@@ -121,8 +115,8 @@
     <section class="row is-locked" id="rowFour">
       <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="eyebrow">GET READY <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve chosen your tool"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <label class="question" for="boxFour">GETTING READY</label>
+        <div class="eyebrow">GET READY <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve chosen your tool"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
         <p class="prompt">One thing today that makes the plan easier.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">Today, to get ready, I will </span>

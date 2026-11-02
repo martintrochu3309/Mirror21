@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mirror 21">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<title>Mirror 21 · Final check</title>
+<!-- The final check: the evening check on Step 21's promise, with no step after it. Same look as the check-in;
+     SEE YOUR RESULT locks the answer and opens the Block 3 summary, then the result page. -->
+<link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/checkin.css?v=20261021-signin">
+<link rel="stylesheet" href="../assets/step/step-app.css?v=20261021-signin">
+<script src="../assets/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/final.js?v=20261021-signin" defer></script>
+</head>
+<body data-screen="checkin" data-page="final-check">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+  </div>
+
+  <div class="step-label">STEP 21 · FINAL CHECK</div>
+  <h1 class="title">DID YOU KEEP YOUR PROMISE?</h1>
+  <p class="intro"><span id="when">Last time</span> you promised:</p>
+
+  <div class="commitment">
+    <div class="ex-row">
+      <div class="ex-key ex-key--gold">MY PROMISE</div>
+      <p class="ex-text" id="commitText"></p>
+    </div>
+  </div>
+
+  <div class="choices" id="choices" role="radiogroup" aria-label="Did you keep your promise?">
+    <button class="choice" role="radio" aria-checked="false" data-choice="yes">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#e0b84c" stroke="#e0b84c" stroke-width="2"/></svg>
+      <span class="choice-label">YES, I DID IT</span>
+      <svg class="tick" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </button>
+    <button class="choice" role="radio" aria-checked="false" data-choice="partly">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#ffffff" stroke="#e0b84c" stroke-width="2"/><path d="M14 2 A12 12 0 0 0 14 26 Z" fill="#e0b84c"/></svg>
+      <span class="choice-label">PARTLY</span>
+      <svg class="tick" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </button>
+    <button class="choice" role="radio" aria-checked="false" data-choice="no">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#ffffff" stroke="#e0b84c" stroke-width="2"/></svg>
+      <span class="choice-label">NO</span>
+      <svg class="tick" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <a class="btn btn--gold" id="next" href="block.html?block=3" hidden>
+    SEE YOUR RESULT
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+</main>
+</body>
+</html>

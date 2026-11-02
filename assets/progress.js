@@ -24,7 +24,8 @@
           screen: SCREENS.includes(step.screen) ? step.screen : day >= 2 ? 'checkin' : 'watch',
           reached: Number.isInteger(step.reached) ? Math.max(0, Math.min(2, step.reached)) : 0,
           watch: fraction(step.watch), watched: step.watched === true, learn: fraction(step.learn),
-          stage: Number.isInteger(step.stage) ? Math.max(0, Math.min(6, step.stage)) : 0,
+          // Up to 10: Step 19's card runs to stage 8 (six boxes, promise, committed).
+          stage: Number.isInteger(step.stage) ? Math.max(0, Math.min(10, step.stage)) : 0,
           notSure: step.notSure === true,
           checkedIn: step.checkedIn === true
         };
@@ -42,6 +43,8 @@
       if (typeof raw.dayChanges?.[day] === 'string') state.dayChanges[day] = raw.dayChanges[day].slice(0, 600);
     }
     state.change = typeof raw.change === 'string' ? raw.change.slice(0, 600) : '';
+    // When the final check (on Step 21's promise) was locked in with SEE YOUR RESULT.
+    if (Number.isFinite(raw.finishedAt)) state.finishedAt = raw.finishedAt;
     return state;
   }
   // The course has no time limit: it runs until all 21 promises are graded.
@@ -60,8 +63,18 @@
       complete: checkIns === 21, active: checkIns < 21 };
   }
   // The check-in on a committed step happens at the start of the next step. The answer can change
-  // until WATCH is tapped there, which locks it (steps[day + 1].checkedIn).
-  const checkInLocked = (state, day) => state.steps[day + 1]?.checkedIn === true;
+  // until WATCH is tapped there, which locks it (steps[day + 1].checkedIn). Step 21 has no next step: its final
+  // check locks with SEE YOUR RESULT (finishedAt).
+  const checkInLocked = (state, day) => day === 21 ? Boolean(state.finishedAt) : state.steps[day + 1]?.checkedIn === true;
+  // Follow-through score over Steps 1–upTo: YES 1, PARTLY 0.5, NO 0, averaged over the checks answered, as a
+  // percentage to one decimal (82.5). Step 21 shows it over Steps 1–20; the result page over all 21.
+  function score(state, upTo = 21) {
+    const graded = Object.keys(state.answers).filter(day => Number(day) <= upTo).map(day => values[state.answers[day]]);
+    const percent = graded.length ? Math.round(graded.reduce((sum, value) => sum + value, 0) / graded.length * 1000) / 10 : 0;
+    return { checks: graded.length, percent };
+  }
+  // The final tier, from the score over all 21 checks: 90% and above, 75% to below 90%, below 75%.
+  const tier = percent => percent >= 90 ? 'own' : percent >= 75 ? 'renting' : 'again';
   function record(state, day, answer) {
     if (!Object.hasOwn(values, answer) || !state.lessons[day] || checkInLocked(state, day)) return false;
     state.answers[day] = answer;
@@ -103,7 +116,7 @@
   function writtenChange(state, day) {
     return state.dayChanges[day] ?? (state.answers[day] ? state.change : '');
   }
-  const api = { fresh, normalize, stats, record, session, segments, writtenChange, checkInLocked, needsCheckIn, ACT_PROGRESS };
+  const api = { fresh, normalize, stats, record, session, segments, writtenChange, checkInLocked, needsCheckIn, score, tier, ACT_PROGRESS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.MirrorProgress = api;
 })(globalThis);

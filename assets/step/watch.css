@@ -103,10 +103,12 @@ body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antia
   opacity: 0; transform: translateY(24px); transition: opacity .5s, transform .5s; pointer-events: none; }
 [data-state=finish] .end, .is-watched[data-state=paused] .end { opacity: 1; transform: none; pointer-events: auto; }
 .again { font-size: 12px; font-weight: 700; letter-spacing: .13em; color: rgba(255,255,255,.92); padding: 6px 10px; }
-/* Same gold as the app's primary buttons (YOUR TURN), black label, no arrow (agreed change from the handoff's deep gold). */
-.learn { display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border-radius: 29px;
-  background: var(--gold-gradient); font-size: 13.5px; font-weight: 700; letter-spacing: .18em; }
-.watch a.learn { color: var(--on-gold); }
+/* Shaped exactly like YOUR TURN on Learn (same pill, lettering and arrow right after the word), in reverse: a white
+   pill with black text (agreed change from the handoff's deep gold, and later from the app's gold). */
+.learn { display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%; height: 56px; border-radius: var(--radius-pill);
+  background: #fff; font-size: var(--button-size); font-weight: 700; letter-spacing: .18em; }
+.watch a.learn { color: var(--ink); }
+.learn svg { flex: none; }
 
 /* Into Learn (white): a quick fade instead of a hard cut. */
 .watch::after { content: ""; position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 10; }

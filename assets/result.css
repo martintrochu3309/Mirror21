@@ -1,0 +1,60 @@
+/* The final dashboard (html/result.html). Builds on block.css (top bar, eyebrow, closing) and step-app.css (the
+   Mirror Method cards and result marks). Mobile first: one column, the score and tier first and largest. */
+
+.result-screen { text-align: left; }
+.result-screen .block-eyebrow { text-align: center; }
+
+.result-section { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--rule); }
+.result-kicker { margin: 0; font-size: 10px; font-weight: 700; letter-spacing: .2em; color: var(--muted); }
+.result-heading { margin: 0; font: italic 700 var(--question-size)/1.15 var(--font-display); letter-spacing: -0.02em; }
+.result-note { margin: 12px 0 0; font-size: 16px; line-height: 1.5; font-weight: 300; color: var(--muted); }
+.result-small { margin: 14px 0 0; font-size: 13px; line-height: 1.45; font-weight: 300; color: var(--muted); }
+.result-words { margin: 8px 0 0; font-size: var(--move-text-size); line-height: 1.5; font-weight: 300; color: var(--ink); }
+
+/* FOLLOW-THROUGH: the percentage, then the tier on black */
+.result-score { margin-top: 18px; padding-top: 0; border-top: 0; text-align: center; }
+.result-percent { margin: 10px 0 0; font: italic 700 72px/1 var(--font-display); letter-spacing: -0.04em; color: var(--ink); }
+.result-tier { margin-top: 22px; padding: 20px 18px 22px; border-radius: 16px; background: var(--ink); color: #fff; }
+.result-tier .result-kicker { color: var(--gold); }
+.result-tier-name { margin: 10px 0 0; font: italic 700 30px/1.05 var(--font-display); letter-spacing: -0.02em; color: #fff; }
+.result-tier-line { margin: 10px 0 0; font-size: 16px; line-height: 1.5; font-weight: 300; color: #d6d6d2; }
+
+/* EVIDENCE OF CHANGE: then and now, one above the other */
+.result-compare { display: grid; gap: 10px; margin-top: 16px; }
+.result-then, .result-now { padding: 14px 16px 16px; border-radius: 14px; }
+.result-then { border: 1px solid var(--rule); background: var(--surface); }
+.result-now { border: 2px solid var(--gold); background: var(--bg); }
+.result-now .result-kicker { color: var(--gold-text); }
+.result-going { margin-top: 20px; }
+
+.result-section .method-cards { margin-top: 16px; }
+
+/* YOUR JOURNEY: 21 steps, closed until opened */
+.result-journey { margin-top: 12px; }
+.result-journey-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; list-style: none; font: 400 14px/1.3 var(--font-body); color: var(--muted); cursor: pointer; }
+.result-journey-toggle::-webkit-details-marker { display: none; }
+.result-journey-toggle svg { transition: transform 200ms ease; }
+.result-journey[open] .result-journey-toggle svg { transform: rotate(180deg); }
+.result-journey .tools-close, .result-journey[open] .tools-open { display: none; }
+.result-journey[open] .tools-close { display: inline; }
+.result-steps { list-style: none; margin: 8px 0 0; padding: 0; }
+.result-step { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.result-step:last-child { border-bottom: 0; }
+.result-step-head { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; column-gap: 10px; }
+.result-step-num { font: italic 700 13px/1 var(--font-display); color: var(--gold-text); }
+.result-step-title { font-size: 15px; font-weight: 500; color: var(--ink); }
+.result-step-promise { margin: 6px 0 0 36px; font-size: 15px; line-height: 1.45; font-weight: 300; color: var(--muted); }
+
+/* WHAT'S NEXT: the call to action, on gold-ringed white */
+.result-next { margin-top: 30px; padding: 20px 18px 22px; border: 2px solid var(--ink); border-radius: 16px; }
+.result-next-choice { margin: 8px 0 18px; font: italic 700 24px/1.15 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+.result-next-action { margin: 8px 0 0; font-size: 18px; line-height: 1.45; font-weight: 500; color: var(--ink); }
+.result-new-run { margin-top: 20px; }
+.result-new-run[hidden] { display: none; }
+
+.result-screen .block-end { margin-top: 30px; text-align: center; }
+.result-runs { margin-top: 22px; text-align: left; }
+.result-runs[hidden] { display: none; }
+.result-run { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--rule); font-size: 15px; color: var(--ink); text-decoration: none; }
+.result-run-score { font-weight: 700; }
+.result-run.is-here { color: var(--gold-text); }

@@ -41,12 +41,9 @@
     <section class="row row-static is-done">
       <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="from">THERE
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span data-from-step>FROM STEP 01</span>
-        </div>
-        <p class="question">WHERE YOU’RE GOING</p>
-        <p class="mine-text" style="margin-top: 10px" data-from="there"></p>
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
     </section>
 
@@ -54,13 +51,10 @@
     <section class="row row-static is-done" data-from-of="8">
       <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="from">WHEN · WHAT
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span data-from-step>FROM STEP 08</span>
-        </div>
         <p class="question">MY OLD HABIT</p>
-        <p class="mine-text" style="margin-top: 10px" data-from="when" data-starter="It usually happens when"></p>
-        <p class="mine-text" style="margin-top: 6px" data-from="what" data-starter="What I actually do is"></p>
+        <div class="from"><span data-from-step>FROM STEP 08</span></div>
+        <p class="mine-text" data-from="when" data-starter="It usually happens when"></p>
+        <p class="mine-text" data-from="what" data-starter="What I actually do is"></p>
       </div>
     </section>
 
@@ -68,12 +62,9 @@
     <section class="row row-static is-done" data-from-of="8">
       <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="from">PAYOFF
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#646461" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Read-only"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span data-from-step>FROM STEP 08</span>
-        </div>
         <p class="question">WHAT IT GIVES ME</p>
-        <p class="mine-text" style="margin-top: 10px" data-from="payoff" data-starter="It gives me"></p>
+        <div class="from"><span data-from-step>FROM STEP 08</span></div>
+        <p class="mine-text" data-from="payoff" data-starter="It gives me"></p>
       </div>
     </section>
 
@@ -81,8 +72,8 @@
     <section class="row" id="rowOne">
       <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <div class="eyebrow">SWAP</div>
         <label class="question" for="boxOne">MY SWAP</label>
+        <div class="eyebrow">SWAP</div>
         <p class="prompt">Something that gives you the same thing, and moves you towards where you want to be.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">Instead, I will </span>

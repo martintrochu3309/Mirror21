@@ -87,7 +87,8 @@ button, textarea { font-family: inherit; }
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 17px; color: var(--ink);
 }
-.move-num--final { background: var(--gold-gradient); border: none; color: var(--on-gold); }
+/* Every move's circle looks the same, the last one included: white, gold ring, gold number. */
+.move-num { color: var(--gold-text); }
 .move-body { padding-top: 8px; }
 .move-key { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: var(--keyword-size); letter-spacing: -0.02em; line-height: 1; }
 .move-text { margin: 8px 0 0; font-size: var(--move-text-size); line-height: 1.55; font-weight: 300; color: var(--muted); }

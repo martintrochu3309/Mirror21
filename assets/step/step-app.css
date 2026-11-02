@@ -67,9 +67,53 @@ a.icon-btn { flex: none; text-decoration: none; }
 .record-mark.partly::before { background: linear-gradient(90deg, var(--gold) 50%, #fff 50%); }
 .record-mark.none { color: var(--locked-number); }
 .record-mark.none::before { border-color: var(--locked-border); }
+/* Step 16 · MY COMMITMENTS: Step 11's report-back day and Step 13's hard day, ruled like MY RECORD. A day still to
+   come is grey (NOT DUE YET), never marked as a miss. */
+.commitments { list-style: none; margin: 12px 0 0; padding: 0; }
+.commitment { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.commitment:last-child { border-bottom: 0; }
+.commitment .mine-text { margin: 6px 0 0; }
+.commitment-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.commitment-name, .commitment-status { font-size: 11px; font-weight: 700; letter-spacing: .14em; color: var(--ink); }
+.commitment-status.later { color: var(--locked-number); }
+/* Step 19 · MY TOOLS: a closed reference panel of every saved answer, read-only, opened with a quiet toggle like
+   "See an example". */
+.tools { margin-top: 10px; }
+.tools-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; list-style: none; font: 400 13px/1.3 var(--font-body); color: var(--muted); cursor: pointer; }
+.tools-toggle::-webkit-details-marker { display: none; }
+.tools-toggle svg { transition: transform 200ms ease; }
+.tools[open] .tools-toggle svg { transform: rotate(180deg); }
+.tools-close, .tools[open] .tools-open { display: none; }
+.tools[open] .tools-close { display: inline; }
+.tool { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.tool:last-child { border-bottom: 0; }
+.tool .mine-text { margin: 6px 0 0; }
+.tool-check { color: var(--ink); }
+/* Step 21 · MY SCORE SO FAR: the percentage, large, then what it does and doesn't measure. */
+.score-so-far { margin: 12px 0 0; font: italic 700 44px/1 var(--font-display); letter-spacing: -0.03em; color: var(--ink); }
+/* The two Mirror Method cards (Step 21 and the result page): closed panels with the step, title and evening result;
+   opened, the answers as ruled rows. */
+.method-cards { margin-top: 12px; }
+.method-card { border: 1px solid var(--rule); border-radius: 14px; background: var(--surface); }
+.method-card + .method-card { margin-top: 10px; }
+.method-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; list-style: none; cursor: pointer; }
+.method-card-head::-webkit-details-marker { display: none; }
+.method-card-name { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.method-card-step { font-size: 10px; font-weight: 700; letter-spacing: .2em; color: var(--gold-text); }
+.method-card-title { font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--ink); }
+.method-card-rows { margin: 0; padding: 0 16px 6px; }
+.method-card-row { padding: 10px 0; border-top: 1px solid var(--rule); }
+.method-card-row dt { font-size: 10px; font-weight: 700; letter-spacing: .16em; color: var(--muted); }
+.method-card-row dd { margin: 4px 0 0; font-size: 16px; line-height: 1.45; font-weight: 300; color: var(--ink); }
+/* Step 20 · no example on purpose: one centred line on the example panel. */
+.learn-ex-none { margin-top: 14px; text-align: center; }
+/* Step 19 · MY MOVE: the current move under the small gold line, spaced like a helper line. */
+.row-body > .eyebrow + [data-from-of] { margin-top: 14px; }
+.tool-name { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .14em; color: var(--ink); }
 /* Learn · the example: the moves above, filled in, on a full-width grey panel. Same numbers and order as the
-   moves, in white circles with black rings joined by a black line, then MY PROMISE with a lock. Each move's
-   example words are grey; in the promise, the fixed words are light grey and the example's own words black. */
+   moves, in white circles with black rings joined by a black line, then MY PROMISE with a lock. All the words are
+   set like the move descriptions above (Neue Haas Display Light, 17px, grey); in the promise, the example's own
+   words are black. */
 .learn-ex { margin: 34px calc(var(--pad-x) * -1) 0; padding: 30px var(--pad-x) 34px; background: var(--surface); }
 .learn-ex-title { margin: 0; text-align: center; font: italic 700 22px/1 var(--font-display); letter-spacing: 0.02em; }
 .learn-ex-rows { list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-direction: column; gap: 28px; }
@@ -80,16 +124,36 @@ a.icon-btn { flex: none; text-decoration: none; }
   border: 2px solid var(--ink); background: var(--bg); font: italic 700 13px/1 var(--font-display); color: var(--ink); }
 .learn-ex-body { min-width: 0; padding-top: 7px; }
 .learn-ex-key { margin: 0; font: italic 700 20px/1.1 var(--font-display); letter-spacing: -0.02em; }
-/* The example's words under each move: the same grey as the move descriptions above. */
-.learn-ex-text { margin: 8px 0 0; font-size: 17px; line-height: 1.45; font-weight: 500; color: var(--muted); }
-.learn-ex-promise { margin: 8px 0 0; font-size: 19px; line-height: 1.45; font-weight: 500; color: var(--ink); }
-.learn-ex-fixed { color: #8a8a86; }
+.learn-ex-text, .learn-ex-promise { margin: 8px 0 0; font-size: var(--move-text-size); line-height: 1.55; font-weight: 300; color: var(--muted); }
+.learn-ex-promise { color: var(--ink); }
+.learn-ex-fixed { color: var(--muted); }
 
 /* YOUR TURN on Learn: black, the arrow right after the words. */
 .btn--ink { background: var(--ink); color: #fff; border: 1px solid transparent; gap: 14px; }
 .btn--ink svg { position: static; transform: none; }
-/* MY PROMISE on Act: the body font, calm, like the promise in the Learn examples. The fixed words are light grey
-   and the user's own words black ("…" in pale grey until written). The heading above stays in Magistral. */
-.promise, .commit-quote { font-family: var(--font-body); font-style: normal; font-weight: 500; font-size: 20px; line-height: 1.45; letter-spacing: 0; color: #8a8a86; }
+/* MY PROMISE on Act: set like the Learn move descriptions and the Learn example's promise (Neue Haas Display
+   Light, 17px). The fixed words are grey and the user's own words black ("…" in pale grey until written). The
+   heading above stays in Magistral. */
+.promise, .commit-quote { font-family: var(--font-body); font-style: normal; font-weight: 300; font-size: var(--move-text-size); line-height: 1.55; letter-spacing: 0; color: var(--muted); }
 .promise .promise-rest, .commit-quote .promise-rest { color: var(--ink); }
 .promise .promise-rest.is-empty, .commit-quote .promise-rest.is-empty { color: #b0b0ac; }
+/* Act rows: the title sits level with the number; under it the small gold line (SHRINK, or FROM STEP 01 on rows
+   brought from earlier steps), then a little more room before the helper line, the box or the answer. */
+.row-body > .question:first-child, .row-body > .promise-title:first-child { margin-top: 3px; }
+.row-body > .question + .eyebrow, .row-body > .question + .from, .row-body > .promise-title + .eyebrow { margin-top: 8px; }
+.row-body > .eyebrow + .prompt, .row-body > .from + .mine-text { margin-top: 14px; }
+.row-body > .mine-text + .mine-text { margin-top: 6px; }
+.from span { color: var(--muted); }
+
+/* Act dots: rows you fill in are black with a gold number; rows brought from earlier steps are white with a light
+   grey ring and a gold number (locked, nothing to do); rows still to come stay faded. A light grey line joins them. */
+.row.is-active .node, .row.is-done .node { background: var(--ink); border-color: var(--ink); color: var(--gold); }
+.row.row-static.is-done .node { background: var(--bg); border-color: var(--locked-border); color: var(--gold-text); }
+.row .rail-line, .row.is-done .rail-line, .row-static .rail-line { background: var(--path-off); }
+
+/* Answers brought from earlier steps on Act: their grey starter, then the user's words in black, upright
+   (set like the promise). */
+[data-screen="act"] .mine-text { font-size: var(--move-text-size); line-height: 1.55; font-weight: 300; font-style: normal; color: var(--ink); }
+[data-screen="act"] .mine-text .starter-text { color: var(--muted); }
+/* Once committed, the promise's lock stays shiny gold (it matches the COMMITTED mark). */
+.row.is-done .node.node--lock { background: var(--gold-gradient); border-color: transparent; color: var(--on-gold); }
