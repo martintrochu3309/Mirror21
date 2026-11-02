@@ -105,16 +105,22 @@
     openDayCard = { card, step, row };
     const bounds = step.getBoundingClientRect();
     const viewport = scroll.getBoundingClientRect();
-    // Include the tile's bottom lip when attaching the pointer below it.
-    card.style.top = (bounds.bottom - viewport.top + scroll.scrollTop + 20)+'px';
     const pointer = bounds.left + bounds.width / 2 - viewport.left - 16;
     card.style.setProperty('--pointer-left', Math.max(24, Math.min(scroll.clientWidth - 56, pointer))+'px');
-    const bottom = card.offsetTop + card.offsetHeight;
-    const availableBottom = scroll.scrollTop + scroll.clientHeight - 116;
-    if (bottom > availableBottom) scroll.scrollTo({
-      top: scroll.scrollTop + bottom - availableBottom,
-      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-    });
+    const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    // Step 21 is the last on the path, with nothing below it: its card opens above, pointing down.
+    if (dayNumber === 21) {
+      card.classList.add('is-above');
+      card.style.top = (bounds.top - viewport.top + scroll.scrollTop - 20 - card.offsetHeight)+'px';
+      const availableTop = scroll.scrollTop + 16;
+      if (card.offsetTop < availableTop) scroll.scrollTo({ top: scroll.scrollTop - (availableTop - card.offsetTop), behavior });
+    } else {
+      // Include the tile's bottom lip when attaching the pointer below it.
+      card.style.top = (bounds.bottom - viewport.top + scroll.scrollTop + 20)+'px';
+      const bottom = card.offsetTop + card.offsetHeight;
+      const availableBottom = scroll.scrollTop + scroll.clientHeight - 116;
+      if (bottom > availableBottom) scroll.scrollTo({ top: scroll.scrollTop + bottom - availableBottom, behavior });
+    }
     (card.querySelector('a') || step).focus({ preventScroll: true });
   }
   // Into Watch, the black step card grows to fill the screen (0.35s), then Watch continues from that

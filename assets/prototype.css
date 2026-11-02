@@ -58,6 +58,8 @@ nav[aria-label="Course"] { z-index: 10; }
   border-top: 1px solid #111111; border-left: 1px solid #111111;
   transform: translateX(-50%) rotate(45deg);
 }
+/* Step 21's card sits above its tile, so the pointer is on the bottom edge. */
+.day-popover.is-above::before { top: auto; bottom: -8px; border: 0; border-right: 1px solid #111111; border-bottom: 1px solid #111111; }
 .day-popover h2 {
   position: relative; margin: 0 0 20px;
   font: italic 700 20px/1.25 'Magistral',Arial,sans-serif; letter-spacing: -.02em;

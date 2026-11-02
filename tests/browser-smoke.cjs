@@ -1205,6 +1205,9 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     assert.equal(await evaluate('document.querySelector(".progress-row[data-day=\\"21\\"] .progress-bubble").textContent'),'CHECK IN');
     await click('.progress-row[data-day="21"] .progress-step');await wait(300);
     assert.equal(await evaluate('document.querySelector(".day-popover-start .action-label").textContent'),'FINAL CHECK');
+    // The last step on the path: its card opens above the tile, not below it.
+    assert.equal(await evaluate('(()=>{const c=document.querySelector("#map-day-card");return c.classList.contains("is-above")&&c.getBoundingClientRect().bottom<=document.querySelector(".progress-row[data-day=\\"21\\"] .progress-step").getBoundingClientRect().top})()'),true,'Step 21’s card opens above it');
+    if(phone)await shot('map-step21-card-mobile.png');
     await click('.day-popover-start');await ready('final-check.html');
     assert.equal(await evaluate('document.querySelector("#commitText").textContent'),promise21);
     assert.equal(await evaluate('document.querySelector("#next").hidden'),true);
