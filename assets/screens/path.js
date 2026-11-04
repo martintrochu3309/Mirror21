@@ -129,6 +129,9 @@
   // block's last step (07, 14) the block tile goes first; after Step 21, the flag tile (CHECK IN). After the final
   // check, the flag flips from black to gold (RESULT). Once only; a tap skips to the end; nothing with reduce motion.
   function pendingUnlock() {
+    // Another Mirror 21 tab reloads in the background when progress is saved: only a tab he can see uses the note,
+    // so the moment plays where he's looking.
+    if (document.visibilityState === 'hidden') return null;
     const note = store.device.takeUnlock();
     if (!note || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
     if (note === 'finish') return state.finishedAt ? { finish: true } : null;
