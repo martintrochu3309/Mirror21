@@ -134,11 +134,54 @@
     // so the moment plays where he's looking.
     if (document.visibilityState === 'hidden') return null;
     const note = store.device.takeUnlock();
-    if (!note || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
-    if (note === 'finish') return state.finishedAt ? { finish: true } : null;
+    if (!note) return null;
+    // With reduce motion there's no moment (still: true), though a block's congratulations still shows.
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (note === 'finish') return state.finishedAt ? { finish: true, still } : null;
     const n = Number(note);
     // Only while it is still the latest news: the step committed, the next one (or the final check) not yet done.
-    return Number.isInteger(n) && n >= 1 && n <= 21 && state.lessons[n] && (n < 21 ? !state.lessons[n + 1] : !state.finishedAt) ? { step: n } : null;
+    return Number.isInteger(n) && n >= 1 && n <= 21 && state.lessons[n] && (n < 21 ? !state.lessons[n + 1] : !state.finishedAt) ? { step: n, still } : null;
+  }
+  // Block complete (after Steps 07, 14 and 21, once the moment has played): a black card in the middle of My Path.
+  // BLOCK N COMPLETED, CONGRATULATIONS, then a white tile: the follow-through so far, or for Block 3, SEE MY RESULT
+  // (the final check, then the Block 3 summary and the result). Tapping anywhere else, or the ✕, closes it.
+  function showCongrats(block) {
+    const frame = document.querySelector('.app-frame');
+    if (!frame || document.querySelector('.congrats-back')) return;
+    const make = (tag, className, text) => { const node = document.createElement(tag); node.className = className; if (text != null) node.textContent = text; return node; };
+    const back = make('div', 'congrats-back'), card = make('section', 'congrats');
+    card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.setAttribute('aria-labelledby', 'congrats-title');
+    const close = make('button', 'congrats-close'); close.type = 'button'; close.setAttribute('aria-label', 'Close');
+    close.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    const title = make('h2', 'congrats-title', 'CONGRATULATIONS'); title.id = 'congrats-title';
+    let tile;
+    if (block === 3) {
+      tile = make('a', 'congrats-tile congrats-tile--link', 'SEE MY RESULT');
+      tile.href = 'final-check.html';
+      tile.insertAdjacentHTML('beforeend', '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>');
+    } else tile = make('p', 'congrats-tile', 'Your follow-through: ' + summary().percent + '%');
+    card.append(close, make('p', 'congrats-eyebrow', 'BLOCK ' + block + ' COMPLETED'), title, tile);
+    for (const [left, top] of [[4, 30], [3, 62], [96, 36], [94, 70], [22, 92], [78, 94]]) {
+      const sparkle = make('span', 'day-popover-sparkle'); sparkle.setAttribute('aria-hidden', 'true');
+      sparkle.style.left = left + '%'; sparkle.style.top = top + '%';
+      sparkle.style.setProperty('--particle-delay', (-card.querySelectorAll('.day-popover-sparkle').length * .37) + 's');
+      card.append(sparkle);
+    }
+    back.append(card); frame.append(back);
+    // CONGRATULATIONS stays on one line: on a narrow phone it shrinks just enough to fit.
+    const room = card.clientWidth - 52, needed = title.scrollWidth;
+    if (needed > room) title.style.fontSize = Math.floor(28 * room / needed * 10) / 10 + 'px';
+    const returnTo = document.activeElement;
+    const shut = event => {
+      if (event?.target?.closest?.('.congrats-tile--link')) return;
+      removeEventListener('keydown', onKey, true); back.removeEventListener('click', shut);
+      const done = () => { back.remove(); returnTo?.focus?.({ preventScroll: true }); };
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return done();
+      back.classList.add('is-closing'); setTimeout(done, 220);
+    };
+    const onKey = event => { if (event.key === 'Escape') { event.stopPropagation(); shut(); } };
+    back.addEventListener('click', shut); addEventListener('keydown', onKey, true);
+    (block === 3 ? tile : close).focus({ preventScroll: true });
   }
   let moment = null;
   const waiting = new Set();
@@ -188,6 +231,8 @@
       path.querySelectorAll('.journey-footprint.is-gold').forEach(print => print.classList.remove('is-gold'));
       removeEventListener('pointerdown', touched, true); removeEventListener('click', tapped, true); removeEventListener('keydown', keyed, true);
       root.dataset.unlock = 'done';
+      // What follows the moment (a block's congratulations), half a second after its end or a skip.
+      if (run.after) setTimeout(run.after, 500);
     };
     // Only a real tap on My Path (or a key) skips. Scrolling doesn't, and nor does the finger still down from
     // I'M COMMITTED: lifting it here reads as a tap, but it began on the Act screen, so it never touched down here.
@@ -336,7 +381,11 @@
       spot.append(label,tile);path.append(spot);return spot;
     });
     scroll.replaceChildren(path);
-    moment = unlock ? prepareMoment(unlock, { path, blockSpots, resultsRow, resultsTile }) : null;
+    moment = unlock && !unlock.still ? prepareMoment(unlock, { path, blockSpots, resultsRow, resultsTile }) : null;
+    // A block's last step: its congratulations after the moment (or straight away, still, with reduce motion).
+    const congrats = unlock && [7, 14, 21].includes(unlock.step) ? unlock.step / 7 : 0;
+    if (congrats && moment) moment.after = () => showCongrats(congrats);
+    else if (congrats) setTimeout(() => showCongrats(congrats), 500);
     const ns='http://www.w3.org/2000/svg';
     const trail=document.createElementNS(ns,'svg');trail.classList.add('journey-trail');trail.setAttribute('aria-hidden','true');
     path.prepend(trail);

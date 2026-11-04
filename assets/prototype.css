@@ -337,6 +337,22 @@ button.settings-row:active { background: #ececE8; }
 .journey-segment.is-waiting { fill: #d2d2ce; }
 .journey-segment.is-waiting .journey-footprint.is-gold { fill: #dcc36e; }
 .journey-footprint-ink { transform-box: fill-box; transform-origin: center; }
+/* Block complete (path.js): a black card in the middle of My Path, like the day card but roomier; everything in
+   Magistral and centred; the follow-through (or SEE MY RESULT) in a white tile. */
+.congrats-back { position: absolute; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; background: rgba(17,17,17,.42); animation: congrats-fade .25s ease-out; }
+.congrats { position: relative; box-sizing: border-box; width: 100%; max-width: 340px; padding: 48px 26px 30px; border-radius: 22px; background: #111111; color: #ffffff; text-align: center; animation: congrats-in .4s cubic-bezier(.2,1.3,.4,1); }
+.congrats-close { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; background: none; color: #ffffff; cursor: pointer; }
+.congrats-eyebrow { margin: 0; font: italic 700 14px/1.2 'Magistral', Arial, sans-serif; letter-spacing: .06em; color: #e0b84c; }
+.congrats-title { margin: 12px 0 0; font: italic 700 28px/1.05 'Magistral', Arial, sans-serif; letter-spacing: -.03em; color: #ffffff; white-space: nowrap; }
+.congrats-tile { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 26px 0 0; padding: 18px 16px; border-radius: 16px; background: #ffffff; color: #111111; font: italic 700 17px/1.2 'Magistral', Arial, sans-serif; letter-spacing: .01em; text-decoration: none; }
+.congrats-tile--link svg { color: #896a00; }
+.congrats-tile--link:active { transform: translateY(1px); }
+.congrats-close:focus-visible, .congrats-tile--link:focus-visible { outline: 2px solid #e0b84c; outline-offset: 3px; }
+.congrats-back.is-closing { animation: congrats-unfade .2s ease-in forwards; }
+@keyframes congrats-fade { from { opacity: 0; } }
+@keyframes congrats-unfade { to { opacity: 0; } }
+@keyframes congrats-in { from { opacity: 0; transform: scale(.9); } }
+@media (prefers-reduced-motion: reduce) { .congrats-back, .congrats, .congrats-back.is-closing { animation: none; } }
 /* Opened from the Home Screen as an app: keep clear of the clock and the home indicator. */
 .app-frame > div[style*="top: 59px"] { top: max(59px, calc(env(safe-area-inset-top) + 12px)) !important; }
 .mirror-scroll { padding-top: max(59px, calc(env(safe-area-inset-top) + 12px)); padding-bottom: max(130px, calc(env(safe-area-inset-bottom) + 110px)); }

@@ -1243,9 +1243,14 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await holdFor(1250);await ready('04-map-start.html');assert.equal(await stage21(),5);
     let s=await stored();
     assert.deepEqual([s.responses[21].HERENOW,s.responses[21].NEXT,s.responses[21].ACTION,s.dayChanges[21]],['leave on time most evenings and have two evenings a week to myself','again','ask my manager to move Thursday’s late meeting',promise21]);
+    // Block 3 complete: its congratulations, with SEE MY RESULT (to the final check); a tap closes it.
+    await wait(400);
+    assert.deepEqual(await evaluate('[document.querySelector(".congrats-eyebrow")?.textContent,document.querySelector(".congrats-title")?.textContent,document.querySelector(".congrats-tile")?.textContent,new URL(document.querySelector(".congrats-tile").href).pathname.replace(/\\.html$/,"")]'),['BLOCK 3 COMPLETED','CONGRATULATIONS','SEE MY RESULT','/html/final-check']);
+    if(phone)await shot('map-block3-congrats-mobile.png');
+    await evaluate('document.querySelector(".congrats-back").click()');await wait(400);
+    assert.equal(await evaluate('document.querySelector(".congrats-back")'),null,'A tap closes it');
     // My Path: Step 21 is a done step like the others (REDO STEP); My Results, below it, has the CHECK IN bubble
     // and its card leads to the final check.
-    await wait(400);
     assert.equal(await evaluate('document.querySelector(".progress-row[data-day=\\"21\\"] .progress-bubble")'),null,'No bubble on Step 21');
     assert.equal(await evaluate('new URL(document.querySelector(".progress-row[data-day=\\"21\\"] .progress-step").href).pathname.replace(/\\.html$/,"")'),'/html/step-watch');
     await click('.progress-row[data-day="21"] .progress-step');await wait(300);
