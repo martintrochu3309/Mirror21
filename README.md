@@ -145,6 +145,7 @@ The third tab (book icon) replaces My Tools. The tabs are **MY PATH** (the map),
 ## Tests
 
 - `node --test tests/*.test.js`: course rules, step catalogue, progress bar, routing, device storage and restart.
+- `node tests/visual-baseline.cjs capture <dir>` then `compare <dirA> <dirB>`: the guard for restructuring work. It saves every screen in every state (the step screens at each stage, My Path with its cards, My Mirror, My Journey, Settings, the blocks, the final check and the result, plus a few full flows) at phone, iPad and desktop sizes: a screenshot, the page as rendered, and what the app saved. Compare lists any pixel, element or saved value that differs. Capture before a change, again after, and compare; captures go in `.visual/`, which is never committed. Set `MIRROR21_SCREENS=<folder>` to send the browser test's screenshots somewhere other than `screens/`.
 - `node tests/browser-smoke.cjs`: runs the real flow in Chrome at phone, iPad and desktop sizes (Welcome, Watch with real playback, Learn, every Act state, hold to commit, Step 02 unlock, the check-in in all three answers with its lock and map tile looks, My Mirror, restart) against a local server that simulates Netlify. It writes phone screenshots to `screens/` (`step-watch-mobile.png`, `step-learn-mobile.png`, `step-act-*.png`, `journey-map-mobile.png` …) for comparison with the design handoffs' screenshots. Requires installed Chrome.
 
 ## Deploying on Netlify

@@ -7,9 +7,11 @@ const http=require('node:http');
 const assert=require('node:assert/strict');
 const steps=require('../assets/steps.js');
 const root=path.resolve(__dirname,'..');
+// Screenshots go to screens/ unless MIRROR21_SCREENS names another folder (so a check run leaves the repo as it was).
+const screens=process.env.MIRROR21_SCREENS?path.resolve(process.env.MIRROR21_SCREENS):path.join(root,'screens');
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 (async()=>{
- await fs.mkdir(path.join(root,'screens'),{recursive:true});
+ await fs.mkdir(screens,{recursive:true});
  const profile=await fs.mkdtemp(path.join(os.tmpdir(),'mirror21-browser-'));
  // Simulates Netlify: .html is dropped from paths and from anchors in served HTML.
  const server=http.createServer(async(req,res)=>{try{let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(pathname.endsWith('/'))pathname+='index.html';else if(!path.extname(pathname))pathname+='.html';const file=path.resolve(root,'.'+pathname);if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.jpg':'image/jpeg','.png':'image/png','.mp4':'video/mp4','.webmanifest':'application/manifest+json'};res.setHeader('Content-Type',types[path.extname(file)]||'application/octet-stream');let contents=await fs.readFile(file);if(path.extname(file)==='.html')contents=Buffer.from(contents.toString().replace(/href="([^"]+)\.html([^"]*)"/g,'href="$1$2"'));if(/\.mp4$/.test(file)&&req.headers.range){const match=/bytes=(\d+)-(\d*)/.exec(req.headers.range);if(match){const first=Number(match[1]),last=match[2]?Math.min(Number(match[2]),contents.length-1):contents.length-1;res.writeHead(206,{'Content-Range':'bytes '+first+'-'+last+'/'+contents.length,'Accept-Ranges':'bytes','Content-Length':last-first+1});res.end(contents.subarray(first,last+1));return;}}res.setHeader('Accept-Ranges','bytes');res.end(contents);}catch{res.writeHead(404).end();}});
@@ -56,7 +58,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const shot=async(name,full)=>{
    const options={format:'png'};
    if(full){const h=await evaluate('document.documentElement.scrollHeight');options.captureBeyondViewport=true;options.clip={x:0,y:0,width:await evaluate('innerWidth'),height:h,scale:1};}
-   const s=await command('Page.captureScreenshot',options);await fs.writeFile(path.join(root,'screens',name),Buffer.from(s.data,'base64'));
+   const s=await command('Page.captureScreenshot',options);await fs.writeFile(path.join(screens,name),Buffer.from(s.data,'base64'));
   };
   const stage=async()=>(await stored()).steps[1].stage;
   const holdFor=async ms=>{
