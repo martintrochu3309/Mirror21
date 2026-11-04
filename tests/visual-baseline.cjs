@@ -1,5 +1,6 @@
 // The no-visual-change guard for restructuring work. Chrome must be installed.
 //   node tests/visual-baseline.cjs capture <dir>      every screen and state, on phone, iPad and desktop
+//   node tests/visual-baseline.cjs capture <dir> ipad one size only (run the three side by side to go faster)
 //   node tests/visual-baseline.cjs compare <dirA> <dirB>
 // Each capture saves a screenshot (plus the whole page when it scrolls), the page as rendered (every element,
 // attribute and text, comments left out) and what the app saved. Compare reports any pixel, element or saved
@@ -230,7 +231,8 @@ async function browser(){
  return {command,evaluate,errors,close:()=>{try{socket.close();}catch{}chrome.kill();}};
 }
 
-async function capture(dir){
+async function capture(dir,only){
+ if(only&&!SIZES.some(([label])=>label===only))throw Error('No size called '+only);
  const server=await serve(),base='http://127.0.0.1:'+server.address().port;
  const b=await browser();const {command,evaluate}=b;
  const at=name=>evaluate('location.pathname').then(p=>p.replace(/\.html$/,'')==='/html/'+name.replace('.html','')).catch(()=>false);
@@ -263,7 +265,7 @@ async function capture(dir){
   await wait(kind==='await'?0:450);
  };
  const failures=[];let count=0;
- for(const [label,width,height,scale,mobile] of SIZES){
+ for(const [label,width,height,scale,mobile] of SIZES.filter(([label])=>!only||label===only)){
   await fs.mkdir(path.join(dir,label),{recursive:true});
   await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:scale,mobile});
   for(const s of S){
@@ -291,7 +293,7 @@ async function capture(dir){
   console.log(label+': captured');
  }
  b.close();server.close();
- await fs.writeFile(path.join(dir,'failures.txt'),failures.join('\n'));
+ await fs.writeFile(path.join(dir,'failures'+(only?'-'+only:'')+'.txt'),failures.join('\n'));
  console.log(count+' captures in '+dir+(failures.length?'\nPROBLEMS:\n  '+failures.join('\n  '):''));
 }
 
@@ -357,6 +359,6 @@ async function compare(a,b){
 }
 
 const [mode,a,b]=process.argv.slice(2);
-if(mode==='capture'&&a)capture(path.resolve(a)).catch(e=>{console.error(e);process.exit(1);});
+if(mode==='capture'&&a)capture(path.resolve(a),b).catch(e=>{console.error(e);process.exit(1);});
 else if(mode==='compare'&&a&&b)compare(path.resolve(a),path.resolve(b)).catch(e=>{console.error(e);process.exit(1);});
 else console.log('Usage: node tests/visual-baseline.cjs capture <dir> | compare <dirA> <dirB>');
