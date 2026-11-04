@@ -2,7 +2,7 @@
    Learn appears at Finish once 90% of the video is reached. The timeline can be dragged freely either way,
    so dragging past 90% counts as watched (for now).
    Run by the step shell. */
-(globalThis.MirrorScreens ||= {}).watch = ({ model, steps, store, state, stats, step, welcome, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival, showEarlier }) => {
+(globalThis.MirrorScreens ||= {}).watch = ({ steps, store, step, welcome, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival }) => {
   const screen = document.getElementById('watch');
   const player = document.getElementById('player');
   const still = document.getElementById('still');

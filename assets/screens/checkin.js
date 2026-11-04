@@ -1,5 +1,5 @@
 /* The check-in at the start of each step from Step 02: did you keep the previous step's promise? Run by the step shell. */
-(globalThis.MirrorScreens ||= {}).checkin = ({ model, steps, store, state, stats, step, welcome, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival, showEarlier }) => {
+(globalThis.MirrorScreens ||= {}).checkin = ({ model, steps, store, state, step, committed, record, save, refreshBar, href, reduceMotion }) => {
   // The check-in is about the previous step: its locked promise and when it was committed.
   // Just YES / PARTLY / NO: no reply line and no note.
   const previous = step - 1;

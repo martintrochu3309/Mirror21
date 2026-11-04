@@ -1,5 +1,5 @@
 /* Learn: the moves, the pull quote and the example. Run by the step shell. */
-(globalThis.MirrorScreens ||= {}).learn = ({ model, steps, store, state, stats, step, welcome, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival, showEarlier }) => {
+(globalThis.MirrorScreens ||= {}).learn = ({ steps, step, committed, record, save, refreshBar, href, showEarlier }) => {
   document.getElementById('next').href = href('act');
   // Step 02: your own THERE from the step before, read-only.
   if (steps.lesson(step) === 2) showEarlier();
