@@ -75,15 +75,17 @@
     mark.textContent = { yes: 'YES', partly: 'PARTLY', no: 'NO' }[answer] || '—';
     return mark;
   }
-  // The cards as closed panels: STEP 19 · MY MIRROR METHOD and its result, opened to show the answers.
+  // The cards as closed panels, as Step 21 and the result page show them: 19 · My Mirror Method · its result · an
+  // arrow. Opened: each part's name (SEE IT, OWN IT…) with the answer under it.
+  const cardNames = { 19: 'My Mirror Method', 20: 'My Mirror Method “New Change”' };
   function cardList(state) {
     const el = (tag, className, text) => { const node = document.createElement(tag); node.className = className; if (text != null) node.textContent = text; return node; };
+    const chevron = '<svg class="method-card-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
     return cards(state).map(card => {
       const panel = el('details', 'method-card');
       const head = el('summary', 'method-card-head');
-      const name = el('span', 'method-card-name');
-      name.append(el('span', 'method-card-step', 'STEP ' + card.step), el('span', 'method-card-title', card.title));
-      head.append(name, resultMark(card.result));
+      head.append(el('span', 'method-card-num', String(card.step)), el('span', 'method-card-title', cardNames[card.step]), resultMark(card.result));
+      head.insertAdjacentHTML('beforeend', chevron);
       const rows = el('dl', 'method-card-rows');
       card.rows.filter(([, text]) => text).forEach(([label, text]) => { const row = el('div', 'method-card-row'); row.append(el('dt', '', label), el('dd', '', text)); rows.append(row); });
       panel.append(head, rows);

@@ -136,6 +136,10 @@ add('final-check','final-check.html',course({done:21,graded:20}));
 add('final-check-answered','final-check.html',course({done:21,graded:20,extra:s=>{s.answers[21]='partly';}}));
 add('map-finished','04-map-start.html',finishedCourse());
 add('map-finished-card','04-map-start.html',finishedCourse(),{act:'click .progress-row[data-day="21"] .progress-step'});
+// My Results, below Step 21: locked, then the final check, then the result.
+add('map-results-locked','04-map-start.html',mid,{act:'click .results-tile'});
+add('map-results-card','04-map-start.html',course({done:21,graded:20}),{act:'click .results-tile'});
+add('map-results-done-card','04-map-start.html',finishedCourse(),{act:'click .results-tile'});
 add('mirror-finished','18-my-mirror.html',finishedCourse());
 add('journey-finished','19-my-journey.html',finishedCourse());
 add('result-again','result.html',finishedCourse('again'));

@@ -91,20 +91,22 @@ a.icon-btn { flex: none; text-decoration: none; }
 .tool-check { color: var(--ink); }
 /* Step 21 · MY SCORE SO FAR: the percentage, large, then what it does and doesn't measure. */
 .score-so-far { margin: 12px 0 0; font: italic 700 44px/1 var(--font-display); letter-spacing: -0.03em; color: var(--ink); }
-/* The two Mirror Method cards (Step 21 and the result page): closed panels with the step, title and evening result;
-   opened, the answers as ruled rows. */
+/* The two Mirror Method cards (Step 21 and the result page): closed, 19 · My Mirror Method · the evening result · an
+   arrow; opened, each part's name in Magistral with the answer under it, as ruled rows. */
 .method-cards { margin-top: 12px; }
 .method-card { border: 1px solid var(--rule); border-radius: 14px; background: var(--surface); }
 .method-card + .method-card { margin-top: 10px; }
-.method-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; list-style: none; cursor: pointer; }
+.method-card-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; list-style: none; cursor: pointer; }
 .method-card-head::-webkit-details-marker { display: none; }
-.method-card-name { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.method-card-step { font-size: 10px; font-weight: 700; letter-spacing: .2em; color: var(--gold-text); }
-.method-card-title { font-size: 12px; font-weight: 700; letter-spacing: .12em; color: var(--ink); }
+.method-card-num { flex: none; font: italic 700 15px/1 var(--font-display); color: var(--gold-text); }
+.method-card-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; color: var(--ink); }
+.method-card-chev { flex: none; color: var(--muted); transition: transform 200ms ease; }
+.method-card[open] .method-card-chev { transform: rotate(180deg); }
 .method-card-rows { margin: 0; padding: 0 16px 6px; }
 .method-card-row { padding: 10px 0; border-top: 1px solid var(--rule); }
-.method-card-row dt { font-size: 10px; font-weight: 700; letter-spacing: .16em; color: var(--muted); }
-.method-card-row dd { margin: 4px 0 0; font-size: 16px; line-height: 1.45; font-weight: 300; color: var(--ink); }
+.method-card-row dt { font: italic 700 16px/1.2 var(--font-display); letter-spacing: -0.01em; color: var(--ink); }
+.method-card-row dd { margin: 6px 0 0; font-size: 16px; line-height: 1.45; font-weight: 300; color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .method-card-chev { transition: none; } }
 /* Step 20 · no example on purpose: one centred line on the example panel. */
 .learn-ex-none { margin-top: 14px; text-align: center; }
 /* Step 19 · MY MOVE: the current move under the small gold line, spaced like a helper line. */

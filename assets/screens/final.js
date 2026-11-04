@@ -64,7 +64,9 @@ MirrorStore.ready(() => {
       return !text ? '' : text.toLowerCase().startsWith(starter.toLowerCase()) ? text : starter + ' ' + text;
     };
 
-    $('runLabel').textContent = run ? 'RUN ' + asked + ' · YOUR RESULT' : 'YOUR RESULT';
+    // An earlier run is named at the top; this run's result needs no label.
+    $('runLabel').hidden = !run;
+    if (run) $('runLabel').textContent = 'RUN ' + asked;
     // FOLLOW-THROUGH: all 21 checks, and the tier.
     const { percent } = model.score(s, 21);
     const tiers = {
@@ -79,7 +81,7 @@ MirrorStore.ready(() => {
     $('hereThen').textContent = sentence('Right now, I', r1.HERE);
     $('hereNow').textContent = sentence('Right now, I', r21.HERENOW);
     $('there').textContent = sentence('I want to be able to', r1.THERE);
-    // INDEPENDENT APPLICATION: the two cards with their evening results.
+    // INDEPENDENT APPLICATION: the two cards with their evening results, as Step 21 shows them.
     $('cards').replaceChildren(...steps.cardList(s));
     // The 21 steps: title, the promise word for word, the evening result.
     $('journey').replaceChildren(...Array.from({ length: 21 }, (_, n) => {

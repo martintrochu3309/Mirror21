@@ -108,9 +108,10 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
    // Map: 21 steps, Step 01 current with its title on the card.
    await go('04-map-start.html');
-   assert.equal(await evaluate('document.querySelectorAll(".progress-row .progress-step").length'),21);
+   assert.equal(await evaluate('document.querySelectorAll(".progress-row[data-day] .progress-step").length'),21);
+   assert.deepEqual(await evaluate('[document.querySelector(".results-row .welcome-label"),document.querySelector(".results-tile").tagName,document.querySelector(".results-tile").classList.contains("is-open"),document.querySelectorAll(".results-tile svg").length]'),[null,'BUTTON',false,1],'My Results waits, locked, below Step 21: a flag, no label');
    assert.equal(await evaluate('document.querySelectorAll(".block-spot .block-tile").length'),3,'One block tile per block');
-   assert.equal(await evaluate('document.querySelectorAll(".journey-segment").length'),23,'20 between steps, 3 out to the block tiles');
+   assert.equal(await evaluate('document.querySelectorAll(".journey-segment").length'),24,'20 between steps, 3 out to the block tiles, 1 down to My Results');
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".journey-word"),e=>e.textContent.replace(/\\s+/g," ").trim())'),['SEE IT','OWN IT','CHANGE IT']);
    assert.equal(await evaluate('document.querySelectorAll(".app-frame > div[style*=\\"top: 59px\\"] > div p")[1].textContent'),'STEP 01 OF 21');
    // START sits on 00 until Welcome is done.
@@ -1224,7 +1225,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     const answers=(await stored()).answers;
     assert.equal(await evaluate('document.querySelector("#scoreSoFar").textContent'),scoreOf(answers,20)+'%','Score over Steps 01–20');
     assert.match(await evaluate('document.querySelector("[data-from=here]").textContent'),/^Right now, I /,'MY HERE THEN, from Step 01');
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".method-card"),c=>[c.querySelector(".method-card-step").textContent,c.querySelector(".record-mark").className.replace("record-mark ",""),c.open])'),[['STEP 19',answers[19],false],['STEP 20',answers[20],false]],'Both cards, closed, with their evening results');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".method-card"),c=>[c.querySelector(".method-card-num").textContent,c.querySelector(".method-card-title").textContent,c.querySelector(".record-mark").className.replace("record-mark ",""),Boolean(c.querySelector(".method-card-chev")),c.open])'),[['19','My Mirror Method',answers[19],true,false],['20','My Mirror Method “New Change”',answers[20],true,false]],'Both cards, closed, as on the result page: number, name, evening result, arrow');
     await typeInto('#boxOne','leave on time most evenings and have two evenings a week to myself');await pressEnter('#boxOne');assert.equal(await stage21(),1);
     assert.equal(await evaluate('document.querySelector("#twoNext").disabled'),true,'WHAT’S NEXT is never chosen for them');
     await click('[data-choice="again"]');await wait(200);await click('#twoNext');await wait(300);assert.equal(await stage21(),2);
@@ -1237,14 +1238,20 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await holdFor(1250);await ready('04-map-start.html');assert.equal(await stage21(),5);
     let s=await stored();
     assert.deepEqual([s.responses[21].HERENOW,s.responses[21].NEXT,s.responses[21].ACTION,s.dayChanges[21]],['leave on time most evenings and have two evenings a week to myself','again','ask my manager to move Thursday’s late meeting',promise21]);
-    // My Path: Step 21 has a CHECK IN bubble and its card leads to the final check.
+    // My Path: Step 21 is a done step like the others (REDO STEP); My Results, below it, has the CHECK IN bubble
+    // and its card leads to the final check.
     await wait(400);
-    assert.equal(await evaluate('document.querySelector(".progress-row[data-day=\\"21\\"] .progress-bubble").textContent'),'CHECK IN');
+    assert.equal(await evaluate('document.querySelector(".progress-row[data-day=\\"21\\"] .progress-bubble")'),null,'No bubble on Step 21');
+    assert.equal(await evaluate('new URL(document.querySelector(".progress-row[data-day=\\"21\\"] .progress-step").href).pathname.replace(/\\.html$/,"")'),'/html/step-watch');
     await click('.progress-row[data-day="21"] .progress-step');await wait(300);
-    assert.equal(await evaluate('document.querySelector(".day-popover-start .action-label").textContent'),'FINAL CHECK');
-    // The last step on the path: its card opens above the tile, not below it.
-    assert.equal(await evaluate('(()=>{const c=document.querySelector("#map-day-card");return c.classList.contains("is-above")&&c.getBoundingClientRect().bottom<=document.querySelector(".progress-row[data-day=\\"21\\"] .progress-step").getBoundingClientRect().top})()'),true,'Step 21’s card opens above it');
-    if(phone)await shot('map-step21-card-mobile.png');
+    assert.equal(await evaluate('document.querySelector(".day-popover-start .action-label").textContent'),'REDO STEP');
+    await evaluate('document.body.click()');await wait(200);
+    assert.deepEqual(await evaluate('[document.querySelector(".results-row .progress-bubble").textContent,document.querySelector(".results-tile").classList.contains("is-open")]'),['CHECK IN',true]);
+    await click('.results-tile');await wait(300);
+    assert.deepEqual(await evaluate('[document.querySelector("#map-day-card-title").textContent,document.querySelector(".day-popover-start .action-label").textContent]'),['My Results','FINAL CHECK']);
+    // The last tile on the path: its card opens above the tile, not below it.
+    assert.equal(await evaluate('(()=>{const c=document.querySelector("#map-day-card");return c.classList.contains("is-above")&&c.getBoundingClientRect().bottom<=document.querySelector(".results-tile").getBoundingClientRect().top})()'),true,'My Results’ card opens above it');
+    if(phone)await shot('map-results-card-mobile.png');
     await click('.day-popover-start');await ready('final-check.html');
     assert.equal(await evaluate('document.querySelector("#commitText").textContent'),promise21);
     assert.equal(await evaluate('document.querySelector("#next").hidden'),true);
@@ -1266,7 +1273,9 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     assert.deepEqual(await evaluate('[document.querySelector("#score").textContent,document.querySelector("#tierName").textContent]'),[final+'%',tier]);
     assert.equal(await evaluate('document.querySelector("#hereNow").textContent'),'Right now, I leave on time most evenings and have two evenings a week to myself');
     assert.match(await evaluate('document.querySelector("#hereThen").textContent'),/^Right now, I /);
-    assert.equal(await evaluate('document.querySelectorAll("#cards .method-card").length'),2);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("#cards .method-card"),c=>[c.querySelector(".method-card-num").textContent,c.querySelector(".method-card-title").textContent,c.querySelector(".record-mark").className.replace("record-mark ",""),Boolean(c.querySelector(".method-card-chev")),c.open])'),[['19','My Mirror Method',s.answers[19],true,false],['20','My Mirror Method “New Change”',s.answers[20],true,false]],'Both cards closed: number, name, evening result, arrow');
+    assert.deepEqual(await evaluate('[document.querySelector("#runLabel").hidden,document.querySelector("#changeTitle").textContent,document.querySelector("#journeyTitle").textContent]'),[true,'WHERE YOU STARTED','YOUR JOURNEY IN YOUR WORDS']);
+    assert.deepEqual(await evaluate('[Array.from(document.querySelectorAll(".result-line-num"),n=>n.textContent),Array.from(document.querySelectorAll(".result-heading"),h=>h.textContent).slice(0,3)]'),[['01','21','01'],['WHERE YOU STARTED','WHERE YOU ARE','WHERE YOU’RE GOING']]);
     assert.deepEqual(await evaluate('[document.querySelectorAll("#journey .result-step").length,document.querySelector(".result-journey").open]'),[21,false],'All 21 steps, closed');
     assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("#journey .record-mark"),m=>m.className.replace("record-mark ",""))'),Array.from({length:21},(_,n)=>s.answers[n+1]));
     assert.deepEqual(await evaluate('[document.querySelector("#nextChoice").textContent,document.querySelector("#nextAction").textContent,document.querySelector("#newRun").hidden]'),['Run the steps again.','Today, I’ll ask my manager to move Thursday’s late meeting',false]);
@@ -1276,7 +1285,13 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await go('final-check.html');
     assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".choice"),b=>b.disabled)'),[false,true,true]);
     await go('04-map-start.html');await wait(400);
-    assert.equal(await evaluate('document.querySelector(".progress-row[data-day=\\"21\\"] .progress-bubble").textContent'),'RESULT');
+    // My Results: gold with a black flag (no score on the map), RESULT, and a card leading to the result page.
+    assert.deepEqual(await evaluate('[document.querySelector(".results-row .progress-bubble").textContent,document.querySelector(".results-tile").textContent,document.querySelectorAll(".results-tile svg").length,document.querySelector(".results-tile").classList.contains("is-done")]'),['RESULT','',1,true]);
+    await click('.results-tile');await wait(300);
+    assert.equal(await evaluate('document.querySelector(".day-popover-start .action-label").textContent'),'SEE MY RESULTS');
+    assert.equal(await evaluate('new URL(document.querySelector(".day-popover-start").href).pathname.replace(/\\.html$/,"")'),'/html/result');
+    if(phone)await shot('map-results-done-mobile.png');
+    await evaluate('document.body.click()');await wait(200);
     assert.deepEqual(await evaluate('(()=>{const s=document.querySelectorAll(".block-spot")[2];const t=s.querySelector(".block-tile");return [s.classList.contains("open"),new URL(t.href).pathname.replace(/\\.html$/,"")+new URL(t.href).search,t.classList.contains("committed")]})()'),[true,'/html/block?block=3',true],'Open, and already seen');
    }
    await go('step-checkin.html?step=6');
@@ -1308,7 +1323,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Account")).click()');await wait(350);
     assert.equal(await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("My past results")).querySelector(".settings-sub").textContent'),'Your finished run');
     await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("My past results")).click()');await ready('result.html');
-    assert.deepEqual(await evaluate('[document.querySelector("#runLabel").textContent,document.querySelector("#score").textContent,document.querySelector("#newRun").hidden]'),['RUN 1 · YOUR RESULT',before,true]);
+    assert.deepEqual(await evaluate('[document.querySelector("#runLabel").textContent,document.querySelector("#score").textContent,document.querySelector("#newRun").hidden]'),['RUN 1',before,true]);
     // A new run has no result yet: the page sends you back to My Path.
     await command('Page.navigate',{url:base+'/html/result.html'});await ready('04-map-start.html');
    }

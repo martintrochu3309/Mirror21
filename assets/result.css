@@ -19,13 +19,14 @@
 .result-tier-name { margin: 10px 0 0; font: italic 700 30px/1.05 var(--font-display); letter-spacing: -0.02em; color: #fff; }
 .result-tier-line { margin: 10px 0 0; font-size: 16px; line-height: 1.5; font-weight: 300; color: #d6d6d2; }
 
-/* EVIDENCE OF CHANGE: then and now, one above the other */
-.result-compare { display: grid; gap: 10px; margin-top: 16px; }
-.result-then, .result-now { padding: 14px 16px 16px; border-radius: 14px; }
+/* EVIDENCE OF CHANGE: WHERE YOU STARTED (01 and Step 01's words), WHERE YOU ARE (21 and Step 21's), WHERE YOU'RE
+   GOING (01 and Step 01's THERE). Each in a box: grey for Step 01's, gold-ringed for where you are now. */
+.result-heading--next { margin-top: 26px; }
+.result-line { display: flex; align-items: baseline; gap: 12px; margin: 14px 0 0; padding: 16px; border-radius: 14px; }
 .result-then { border: 1px solid var(--rule); background: var(--surface); }
 .result-now { border: 2px solid var(--gold); background: var(--bg); }
-.result-now .result-kicker { color: var(--gold-text); }
-.result-going { margin-top: 20px; }
+.result-line .result-words { margin: 0; }
+.result-line-num { flex: none; font: italic 700 15px/1 var(--font-display); color: var(--gold-text); }
 
 .result-section .method-cards { margin-top: 16px; }
 

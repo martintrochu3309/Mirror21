@@ -36,11 +36,11 @@
     <div class="block-logo" aria-label="Mirror 21">MIRROR <span>21</span></div>
   </div>
 
-  <p class="block-eyebrow" id="runLabel">YOUR RESULT</p>
+  <!-- An earlier run is named (RUN 1); this run's result needs no label. -->
+  <p class="block-eyebrow" id="runLabel" hidden></p>
 
   <!-- FOLLOW-THROUGH: what the evening checks measured -->
-  <section class="result-section result-score" aria-labelledby="scoreTitle">
-    <p class="result-kicker" id="scoreTitle">YOUR FOLLOW-THROUGH SCORE</p>
+  <section class="result-section result-score" aria-label="Your follow-through score">
     <p class="result-percent" id="score">0%</p>
     <p class="result-note">This shows how consistently you kept your promises. It doesn’t measure how much you’ve changed. Only you can say that.</p>
     <div class="result-tier">
@@ -48,30 +48,27 @@
       <p class="result-tier-name" id="tierName"></p>
       <p class="result-tier-line" id="tierLine"></p>
     </div>
-    <p class="result-small">The tier measures follow-through during Mirror 21. It doesn’t certify permanent change or decide what you do next.</p>
   </section>
 
   <!-- EVIDENCE OF CHANGE: in their own words -->
   <section class="result-section" aria-labelledby="changeTitle">
-    <h2 class="result-heading" id="changeTitle">WHERE YOU STARTED → WHERE YOU ARE</h2>
-    <div class="result-compare">
-      <div class="result-then"><p class="result-kicker">THEN · STEP 01</p><p class="result-words" id="hereThen"></p></div>
-      <div class="result-now"><p class="result-kicker">NOW · STEP 21</p><p class="result-words" id="hereNow"></p></div>
-    </div>
-    <p class="result-kicker result-going">WHERE YOU’RE GOING</p>
-    <p class="result-words" id="there"></p>
+    <h2 class="result-heading" id="changeTitle">WHERE YOU STARTED</h2>
+    <p class="result-line result-then"><span class="result-line-num">01</span><span class="result-words" id="hereThen"></span></p>
+    <h2 class="result-heading result-heading--next">WHERE YOU ARE</h2>
+    <p class="result-line result-now"><span class="result-line-num">21</span><span class="result-words" id="hereNow"></span></p>
+    <h2 class="result-heading result-heading--next">WHERE YOU’RE GOING</h2>
+    <p class="result-line result-then"><span class="result-line-num">01</span><span class="result-words" id="there"></span></p>
   </section>
 
   <!-- INDEPENDENT APPLICATION: the two cards -->
   <section class="result-section" aria-labelledby="methodTitle">
     <h2 class="result-heading" id="methodTitle">YOUR MIRROR METHOD</h2>
     <div class="method-cards" id="cards"></div>
-    <p class="result-small">These cards show how you used the method, not proof of permanent mastery.</p>
   </section>
 
   <!-- The 21 steps: promise and evening result -->
   <section class="result-section" aria-labelledby="journeyTitle">
-    <h2 class="result-heading" id="journeyTitle">YOUR JOURNEY, IN YOUR WORDS</h2>
+    <h2 class="result-heading" id="journeyTitle">YOUR JOURNEY IN YOUR WORDS</h2>
     <details class="result-journey">
       <summary class="result-journey-toggle"><span class="tools-open">Show all 21 steps</span><span class="tools-close">Hide the steps</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
       <ol class="result-steps" id="journey"></ol>

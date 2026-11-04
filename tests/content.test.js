@@ -25,6 +25,15 @@ test('Each step’s content has what the app reads from it',()=>{
   if(s.act)assert.ok(Array.isArray(s.act.promise)||typeof s.act.promise==='function',n+' promise');
  }
 });
+test('An answer box after a sentence starter doesn’t let the phone capitalise its first word; a box that starts the sentence does',()=>{
+ for(const step of fs.readdirSync(dir).filter(d=>/^step\d\d$/.test(d))){
+  const file=path.join(dir,step,'act.html');if(!fs.existsSync(file))continue;
+  for(const [,inner] of fs.readFileSync(file,'utf8').matchAll(/<div class="starter-wrap">([\s\S]*?)<\/div>/g)){
+   const box=inner.match(/<textarea[^>]*>/)[0];
+   assert.equal(/autocapitalize="off"/.test(box),/class="starter"/.test(inner),step+' '+box.slice(0,80));
+  }
+ }
+});
 test('Journal rows read the step’s own answers and leave out nothing written',()=>{
  const said=r=>(label,starter,key)=>[label,r[key]?.trim()?starter+' '+r[key].trim():''];
  const r={WORKING:'using my minimum',NOTYET:'late nights'};

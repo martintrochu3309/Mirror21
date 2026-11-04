@@ -30,21 +30,23 @@
     card.className = 'day-popover';
     card.setAttribute('role', 'dialog');
     card.setAttribute('aria-labelledby', 'map-day-card-title');
+    // dayNumber is a step (0–21), or 'results' for the My Results tile.
+    const results = dayNumber === 'results';
     const title = document.createElement('h2');
     title.id = 'map-day-card-title';
-    title.textContent = MirrorSteps.title(dayNumber);
-    if (dayNumber > 0 && !MirrorSteps.available(dayNumber)) {
+    title.textContent = results ? 'My Results' : MirrorSteps.title(dayNumber);
+    if (!results && dayNumber > 0 && !MirrorSteps.available(dayNumber)) {
       const note = document.createElement('p');note.className='welcome-card-stage';note.textContent='COMING SOON';card.append(title,note);
     } else {
       const start = document.createElement('a');
       start.className = 'day-popover-start action-pill';
       start.href = step.href;
-      const done = dayNumber > 0 && Boolean(state.lessons[dayNumber]);
-      const continuing = dayNumber > 0 && !done && model.session(state,dayNumber).label === 'CONTINUE';
-      // Step 21, once committed, has no next step: its card leads to the final check, then to the result.
-      const finale = dayNumber === 21 && done ? (state.finishedAt ? 'YOUR RESULT' : 'FINAL CHECK') : null;
+      const done = !results && dayNumber > 0 && Boolean(state.lessons[dayNumber]);
+      const continuing = !results && dayNumber > 0 && !done && model.session(state,dayNumber).label === 'CONTINUE';
+      // My Results: the final check on Step 21's promise, then the result.
+      const finale = results ? (state.finishedAt ? 'SEE MY RESULTS' : 'FINAL CHECK') : null;
       setActionLabel(start, finale || (done ? 'REDO STEP' : continuing ? 'CONTINUE' : 'START STEP'));
-      start.setAttribute('aria-label', finale ? (state.finishedAt ? 'Your result' : 'Final check on Step 21') : (done ? 'Redo' : continuing ? 'Continue' : 'Start')+' Step '+dayNumber+': '+title.textContent);
+      start.setAttribute('aria-label', finale ? (state.finishedAt ? 'See my results' : 'Final check on Step 21') : (done ? 'Redo' : continuing ? 'Continue' : 'Start')+' Step '+dayNumber+': '+title.textContent);
       start.addEventListener('click', event => {
         if (pageFilename(new URL(start.href).pathname) !== 'step-watch.html') return;
         event.preventDefault();
@@ -72,8 +74,8 @@
     const pointer = bounds.left + bounds.width / 2 - viewport.left - 16;
     card.style.setProperty('--pointer-left', Math.max(24, Math.min(scroll.clientWidth - 56, pointer))+'px');
     const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
-    // Step 21 is the last on the path, with nothing below it: its card opens above, pointing down.
-    if (dayNumber === 21) {
+    // My Results is the last tile on the path, with nothing below it: its card opens above, pointing down.
+    if (results) {
       card.classList.add('is-above');
       card.style.top = (bounds.top - viewport.top + scroll.scrollTop - 20 - card.offsetHeight)+'px';
       const availableTop = scroll.scrollTop + 16;
@@ -155,9 +157,7 @@
       if(current&&!startOnWelcome) { const bubble=document.createElement('span');bubble.className='progress-bubble active-bubble';bubble.textContent=session.label;row.append(bubble); }
       const step=document.createElement(current||done?'a':'button');step.className='progress-step '+(answer||'')+(committed?' committed':'')+(current?' current':'');
       step.textContent=pad(d);step.setAttribute('aria-label','Step '+d+', '+MirrorSteps.title(d)+', '+(answer?labels[answer]+', open to redo':committed?'committed, open to redo':current?'today, '+session.label.toLowerCase():'locked'));
-      // Step 21 committed: the final check, then the result (with a bubble, since no step is open any more).
-      if(d===21&&done) { step.href=state.finishedAt?'result.html':'final-check.html'; const bubble=document.createElement('span');bubble.className='progress-bubble active-bubble';bubble.textContent=state.finishedAt?'RESULT':'CHECK IN';row.append(bubble); }
-      else if(done) step.href='step-watch.html?step='+d;
+      if(done) step.href='step-watch.html?step='+d;
       else if(current) step.href=MirrorSteps.page(d,session.screen)+'?step='+d;
       else { step.type='button'; step.addEventListener('click',()=> { step.title='Opens after Step '+(d-1);step.setAttribute('aria-label',step.title);const note=document.createElement('span');note.className='progress-bubble';note.textContent=step.title;row.querySelector('.progress-bubble')?.remove();row.prepend(note); }); }
       if(current||done) {
@@ -184,6 +184,26 @@
       } else row.append(step);
       path.append(row);
     }
+    // My Results: the last tile, on the centre line below Step 21, with a waving flag. Grey and locked until Step 21
+    // is committed; then black with a gold flag and CHECK IN (the final check); after the final check, gold with a
+    // black flag and RESULT. Its card leads to the final check, or to the result page.
+    const resultsOpen=Boolean(state.lessons[21]),finished=resultsOpen&&Boolean(state.finishedAt);
+    const resultsRow=document.createElement('div');resultsRow.className='progress-row results-row'+(resultsOpen?' is-open':'');
+    const resultsTile=document.createElement(resultsOpen?'a':'button');
+    resultsTile.className='progress-step results-tile'+(finished?' is-done':resultsOpen?' is-open':'');
+    resultsTile.innerHTML='<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 21V4.5"/><path d="M5.5 4.5c2.6-1.8 4.8-1.2 7 0s4.4 1.8 6.5 0v8.5c-2.1 1.8-4.3 1.2-6.5 0s-4.4-1.8-7 0"/></svg>';
+    if(resultsOpen) {
+      const bubble=document.createElement('span');bubble.className='progress-bubble active-bubble';bubble.textContent=finished?'RESULT':'CHECK IN';
+      resultsRow.append(bubble);resultsRow.classList.add('has-bubble');
+      resultsTile.href=finished?'result.html':'final-check.html';
+      resultsTile.setAttribute('aria-label','My results, '+(finished?model.score(state,21).percent+' percent follow-through':'final check to do'));
+      resultsTile.setAttribute('aria-haspopup','dialog');resultsTile.setAttribute('aria-expanded','false');resultsTile.setAttribute('aria-controls','map-day-card');
+      resultsTile.addEventListener('click',event=>{event.preventDefault();showDayCard(resultsTile,resultsRow,scroll,'results');});
+    } else {
+      resultsTile.type='button';resultsTile.setAttribute('aria-label','My results, locked');
+      resultsTile.addEventListener('click',()=>{const note=document.createElement('span');note.className='progress-bubble';note.textContent='Opens after Step 21';resultsRow.querySelector('.progress-bubble')?.remove();resultsTile.before(note);resultsTile.setAttribute('aria-label',note.textContent);});
+    }
+    resultsRow.append(resultsTile);path.append(resultsRow);
     // Block tiles: one beside each block's last step (07, 14, 21), on the right, the size of a step tile, with a
     // check mark. Grey and locked until that step is committed (and the block has its summary), then black
     // until its summary has been opened once, then white with a gold check.
@@ -246,6 +266,9 @@
         spot.style.left=to.x+'px';spot.style.top=to.y+'px';
         walk(from,to,spot.classList.contains('open'));
       });
+      // Footprints from Step 21 down to My Results, gold once Step 21 is committed.
+      const end=resultsTile.getBoundingClientRect();
+      walk(points[20],{x:end.left+end.width/2-bounds.left,y:end.top+end.height/2-bounds.top},resultsOpen);
       words.forEach(word=> {
         const point=points[Number(word.dataset.anchor)-1];
         word.style.top=(point.y-word.offsetHeight/2)+'px';
@@ -265,8 +288,8 @@
     lines[1].textContent=stats.complete?'21 STEPS COMPLETE':'STEP '+pad(stats.today||21)+' OF 21';
     lines[2].textContent=stepsToGo(stats);
     document.querySelector('[role="status"]')?.remove();
-    // Open centred on today's step, or at the top while START sits on 00 Welcome.
-    if(center) requestAnimationFrame(()=> { const current=path.querySelector('.current');if(startOnWelcome)scroll.scrollTop=0;else if(current)scroll.scrollTop=Math.max(0,current.offsetTop-scroll.clientHeight/2+88); });
+    // Open centred on today's step (on My Results once all 21 are committed), or at the top while START sits on 00 Welcome.
+    if(center) requestAnimationFrame(()=> { const current=path.querySelector('.current')||(resultsOpen?resultsRow:null);if(startOnWelcome)scroll.scrollTop=0;else if(current)scroll.scrollTop=Math.max(0,current.offsetTop-scroll.clientHeight/2+88); });
   }
   renderMap(true);
 };
