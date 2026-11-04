@@ -166,9 +166,12 @@ const flows=[
  {name:'flow-map-watch',url:'04-map-start.html',local:mid,steps:[['click','.progress-row[data-day="4"] .progress-step'],['click','.day-popover-start'],['await','step-watch.html']]},
  {name:'flow-final',url:'final-check.html',local:course({done:21,graded:20}),steps:[['click','[data-choice="yes"]'],['click','#next'],['await','block.html'],['click','#blockButton'],['await','result.html']]},
  {name:'flow-new-run',url:'result.html',local:finishedCourse('again'),steps:[['scroll'],['click','#newRun'],['await','04-map-start.html']]},
- {name:'flow-start-over',url:'04-map-start.html',local:{...mid,'mirror21-reminder':'07:15','mirror21-block-1':'true'},steps:[['click','.settings-gear'],['clickText','.settings-row','Start over'],['await','04-map-start.html']]},
- {name:'flow-delete-data',url:'18-my-mirror.html',local:{...mid,'mirror21-reminder':'07:15'},steps:[['click','.settings-gear'],['clickText','.settings-row','Delete my data'],['await','04-map-start.html']]},
- {name:'flow-reminder',url:'04-map-start.html',local:mid,steps:[['click','a[href="#reminder"]'],['type','#reminder-time','06:45'],['click','#reminder button[value="save"]'],['shot','saved']]}
+ {name:'flow-settings',url:'04-map-start.html',local:{...mid,'mirror21-reminder':'07:15','mirror21-runs':JSON.stringify([past])},steps:[
+  ['click','.settings-gear'],['shot','list'],['clickText','.settings-row','Help'],['shot','help'],['click','.help-q[aria-controls="help-a-3"]'],['shot','help-other-question'],['click','.settings-back'],
+  ['clickText','.settings-row','Account'],['shot','account'],['click','.settings-back'],['clickText','.settings-row','Daily reminder'],['shot','reminder'],['clickText','.sheet-link','Turn reminders off'],['shot','reminder-off'],
+  ['clickText','.settings-row','Start over'],['shot','start-over'],['clickText','.sheet .settings-btn','CANCEL'],['shot','cancelled']]},
+ {name:'flow-start-over',url:'04-map-start.html',local:{...mid,'mirror21-reminder':'07:15','mirror21-block-1':'true'},steps:[['click','.settings-gear'],['clickText','.settings-row','Start over'],['clickText','.sheet .settings-btn','START OVER'],['await','04-map-start.html']]},
+ {name:'flow-reminder',url:'04-map-start.html',local:mid,steps:[['click','a[href="#reminder"]'],['shot','sheet'],['clickText','.sheet .settings-btn','SAVE'],['shot','saved']]}
 ];
 
 // ---------- Browser ----------

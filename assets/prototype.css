@@ -217,30 +217,84 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .settings-gear { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 14px; z-index: 30; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid rgba(0,0,0,.06); border-radius: 50%; background: rgba(255,255,255,.85); color: #8a8a86; cursor: pointer; }
 .settings-gear:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
 
-/* Settings: a white sheet over the page that rises in (0.3s) and scrolls on its own. */
-.settings { position: absolute; inset: 0; z-index: 40; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; padding: max(16px, env(safe-area-inset-top)) 22px calc(48px + env(safe-area-inset-bottom)); background: #ffffff; color: #111111; font: 500 15px/1.35 'Neue Haas Display', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; animation: settings-in .3s cubic-bezier(.2,.8,.2,1); }
-.settings { scrollbar-width: none; }
+/* Settings: a white screen over the page that rises in (0.3s) and scrolls on its own. Help and Account open in
+   its place, with a back arrow. */
+.settings { position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box; padding: max(16px, env(safe-area-inset-top)) 22px calc(22px + env(safe-area-inset-bottom)); background: #ffffff; color: #111111; font: 500 15px/1.35 'Neue Haas Display', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; animation: settings-in .3s cubic-bezier(.2,.8,.2,1); scrollbar-width: none; }
 .settings::-webkit-scrollbar { display: none; }
 .settings.is-closing { animation: settings-out .2s ease-in forwards; }
 @keyframes settings-in { from { opacity: 0; transform: translateY(28px); } }
 @keyframes settings-out { to { opacity: 0; transform: translateY(28px); } }
-.settings-close { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 -2px 0 auto; padding: 0; border: 1px solid #e4e4e0; border-radius: 50%; background: #ffffff; color: #111111; cursor: pointer; }
-.settings h2 { margin: 10px 0 0; font: italic 700 34px/1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: -.03em; }
-.settings h3 { margin: 26px 0 10px; font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .23em; color: #896a00; }
-.settings h2 + h3 { margin-top: 22px; }
-.settings-group { margin: 0; padding: 0; list-style: none; border-radius: 20px; background: #f5f5f2; overflow: hidden; }
-.settings-group li + li { border-top: 1px solid #e8e8e4; }
-.settings-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; margin: 0; padding: 12px 18px; box-sizing: border-box; border: 0; background: none; color: inherit; font: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
+.settings-page { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.settings-page.is-sub { animation: settings-page-in .25s cubic-bezier(.2,.8,.2,1); }
+@keyframes settings-page-in { from { opacity: 0; transform: translateX(24px); } }
+.settings-close, .settings-back { display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid #e4e4e0; border-radius: 50%; background: #ffffff; color: #111111; cursor: pointer; }
+.settings-close { margin: 0 -2px 0 auto; }
+.settings-back { margin: 0 0 0 -2px; }
+.settings h2 { margin: 14px 0 0; font: italic 700 34px/1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: -.03em; }
+.settings-group { margin: 22px 0 0; padding: 0; list-style: none; border-radius: 20px; background: #f5f5f2; overflow: hidden; }
+.settings-group + .settings-group { margin-top: 24px; }
+.settings-group > li + li { border-top: 1px solid #e8e8e4; }
+.settings-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; margin: 0; padding: 14px 18px; box-sizing: border-box; border: 0; background: none; color: inherit; font: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
 button.settings-row { cursor: pointer; }
 button.settings-row:active { background: #ececE8; }
 .settings-row:focus-visible { outline: 2px solid #896a00; outline-offset: -2px; }
-.settings-close:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
+.settings-close:focus-visible, .settings-back:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
 .settings-text { flex: 1; min-width: 0; }
-.settings-title { display: block; font-size: 15px; font-weight: 500; }
+.settings-title { display: block; font-size: 16px; font-weight: 500; }
 .settings-sub { display: block; margin-top: 3px; font-size: 12.5px; font-weight: 300; color: #8a8a86; }
+.settings-value { flex: none; font-size: 15px; font-weight: 500; color: #646461; }
 .settings-chev { flex: none; color: #b5b5b0; }
-.settings-group:last-of-type .settings-title { color: #646461; }
-@media (prefers-reduced-motion: reduce) { .settings, .settings.is-closing { animation: none; } }
+.settings-foot { margin-top: auto; padding-top: 40px; text-align: center; }
+.settings-links { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 0; font-size: 12.5px; font-weight: 500; color: #646461; }
+.settings-links span:not(.settings-dot) { text-decoration: underline; text-decoration-color: #b5b5b0; text-underline-offset: 4px; }
+.settings-dot { color: #b5b5b0; }
+.settings-version { margin: 14px 0 0; font-size: 11.5px; font-weight: 500; color: #646461; }
+/* Help: one question open at a time, + / −. */
+.help-item + .help-item { border-top: 1px solid #e8e8e4; }
+.help-q { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 16px 18px; border: 0; background: none; color: #111111; font: 500 16px/1.3 'Neue Haas Display', Arial, Helvetica, sans-serif; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.help-q span { flex: 1; min-width: 0; }
+.help-q svg { flex: none; color: #b5b5b0; }
+.help-q[aria-expanded="true"] svg { color: #646461; }
+.help-q:focus-visible { outline: 2px solid #896a00; outline-offset: -2px; }
+.help-a { margin: -4px 0 0; padding: 0 18px 18px; font-size: 15px; font-weight: 300; line-height: 1.45; color: #8a8a86; }
+.help-foot { margin-top: auto; padding-top: 32px; text-align: center; }
+.help-note { margin: 12px 0 0; font-size: 12.5px; font-weight: 500; color: #646461; }
+.help-email { display: inline-flex; align-items: center; gap: 8px; margin: 16px 0 0; font-size: 13px; font-weight: 700; color: #111111; }
+.help-email button { display: grid; place-items: center; padding: 2px; border: 0; background: none; color: #8a8a86; cursor: pointer; }
+/* The two buttons of Settings: gold (Save, Write to us) and black (Start over), and the plain one (Cancel). */
+.settings-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 56px; margin: 0; padding: 0 52px; box-sizing: border-box; border: 0; border-radius: 28px; font: 700 11px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .24em; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.settings-btn--gold { background: linear-gradient(110deg,#d8ad3e,#ffef9a 53%,#d8ad3e); color: #101010; }
+.settings-btn--ink { background: #111111; color: #ffffff; }
+.settings-btn--plain { border: 1px solid #e4e4e0; background: #ffffff; color: #111111; }
+.settings-btn svg { position: absolute; right: 22px; }
+.settings-btn:active { transform: translateY(1px); }
+.settings-btn:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
+.settings-btn + .settings-btn { margin-top: 12px; }
+/* Bottom sheets (the daily reminder, start over): over the dimmed page, from the bottom. */
+.sheet-back { position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(17,17,17,.38); animation: sheet-fade .25s ease-out; }
+.sheet { box-sizing: border-box; max-height: calc(100% - 40px); overflow-y: auto; padding: 10px 22px calc(22px + env(safe-area-inset-bottom)); border-radius: 28px 28px 0 0; background: #ffffff; color: #111111; font: 500 15px/1.35 'Neue Haas Display', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; animation: sheet-in .3s cubic-bezier(.2,.8,.2,1); }
+.sheet-back.is-closing { animation: sheet-unfade .2s ease-in forwards; }
+.sheet-back.is-closing .sheet { animation: sheet-out .2s ease-in forwards; }
+@keyframes sheet-fade { from { opacity: 0; } }
+@keyframes sheet-unfade { to { opacity: 0; } }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+.sheet-grip { display: block; width: 36px; height: 4px; margin: 0 auto 18px; border-radius: 2px; background: #d9d9d5; }
+.sheet h2 { margin: 0; font: italic 700 24px/1.05 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: -.02em; }
+.sheet-text { margin: 8px 0 0; font-size: 15px; font-weight: 300; line-height: 1.4; color: #646461; }
+.sheet-link { display: block; margin: 18px auto 0; padding: 4px; border: 0; background: none; color: #111111; font: 700 12.5px/1 'Neue Haas Display', Arial, sans-serif; text-decoration: underline; text-decoration-color: #b5b5b0; text-underline-offset: 4px; cursor: pointer; }
+.sheet .settings-group { margin: 22px 0 20px; }
+/* The reminder's time wheel: hours and minutes (every 15), the chosen time in the grey band. */
+.wheel { position: relative; display: flex; justify-content: center; align-items: center; gap: 28px; height: 200px; margin: 18px 0 22px; }
+.wheel::before { content: ''; position: absolute; left: 0; right: 0; top: 80px; height: 40px; border-radius: 12px; background: #f5f5f2; }
+.wheel-col { position: relative; width: 64px; height: 200px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent); }
+.wheel-col::-webkit-scrollbar { display: none; }
+.wheel-col:focus-visible { outline: 2px solid #896a00; outline-offset: 2px; border-radius: 12px; }
+.wheel-item { display: grid; place-items: center; height: 40px; scroll-snap-align: center; font: 300 18px/1 'Neue Haas Display', Arial, sans-serif; color: #8a8a86; }
+.wheel-item.is-on { font: 700 24px/1 'Neue Haas Display', Arial, sans-serif; color: #111111; }
+.wheel-colon { position: relative; font: 700 22px/1 'Neue Haas Display', Arial, sans-serif; }
+.wheel-pad { height: 80px; }
+@media (prefers-reduced-motion: reduce) { .settings, .settings.is-closing, .settings-page.is-sub, .sheet-back, .sheet, .sheet-back.is-closing, .sheet-back.is-closing .sheet { animation: none; } }
 
 /* Save my journal as PDF: only the journal prints; the app stays on screen. */
 .journal-print { display: none; }

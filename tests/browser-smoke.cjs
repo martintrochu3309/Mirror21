@@ -492,12 +492,47 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    const gearBox=await evaluate('(()=>{const r=document.querySelector(".settings-gear").getBoundingClientRect(),f=document.querySelector(".app-frame").getBoundingClientRect();return {right:f.right-r.right,top:r.top-f.top,width:r.width}})()');
    assert.ok(gearBox.top<20&&gearBox.right<20&&gearBox.width<=32,JSON.stringify(gearBox));
    await click('.settings-gear');await wait(400);
-   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".settings h3"),h=>h.textContent)'),['YOUR COURSE','HELP','ABOUT','YOUR DATA'],'No reminders or video sections');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".settings .settings-title"),t=>t.textContent)'),['Account','Daily reminder','Help','Start over']);
+   assert.equal(await text('.settings-version'),'Mirror 21 by Daily Xcellence · v1.0');
    assert.equal(await evaluate('getComputedStyle(document.querySelector(".settings")).overflowY'),'auto','Settings scrolls when it needs to');
    if(phone)await shot('settings-mobile.png');
    const settingRow=text=>'Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes('+JSON.stringify(text)+'))';
-   await evaluate('window.confirm=()=>false');await evaluate(settingRow('Start over')+'.click()');await wait(300);
+   const sheetButton=text=>'Array.from(document.querySelectorAll(".sheet .settings-btn, .sheet .sheet-link")).find(b=>b.textContent.includes('+JSON.stringify(text)+'))';
+   // Start over asks first, in a sheet; Cancel keeps everything.
+   await evaluate(settingRow('Start over')+'.click()');await wait(450);
+   assert.equal(await text('.sheet h2'),'START OVER?');
+   assert.ok(await evaluate(sheetButton('START OVER')+'!=null&&'+settingRow('Save your journal as PDF first')+'!=null'));
+   if(phone)await shot('settings-start-over-mobile.png');
+   await evaluate(sheetButton('CANCEL')+'.click()');await wait(450);
+   assert.equal(await evaluate('document.querySelector(".sheet-back")'),null,'Cancel closes the sheet');
    assert.ok(await evaluate('localStorage.getItem("mirror21-progress")!==null'),'Cancel keeps everything');
+   // Daily reminder: a wheel of hours and quarter hours; SAVE shows the time on its row, and Off when turned off.
+   await evaluate(settingRow('Daily reminder')+'.click()');await wait(450);
+   assert.equal(await text('.sheet h2'),'DAILY REMINDER');
+   assert.equal(await evaluate('document.querySelectorAll(".wheel-item.is-on").length'),2);
+   await evaluate('(()=>{const [h,m]=document.querySelectorAll(".wheel-col");h.scrollTop=(3*24+7)*40;m.scrollTop=(3*4+0)*40;})()');await wait(500);
+   assert.equal(await evaluate('Array.from(document.querySelectorAll(".wheel-item.is-on"),i=>i.textContent).join(":")'),'07:00');
+   if(phone)await shot('settings-reminder-mobile.png');
+   await evaluate(sheetButton('SAVE')+'.click()');await wait(450);
+   assert.equal(await evaluate('localStorage.getItem("mirror21-reminder")'),'07:00');
+   assert.equal(await evaluate(settingRow('Daily reminder')+'.querySelector(".settings-value").textContent'),'7:00');
+   await evaluate(settingRow('Daily reminder')+'.click()');await wait(450);await evaluate(sheetButton('Turn reminders off')+'.click()');await wait(450);
+   assert.equal(await evaluate(settingRow('Daily reminder')+'.querySelector(".settings-value").textContent'),'Off');
+   // Help: six questions, the first open, one open at a time; back to Settings.
+   await evaluate(settingRow('Help')+'.click()');await wait(350);
+   assert.equal(await text('.settings h2'),'HELP');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".help-q"),q=>q.getAttribute("aria-expanded"))'),['true','false','false','false','false','false']);
+   assert.equal(await text('.help-a:not([hidden])'),'The next step opens as soon as you commit to this one. Take it when it suits you. Nothing expires.');
+   await evaluate('document.querySelectorAll(".help-q")[1].click()');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".help-q"),q=>q.getAttribute("aria-expanded")).slice(0,2)'),['false','true'],'One question open at a time');
+   if(phone)await shot('settings-help-mobile.png');
+   await click('.settings-back');await wait(350);
+   // Account: past results (none yet) and Sign out.
+   await evaluate(settingRow('Account')+'.click()');await wait(350);
+   assert.equal(await text('.settings h2'),'ACCOUNT');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".settings .settings-row"),r=>r.textContent)'),['My past resultsNone yet','Sign out']);
+   await click('.settings-back');await wait(350);
+   assert.equal(await text('.settings h2'),'SETTINGS');
    await click('.settings-close');await wait(400);
    assert.equal(await evaluate('document.querySelector(".settings")'),null,'The X closes Settings');
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("nav a"),a=>a.textContent.trim())'),['MY PATH','MY MIRROR','MY JOURNEY']);
@@ -1262,7 +1297,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    }
 
    // RUN THE STEPS AGAIN: START A NEW RUN keeps the finished run and its result (mirror21-runs) and starts at Step 01;
-   // Settings › My past results opens it again.
+   // Settings › Account › My past results opens it again.
    {
     await go('result.html');
     const before=await evaluate('document.querySelector("#score").textContent');
@@ -1270,15 +1305,18 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     assert.equal(await evaluate('document.querySelector(".progress-step.current").textContent'),'01','A new run starts at Step 01');
     assert.equal(await evaluate('JSON.parse(localStorage.getItem("mirror21-runs")).length'),1,'The finished run is kept');
     await click('.settings-gear');await wait(400);
+    await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Account")).click()');await wait(350);
+    assert.equal(await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("My past results")).querySelector(".settings-sub").textContent'),'Your finished run');
     await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("My past results")).click()');await ready('result.html');
     assert.deepEqual(await evaluate('[document.querySelector("#runLabel").textContent,document.querySelector("#score").textContent,document.querySelector("#newRun").hidden]'),['RUN 1 · YOUR RESULT',before,true]);
     // A new run has no result yet: the page sends you back to My Path.
     await command('Page.navigate',{url:base+'/html/result.html'});await ready('04-map-start.html');
    }
    // Settings › Start over: clears answers, check-ins and the Welcome video, keeps settings, then opens My Path at Step 01.
-   await go('18-my-mirror.html');await evaluate('localStorage.setItem("mirror21-watched-0","true");localStorage.setItem("mirror21-captions","false");window.confirm=()=>true');
+   await go('18-my-mirror.html');await evaluate('localStorage.setItem("mirror21-watched-0","true");localStorage.setItem("mirror21-captions","false")');
    await click('.settings-gear');await wait(400);
-   await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Start over")).click()');await ready('04-map-start.html');
+   await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Start over")).click()');await wait(450);
+   await evaluate('Array.from(document.querySelectorAll(".sheet .settings-btn")).find(b=>b.textContent.includes("START OVER")).click()');await ready('04-map-start.html');
    assert.equal(await evaluate('localStorage.getItem("mirror21-captions")'),'false','Start over keeps settings');
    assert.equal(await evaluate('document.querySelector(".progress-step.current").textContent'),'01');
    assert.equal(await evaluate('Object.keys(JSON.parse(localStorage.getItem("mirror21-progress")).lessons).length'),0);
