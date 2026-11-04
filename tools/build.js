@@ -78,10 +78,11 @@ function pages() {
 // assets/core/content.js: every step's step.js, in order, as one file the pages load.
 function content() {
   if (!fs.existsSync(src('steps'))) return null;
+  const indent = text => text.split('\n').map(line => line ? '  ' + line : line).join('\n');
   const parts = fs.readdirSync(src('steps')).filter(d => /^step\d\d$/.test(d) && fs.existsSync(src('steps', d, 'step.js'))).sort()
-    .map(dir => '// ---- src/steps/' + dir + '/step.js\n' + read(src('steps', dir, 'step.js')).replace(/\r\n/g, '\n').trim() + '\n');
+    .map(dir => indent('// ---- src/steps/' + dir + '/step.js\n' + read(src('steps', dir, 'step.js')).replace(/\r\n/g, '\n').trim()) + '\n');
   if (!parts.length) return null;
-  return read(src('content-head.js')).replace(/\r\n/g, '\n').replace('/* STEPS */\n', parts.join('\n')) ;
+  return read(src('content-head.js')).replace(/\r\n/g, '\n').replace('/* STEPS */\n', parts.join('\n'));
 }
 
 function build(check) {

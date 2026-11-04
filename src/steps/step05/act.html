@@ -1,0 +1,86 @@
+<title>Mirror 21 · Step 05 · Act</title>
+<!-- Step 05 · Pause before you react. Same layout as Step 03. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step03.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <!--#step-topbar-->
+
+  <div class="step-label" id="stepLabel">STEP 05</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Decide now how you’ll respond when the moment comes.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
+      </div>
+    </section>
+
+    <!-- 02 PAUSE — my moment (NOT SURE comes back here, with its hint) -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxOne">MY MOMENT</label>
+        <div class="eyebrow">PAUSE</div>
+        <p class="prompt">The moment you usually react without thinking.</p>
+        <p class="hint" id="proofHint" hidden>Make the moment specific: a time, a place, or what you’ll be about to do.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">When </span>
+          <textarea class="answer-box" id="boxOne" data-answer="MOMENT" rows="3" maxlength="160" aria-label="My moment. When"></textarea>
+        </div>
+        <!--#next-arrow row="one" row="one"-->
+      </div>
+    </section>
+
+    <!-- 03 RESPOND — my response + "Will you know the moment when it comes?" -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxTwo">MY RESPONSE</label>
+        <div class="eyebrow">RESPOND <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until your moment is written"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">What you’ll do instead of the old reaction.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">I will pause and </span>
+          <textarea class="answer-box" id="boxTwo" data-answer="RESPONSE" rows="3" maxlength="160" aria-label="My response. I will pause and"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="two" row="two"-->
+        <div id="proofQ" hidden>
+          <p class="proof-q">WILL YOU KNOW THE MOMENT WHEN IT COMES?</p>
+          <div class="pills" style="margin-top: 14px">
+            <button class="pill pill--ink" id="proofYes">YES</button>
+            <button class="pill pill--outline" id="proofNotSure">NOT SURE</button>
+          </div>
+        </div>
+        <button class="proved" id="proved" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          Yes, I’ll know the moment when it comes.
+        </button>
+      </div>
+    </section>
+
+    <!-- MY PROMISE — built from MY MOMENT and MY RESPONSE, locked with I'M COMMITTED -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, when <span class="promise-rest is-empty">…</span>, I will pause and <span class="promise-rest is-empty">…</span>. If it doesn’t come, I’ll run through it once in my head.</p>
+
+        <!--#act-commit locked=""-->
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

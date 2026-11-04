@@ -1,0 +1,15 @@
+<div id="commitBlock">
+  <button class="hold" id="hold" disabled aria-describedby="holdHelp">
+    <span class="hold-fill" id="holdFill"></span>
+    <span class="hold-label hold-label--lg">I’M COMMITTED</span>
+  </button>
+  <p class="hold-help" id="holdHelp">Press and hold. Once committed, your promise can’t be changed.</p>
+</div>
+
+<div id="lockedBlock" hidden>
+  <div class="locked-row">
+    <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+    COMMITTED
+  </div>
+  <p class="done-text" id="lockedText" style="margin-top: 12px">{{locked}}</p>
+</div>

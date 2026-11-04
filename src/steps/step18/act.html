@@ -1,0 +1,125 @@
+<title>Mirror 21 · Step 18 · Act</title>
+<!-- Step 18 · Keep, stop, start. Same layout as Step 03: three read-only rows, four boxes, no check. MY KEEP and
+     MY STOP are asked as questions, with no sentence starter, so "Nothing yet" reads naturally. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step03.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <!--#step-topbar-->
+
+  <div class="step-label" id="stepLabel">STEP 18</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Decide what to keep, what to stop and what to start, then begin today.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
+      </div>
+    </section>
+
+    <!-- 02 WHAT I FOUND — read-only, both Step 16 findings after their starters -->
+    <section class="row row-static is-done" data-from-of="16">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHAT I FOUND</p>
+        <div class="from"><span data-from-step>FROM STEP 16</span></div>
+        <p class="mine-text" data-from="working" data-starter="One thing that’s working is"></p>
+        <p class="mine-text" data-from="notyet" data-starter="One thing that isn’t working yet is"></p>
+      </div>
+    </section>
+
+    <!-- 03 WHAT I OWNED — read-only, Step 17's WHAT I DID and MY ACTION TODAY after their starters -->
+    <section class="row row-static is-done" data-from-of="17">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHAT I OWNED</p>
+        <div class="from"><span data-from-step>FROM STEP 17</span></div>
+        <p class="mine-text" data-from="did" data-starter="What I did was"></p>
+        <p class="mine-text" data-from="action" data-starter="Because that part is mine, today I’ll"></p>
+      </div>
+    </section>
+
+    <!-- 04 KEEP — a question, no starter -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxOne">MY KEEP</label>
+        <div class="eyebrow">KEEP</div>
+        <p class="prompt">What will you keep? If nothing is helping yet, say so.</p>
+        <div class="starter-wrap">
+          <textarea class="answer-box" id="boxOne" data-answer="KEEP" rows="3" maxlength="200" aria-label="My keep. What will you keep?"></textarea>
+        </div>
+        <!--#next-arrow row="one" row="one"-->
+      </div>
+    </section>
+
+    <!-- 05 STOP — a question, no starter -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxTwo">MY STOP</label>
+        <div class="eyebrow">STOP <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said what you’ll keep"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">What will you stop? If nothing needs stopping, say so. Don’t invent a problem.</p>
+        <div class="starter-wrap">
+          <textarea class="answer-box" id="boxTwo" data-answer="STOP" rows="3" maxlength="200" aria-label="My stop. What will you stop?"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="two" row="two"-->
+      </div>
+    </section>
+
+    <!-- 06 START — my start -->
+    <section class="row is-locked" id="rowThree">
+      <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxThree">MY START</label>
+        <div class="eyebrow">START <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said what you’ll stop"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">One small change, or a tool you haven’t used enough.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">I’ll start </span>
+          <textarea class="answer-box" id="boxThree" data-answer="START" rows="3" maxlength="200" aria-label="My start. I’ll start"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="three" row="three"-->
+      </div>
+    </section>
+
+    <!-- 07 BEGIN TODAY — my first step (no check: the arrow goes to MY PROMISE) -->
+    <section class="row is-locked" id="rowFour">
+      <div class="rail"><div class="node">07</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxFour">MY FIRST STEP</label>
+        <div class="eyebrow">BEGIN TODAY <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said what you’ll start"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">Take the first step on your start today.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">Today, to begin, I’ll </span>
+          <textarea class="answer-box" id="boxFour" data-answer="FIRST" rows="3" maxlength="200" aria-label="My first step. Today, to begin, I’ll"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="four" row="four"-->
+      </div>
+    </section>
+
+    <!-- MY PROMISE — from MY FIRST STEP, locked with I'M COMMITTED once all four boxes are filled -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, I’ll <span class="promise-rest is-empty">…</span>.</p>
+
+        <!--#act-commit locked=""-->
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

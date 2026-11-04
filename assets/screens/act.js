@@ -271,54 +271,14 @@
     render(false);
   }
 
-  // Steps 03–18 · Answers read-only from earlier steps, one to four boxes, a YES / NOT SURE check, then MY PROMISE.
-  // Stages: one per box (0, 1…), then check, promise, committed (two boxes: 2 · 3 · 4). Each box saves the user's
-  // typed words under its data-answer key. Per lesson: the step the read-only answer comes from, the box NOT SURE
-  // sends you back to (its hint sits in that row), and the promise, built from the boxes (numbers are box indexes)
-  // and earlier answers ({ from: step, key }). A page without the check (Steps 07–18) goes from the last box
-  // straight to MY PROMISE.
+  // Steps 03–21 · Answers read-only from earlier steps, one or more boxes, perhaps a YES / NOT SURE check, then MY
+  // PROMISE. Stages: one per box (0, 1…), then check, promise, committed (two boxes: 2 · 3 · 4). Each box saves the
+  // user's typed words under its data-answer key. Per lesson (the act field of its src/steps/stepNN/step.js): the step
+  // the read-only answer comes from, the box NOT SURE sends you back to (its hint sits in that row), and the promise,
+  // built from the boxes (numbers are box indexes) and earlier answers ({ from: step, key }). A page without the
+  // check (Steps 07–21) goes from the last box straight to MY PROMISE.
   function twoBoxActScreen() {
-    const lessonSetup = {
-      3: { from: 1, back: 1, promise: ['Today, I will ', 1, '.'] },
-      4: { from: 3, back: 1, promise: ['Today, I will ', 1, '.'] },
-      5: { from: 1, back: 0, promise: ['Today, when ', 0, ', I will pause and ', 1, '. If it doesn’t come, I’ll run through it once in my head.'] },
-      6: { from: 1, back: 1, promise: ['Today, I will ', 1, '.'] },
-      7: { from: 1, promise: ['Today, after I ', 0, ', I will ', 1, '.'] },
-      8: { from: 3, promise: ['Today, when ', 0, ', I will catch my old habit as it starts and name it. If it doesn’t show up, I will look back at the last time it did.'] },
-      9: { from: 1, promise: ['Today, when ', { from: 8, key: 'WHEN' }, ', I will pause and ', 0, '. If the moment doesn’t come, I will run through it once in my head.'] },
-      10: { from: 1, promise: ['Today, when ', { from: 8, key: 'WHEN' }, ', I will pause, say “', 1, '”, and ', { from: 9, key: 'SWAP' }, '. If the moment doesn’t come, I will run through it once in my head.'] },
-      11: { from: 1, promise: ['Today, I will tell ', 0, ' what I’m changing, and that I will report back on ', 1, '.'] },
-      12: { from: 1, promise: ['Today, I will do my move, or at least ', 0, '.'] },
-      // Step 13: the promise follows the chosen tool, in the user's own words from Steps 12, or 9 and 10.
-      13: { from: 1, promise: answers => [
-        'On ', 0, ', I will ',
-        ...answers.TOOL === 'minimum' ? ['do at least my minimum: ', { from: 12, key: 'MINIMUM' }]
-          : answers.TOOL === 'swap' ? ['pause, say “', { from: 10, key: 'LINE' }, '”, and ', { from: 9, key: 'SWAP' }]
-          : [{ empty: true }],
-        '. Today, I will ', 3, '.'] },
-      // Step 14: raise the bar (MY NEW BAR) or make it hold (the Step 03 move).
-      14: { from: 1, promise: answers =>
-        answers.DECISION === 'raise' ? ['Today, I will start my new bar: ', 1, '.']
-        : answers.DECISION === 'hold' ? ['Today, I will do my full move: ', { from: 3, key: 'MOVE' }, '.']
-        : ['Today, I will ', { empty: true }, '.'] },
-      // Step 15: the same words for everyone; the boxes hold the story and the restart rule.
-      15: { from: 1, promise: ['My restart rule is set. Today, I will do my move, or at least my minimum, if it’s due.'] },
-      // Step 16: the boxes hold what's working and what isn't yet (Step 17 starts from it); the promise names
-      // the person from Step 11.
-      16: { from: 1, promise: ['Today, I’ll send ', { from: 11, key: 'PERSON' }, ' what I found.'] },
-      // Step 17: from MY ACTION TODAY only (Step 18 brings WHAT I DID and the action forward).
-      17: { from: 1, promise: ['Today, I’ll ', 2, '.'] },
-      // Step 18: from MY FIRST STEP; MY KEEP, MY STOP and MY START are kept for Step 19 and Step 21.
-      18: { from: 1, promise: ['Today, I’ll ', 3, '.'] },
-      // Step 19: the Mirror Method card (SEE, OWN, MOVECHOICE and MOVE, TOOL, ACTION); the promise is TODAY'S
-      // ACTION only. The tool stays on the card.
-      19: { from: 1, promise: ['Today, I’ll ', 5, '.'] },
-      // Step 20: a blank card for a new change (NEWCHANGE, SEE, OWN, CHANGEIT, FIRST), kept apart from Step 19's;
-      // the promise is MY FIRST MOVE TODAY only.
-      20: { from: 1, promise: ['Today, I’ll ', 4, '.'] },
-      // Step 21: MY HERE NOW, WHAT'S NEXT (keep / again / new) and MY NEXT ACTION; the promise is the next action.
-      21: { from: 1, promise: ['Today, I’ll ', 2, '.'] }
-    }[steps.lesson(step)];
+    const lessonSetup = MirrorContent.steps[steps.lesson(step)].act;
     const answers = state.responses[step] ||= {};
     // A choice can start already made (Step 19's KEEP THIS MOVE): data-default.
     document.querySelectorAll('[data-answer][data-default]').forEach(box => { if (!state.lessons[step] && answers[box.dataset.answer] === undefined) answers[box.dataset.answer] = box.dataset.default; });

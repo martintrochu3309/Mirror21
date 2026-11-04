@@ -1,0 +1,74 @@
+<title>Mirror 21 · Step 02 · Act</title>
+<!-- Built from the Step 02 design handoff, act.html (locked design). -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <!--#step-topbar-->
+
+
+  <div class="step-label" id="stepLabel">STEP 02</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Turn your destination into something you do today.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from the step before (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
+      </div>
+    </section>
+
+    <!-- 02 PROOF — my action + proof check -->
+    <section class="row" id="rowAction">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="action">MY ACTION</label>
+        <div class="eyebrow">PROOF</div>
+        <p class="prompt">Make it something you could prove you did.</p>
+        <p class="hint" id="proofHint" hidden>If you couldn’t prove it, it’s still an intention. Make it something you either do or don’t.</p>
+        <div class="starter-wrap">
+          <span class="starter" id="starter" aria-hidden="true">Today I will </span>
+          <textarea class="answer-box" id="action" rows="3" maxlength="200" aria-label="My action. Today I will"></textarea>
+        </div>
+        <div class="next-row" id="nextRow" style="display: flex">
+          <button class="next" id="next" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div id="proofQ" hidden>
+          <p class="proof-q">COULD YOU PROVE YOU DID IT?</p>
+          <div class="pills" style="margin-top: 14px">
+            <button class="pill pill--ink" id="proofYes">YES</button>
+            <button class="pill pill--outline" id="proofNotSure">NOT SURE</button>
+          </div>
+        </div>
+        <button class="proved" id="proved" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          Yes, I could prove it.
+        </button>
+      </div>
+    </section>
+
+    <!-- 03 ONCE — my promise -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node">03</div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <div class="eyebrow">ONCE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until your action is written"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="promise" aria-live="polite">Today, I will <span class="promise-rest is-empty" id="promiseRest">…</span></p>
+
+        <!--#act-commit locked="Your promise is locked. Step 03 starts by asking how it went."-->
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

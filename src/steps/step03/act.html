@@ -1,0 +1,86 @@
+<title>Mirror 21 · Step 03 · Act</title>
+<!-- Step 03 · Pick one move. Built from the Step 03 layout, in the Step 02 components. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step03.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <!--#step-topbar-->
+
+  <div class="step-label" id="stepLabel">STEP 03</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Pick the move that matters, then start it today.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span>FROM YOUR CHECK-INS</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
+      </div>
+    </section>
+
+    <!-- 02 IMPACT — my move -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxOne">MY MOVE</label>
+        <div class="eyebrow">IMPACT</div>
+        <p class="prompt">The one that takes you furthest. Often the one you’ve been avoiding.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">The move that matters most is </span>
+          <textarea class="answer-box" id="boxOne" data-answer="MOVE" rows="3" maxlength="200" aria-label="My move. The move that matters most is"></textarea>
+        </div>
+        <!--#next-arrow row="one" row="one"-->
+      </div>
+    </section>
+
+    <!-- 03 START — my action + proof check -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxTwo">MY ACTION</label>
+        <div class="eyebrow">START <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until your move is written"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">Make it something you could prove you did.</p>
+        <p class="hint" id="proofHint" hidden>If you couldn’t prove it, it’s still an intention. Make it something you either do or don’t.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">Today I will </span>
+          <textarea class="answer-box" id="boxTwo" data-answer="ACTION" rows="3" maxlength="200" aria-label="My action. Today I will"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="two" row="two"-->
+        <div id="proofQ" hidden>
+          <p class="proof-q">COULD YOU PROVE YOU DID IT?</p>
+          <div class="pills" style="margin-top: 14px">
+            <button class="pill pill--ink" id="proofYes">YES</button>
+            <button class="pill pill--outline" id="proofNotSure">NOT SURE</button>
+          </div>
+        </div>
+        <button class="proved" id="proved" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#896a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          Yes, I could prove it.
+        </button>
+      </div>
+    </section>
+
+    <!-- MY PROMISE — built from MY ACTION, locked with I'M COMMITTED -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, I will <span class="promise-rest is-empty">…</span>.</p>
+
+        <!--#act-commit locked=""-->
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<title>Mirror 21 · Step 19 · Act</title>
+<!-- Step 19 · Put it all together. Same layout as Step 03: THERE and MY TOOLS (a closed reference panel) read-only,
+     then the Mirror Method card: SEE IT, OWN IT, MY MOVE (keep, or update it), MY TOOL (one of four), TODAY'S ACTION.
+     No check. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step03.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <!--#step-topbar-->
+
+  <div class="step-label" id="stepLabel">STEP 19</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Put your Mirror Method on one card, then use it today.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
+      </div>
+    </section>
+
+    <!-- 02 MY TOOLS — read-only reference, closed until tapped; nothing here is copied into the card -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">MY TOOLS</p>
+        <div class="from"><span>FROM YOUR STEPS</span></div>
+        <details class="tools" id="tools">
+          <summary class="tools-toggle"><span class="tools-open">Tap to open</span><span class="tools-close">Close</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="tool" data-from-of="3">
+            <p class="tool-name">MY MOVE · <span data-from-step>FROM STEP 03</span></p>
+            <p class="mine-text" data-from="move" data-starter="My move is"></p>
+          </div>
+          <div class="tool" data-from-of="7">
+            <p class="tool-name">MY ANCHOR · FROM STEP 07</p>
+            <p class="mine-text" data-from="anchor" data-starter="Every day, I"></p>
+            <p class="mine-text" data-from="action" data-starter="Straight after, I will"></p>
+          </div>
+          <div class="tool">
+            <p class="tool-name">MY SWAP AND LINE · FROM STEPS 09 AND 10</p>
+            <p class="mine-text" data-from-of="9" data-from="swap" data-starter="Instead, I will"></p>
+            <p class="mine-text" data-from-of="10" data-from="line" data-starter="My line is"></p>
+          </div>
+          <div class="tool" data-from-of="12">
+            <p class="tool-name">MY MINIMUM · FROM STEP 12</p>
+            <p class="mine-text" data-from="minimum" data-starter="On a bad day, the least I will do is"></p>
+          </div>
+          <div class="tool" data-from-of="15">
+            <p class="tool-name">MY RESTART RULE · FROM STEP 15</p>
+            <p class="mine-text" data-from="rule" data-starter="If I miss, I will restart"></p>
+          </div>
+          <div class="tool" data-from-of="16">
+            <p class="tool-name">WHAT I FOUND · FROM STEP 16</p>
+            <p class="mine-text" data-from="working" data-starter="One thing that’s working is"></p>
+            <p class="mine-text" data-from="notyet" data-starter="One thing that isn’t working yet is"></p>
+          </div>
+          <div class="tool" data-from-of="17">
+            <p class="tool-name">WHAT I DID · FROM STEP 17</p>
+            <p class="mine-text" data-from="did" data-starter="What I did was"></p>
+          </div>
+          <div class="tool" data-from-of="18">
+            <p class="tool-name">KEEP, STOP, START · FROM STEP 18</p>
+            <p class="mine-text" data-from="keep" data-starter="Keep:"></p>
+            <p class="mine-text" data-from="stop" data-starter="Stop:"></p>
+            <p class="mine-text" data-from="start" data-starter="I’ll start"></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 03 SEE IT — what's happening now -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxOne">SEE IT</label>
+        <div class="eyebrow">MY MIRROR METHOD</div>
+        <p class="prompt">Let the facts lead, not the feeling.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">What’s happening now is </span>
+          <textarea class="answer-box" id="boxOne" data-answer="SEE" rows="3" maxlength="200" aria-label="See it. What’s happening now is"></textarea>
+        </div>
+        <!--#next-arrow row="one" row="one"-->
+      </div>
+    </section>
+
+    <!-- 04 OWN IT — the part that's mine -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxTwo">OWN IT</label>
+        <div class="eyebrow">MY MIRROR METHOD <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve seen it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">Whether it’s helping or holding things back.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">The part that’s mine is </span>
+          <textarea class="answer-box" id="boxTwo" data-answer="OWN" rows="3" maxlength="200" aria-label="Own it. The part that’s mine is"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="two" row="two"-->
+      </div>
+    </section>
+
+    <!-- 05 CHANGE IT · MY MOVE — the current move, kept by default or updated -->
+    <section class="row is-locked" id="rowThree">
+      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">MY MOVE</p>
+        <div class="eyebrow">CHANGE IT <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve owned it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <div data-from-of="3">
+          <div class="from"><span data-from-step>FROM STEP 03</span></div>
+          <p class="mine-text" data-from="move" data-starter="My move is"></p>
+        </div>
+        <input type="hidden" id="boxThree" data-answer="MOVECHOICE" data-default="keep">
+        <div class="pills pills--stack" role="group" aria-label="My move">
+          <button class="pill pill--outline" data-choice="keep" aria-pressed="false">KEEP THIS MOVE</button>
+          <button class="pill pill--outline" data-choice="update" aria-pressed="false">UPDATE IT</button>
+        </div>
+        <!--#next-arrow-hidden row="three" row="three"-->
+      </div>
+    </section>
+
+    <!-- CHANGE IT · MY UPDATED MOVE — only after UPDATE IT; becomes the current move (earlier wordings are kept) -->
+    <section class="row is-locked" id="rowFour" hidden>
+      <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxFour">MY UPDATED MOVE</label>
+        <div class="eyebrow">CHANGE IT</div>
+        <p class="prompt">Your move, as it is now. The earlier wording is kept.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">My move is </span>
+          <textarea class="answer-box" id="boxFour" data-answer="MOVE" data-when="MOVECHOICE=update" rows="3" maxlength="200" aria-label="My updated move. My move is"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="four" row="four"-->
+      </div>
+    </section>
+
+    <!-- CHANGE IT · MY TOOL — one of four; the chosen one shows the saved words. On the card, not in the promise. -->
+    <section class="row is-locked" id="rowFive">
+      <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">MY TOOL</p>
+        <div class="eyebrow">CHANGE IT</div>
+        <p class="prompt">The one tool that fits your move.</p>
+        <p class="prompt tool-check" data-show-when="MOVECHOICE=update" hidden>Does this still fit your move? If not, choose another tool.</p>
+        <input type="hidden" id="boxFive" data-answer="TOOL">
+        <div class="pills pills--stack" role="group" aria-label="My tool">
+          <button class="pill pill--outline" data-choice="anchor" data-shows="7:ANCHOR:Every day, I|7:ACTION:Straight after, I will" aria-pressed="false">ANCHOR</button>
+          <button class="pill pill--outline" data-choice="swap" data-shows="9:SWAP:Instead, I will|10:LINE:My line is" aria-pressed="false">SWAP AND LINE</button>
+          <button class="pill pill--outline" data-choice="minimum" data-shows="12:MINIMUM:On a bad day, the least I will do is" aria-pressed="false">MINIMUM</button>
+          <button class="pill pill--outline" data-choice="restart" data-shows="15:RULE:If I miss, I will restart" aria-pressed="false">RESTART RULE</button>
+        </div>
+        <div class="choice-words"></div>
+        <!--#next-arrow-hidden row="five" row="five"-->
+      </div>
+    </section>
+
+    <!-- USE IT TODAY · TODAY'S ACTION (no check: the arrow goes to MY PROMISE) -->
+    <section class="row is-locked" id="rowSix">
+      <div class="rail"><div class="node">07</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxSix">TODAY’S ACTION</label>
+        <div class="eyebrow">USE IT TODAY <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve chosen a tool"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">One real action from your card.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">Today, I’ll </span>
+          <textarea class="answer-box" id="boxSix" data-answer="ACTION" rows="3" maxlength="200" aria-label="Today’s action. Today, I’ll"></textarea>
+        </div>
+        <!--#next-arrow-hidden row="six" row="six"-->
+      </div>
+    </section>
+
+    <!-- MY PROMISE — from TODAY'S ACTION only, locked with I'M COMMITTED once the card is done -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, I’ll <span class="promise-rest is-empty">…</span>.</p>
+
+        <!--#act-commit locked=""-->
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

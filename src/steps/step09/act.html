@@ -1,0 +1,80 @@
+<title>Mirror 21 · Step 09 · Act</title>
+<!-- Step 09 · Break the habit. Same layout as Step 03, with three read-only rows, one box and no check. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step03.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <!--#step-topbar-->
+
+  <div class="step-label" id="stepLabel">STEP 09</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Swap your old habit for something better.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
+      </div>
+    </section>
+
+    <!-- 02 MY OLD HABIT — read-only, Step 08's WHEN and WHAT after their starters -->
+    <section class="row row-static is-done" data-from-of="8">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">MY OLD HABIT</p>
+        <div class="from"><span data-from-step>FROM STEP 08</span></div>
+        <p class="mine-text" data-from="when" data-starter="It usually happens when"></p>
+        <p class="mine-text" data-from="what" data-starter="What I actually do is"></p>
+      </div>
+    </section>
+
+    <!-- 03 WHAT IT GIVES ME — read-only, Step 08's PAYOFF after its starter -->
+    <section class="row row-static is-done" data-from-of="8">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHAT IT GIVES ME</p>
+        <div class="from"><span data-from-step>FROM STEP 08</span></div>
+        <p class="mine-text" data-from="payoff" data-starter="It gives me"></p>
+      </div>
+    </section>
+
+    <!-- 04 SWAP — the replacement (no check: the arrow goes to MY PROMISE) -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxOne">MY SWAP</label>
+        <div class="eyebrow">SWAP</div>
+        <p class="prompt">Something that gives you the same thing, and moves you towards where you want to be.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">Instead, I will </span>
+          <textarea class="answer-box" id="boxOne" data-answer="SWAP" rows="3" maxlength="200" aria-label="My swap. Instead, I will"></textarea>
+        </div>
+        <!--#next-arrow row="one" row="one"-->
+      </div>
+    </section>
+
+    <!-- MY PROMISE — built from Step 08's WHEN and MY SWAP, locked with I'M COMMITTED -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, when <span class="promise-rest is-empty">…</span>, I will pause and <span class="promise-rest is-empty">…</span>. If the moment doesn’t come, I will run through it once in my head.</p>
+
+        <!--#act-commit locked=""-->
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

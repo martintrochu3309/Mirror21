@@ -1,0 +1,94 @@
+<title>Mirror 21 · Step 11 · Act</title>
+<!-- Step 11 · Tell someone. Same layout as Step 03, with three read-only rows, a text box, a date box and no check. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step03.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <!--#step-topbar-->
+
+  <div class="step-label" id="stepLabel">STEP 11</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">Tell someone what you’re changing, and when you’ll report back.</p>
+
+  <div class="rows">
+
+    <!-- 01 THERE — read-only, from Step 01 (always done) -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">WHERE I’M GOING</p>
+        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
+      </div>
+    </section>
+
+    <!-- 02 MY MOVE — read-only, from Step 03 -->
+    <section class="row row-static is-done" data-from-of="3">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">MY MOVE</p>
+        <div class="from"><span data-from-step>FROM STEP 03</span></div>
+        <p class="mine-text" data-from="move" data-starter="My move is"></p>
+      </div>
+    </section>
+
+    <!-- 03 MY LINE — read-only, Step 10's LINE after its starter -->
+    <section class="row row-static is-done" data-from-of="10">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">MY LINE</p>
+        <div class="from"><span data-from-step>FROM STEP 10</span></div>
+        <p class="mine-text" data-from="line" data-starter="My line is"></p>
+      </div>
+    </section>
+
+    <!-- 04 CHOOSE — my person -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxOne">MY PERSON</label>
+        <div class="eyebrow">CHOOSE</div>
+        <p class="prompt">Someone you trust, who’ll take you seriously.</p>
+        <div class="starter-wrap">
+          <span class="starter" aria-hidden="true">I will tell </span>
+          <textarea class="answer-box" id="boxOne" data-answer="PERSON" rows="3" maxlength="200" aria-label="My person. I will tell"></textarea>
+        </div>
+        <!--#next-arrow row="one" row="one"-->
+      </div>
+    </section>
+
+    <!-- 05 SET — my report-back day: a date, saved as YYYY-MM-DD (no check: the arrow goes to MY PROMISE) -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxTwo">MY REPORT-BACK DAY</label>
+        <div class="eyebrow">SET <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve chosen your person"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="prompt">The day you’ll tell them how it went.</p>
+        <div class="starter-wrap date-wrap">
+          <div class="answer-box date-box" aria-hidden="true"><span class="starter-text">I will report back on</span> <span class="date-shown is-empty">pick a day</span></div>
+          <input class="date-input" type="date" id="boxTwo" data-answer="DATE" aria-label="My report-back day. I will report back on">
+        </div>
+        <!--#next-arrow-hidden row="two" row="two"-->
+      </div>
+    </section>
+
+    <!-- MY PROMISE — built from MY PERSON and MY REPORT-BACK DAY, locked with I'M COMMITTED -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, I will tell <span class="promise-rest is-empty">…</span> what I’m changing, and that I will report back on <span class="promise-rest is-empty">…</span>.</p>
+
+        <!--#act-commit locked=""-->
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
