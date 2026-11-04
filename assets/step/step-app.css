@@ -91,6 +91,10 @@ a.icon-btn { flex: none; text-decoration: none; }
 .tool-check { color: var(--ink); }
 /* Step 21 · MY SCORE SO FAR: the percentage, large, then what it does and doesn't measure. */
 .score-so-far { margin: 12px 0 0; font: italic 700 44px/1 var(--font-display); letter-spacing: -0.03em; color: var(--ink); }
+/* Act's round Next arrow under each box: black with a gold arrow, like the active row's number (the gold gradient is
+   kept for committing and the big moments); light grey until there's something to send. */
+.next { background: var(--ink); color: var(--gold); }
+.next:disabled { background: var(--track); color: var(--locked-number); }
 /* The two Mirror Method cards (Step 21 and the result page): closed, 19 · My Mirror Method · the evening result · an
    arrow; opened, each part's name in Magistral with the answer under it, as ruled rows. */
 .method-cards { margin-top: 12px; }

@@ -1,6 +1,6 @@
 /* Act: the answer boxes, then MY PROMISE, locked with I'M COMMITTED. Three versions: Step 01's, Step 02's, and
    the one Steps 03–21 share. Run by the step shell. */
-(globalThis.MirrorScreens ||= {}).act = ({ model, steps, state, step, committed, record, save, refreshBar, pad, map, reduceMotion, showEarlier }) => {
+(globalThis.MirrorScreens ||= {}).act = ({ model, steps, store, state, step, committed, record, save, refreshBar, pad, map, reduceMotion, showEarlier }) => {
   // Step 01 and Step 02 have their own Act; Steps 03–21 share one, set by each step's step.js.
   (steps.lesson(step) === 2 ? act02Screen : steps.lesson(step) >= 3 ? twoBoxActScreen : actScreen)(); seeAnExample();
 
@@ -90,6 +90,8 @@
     record.committedAt = new Date().toISOString();
     state.dayChanges[step] = promise.slice(0, 600);
     state.change = state.dayChanges[step];
+    // My Path shows the next step opening in front of him (assets/screens/path.js).
+    store.device.setUnlock(step);
   }
   // After I'M COMMITTED: COMMITTED shows for a moment, then straight back to My Path.
   function returnToMap() { setTimeout(() => { location.href = map; }, 300); }

@@ -29,8 +29,11 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const command=(method,params={})=>new Promise((resolve,reject)=>{const n=++id;const timer=setTimeout(()=>reject(Error('CDP timeout '+method)),15000);pending.set(n,{resolve:v=>{clearTimeout(timer);resolve(v);},reject:e=>{clearTimeout(timer);reject(e);}});socket.send(JSON.stringify({id:n,method,params}));});
   const evaluate=async expression=>{const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
   await command('Page.enable');await command('Runtime.enable');
+  // What the unlock moment was doing when My Path was last ready (null: nothing to show).
+  let lastUnlock=null;
   const errors=[];socket.addEventListener('message',event=>{const r=JSON.parse(event.data);if(r.method==='Runtime.exceptionThrown')errors.push(r.params.exceptionDetails);});
-  const ready=async expected=>{for(let i=0;i<100;i++){if(await evaluate('location.pathname.replace(/\\.html$/, "") === '+JSON.stringify('/html/'+expected.replace('.html',''))+' && document.documentElement?.dataset.mirrorReady === "true"')){await evaluate('document.fonts.ready.then(()=>true)');await wait(700);return;}await wait(50);}throw Error('Page not ready: '+expected+' (at '+await evaluate('location.href')+') '+JSON.stringify(errors.map(e=>e.exception?.description||e.text)));};
+  // On My Path the unlock moment may be waiting to play: a tap skips it, as a user in a hurry would.
+  const ready=async expected=>{for(let i=0;i<100;i++){if(await evaluate('location.pathname.replace(/\\.html$/, "") === '+JSON.stringify('/html/'+expected.replace('.html',''))+' && document.documentElement?.dataset.mirrorReady === "true"')){await evaluate('document.fonts.ready.then(()=>true)');lastUnlock=await evaluate('(()=>{const u=document.documentElement.dataset.unlock;if(u==="waiting"||u==="playing")(document.body.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true})),document.body.dispatchEvent(new MouseEvent("click",{bubbles:true})));return u||null})()');await wait(700);return;}await wait(50);}throw Error('Page not ready: '+expected+' (at '+await evaluate('location.href')+') '+JSON.stringify(errors.map(e=>e.exception?.description||e.text)));};
   const go=async name=>{console.log('Opening '+name);await command('Page.navigate',{url:base+'/html/'+name.replace('.html','')});await ready(name.split('?')[0]);};
   const click=async selector=>{await evaluate('document.querySelector('+JSON.stringify(selector)+').click()');};
   const stored=()=>evaluate('JSON.parse(localStorage.getItem("mirror21-progress"))');
@@ -312,6 +315,8 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector("#holdFill").style.width'),'0%','Releasing early resets the fill');
    // Committing flashes COMMITTED for 0.3 seconds, then returns to the map by itself.
    const holdAt=Date.now();await holdFor(1250);await ready('04-map-start.html');
+   assert.equal(lastUnlock,'waiting','Back on My Path, Step 02 is about to open in front of him');
+   assert.deepEqual(await evaluate('[localStorage.getItem("mirror21-unlock"),document.documentElement.dataset.unlock,document.querySelectorAll(".is-was-current,.is-was-locked,.is-waiting").length]'),[null,'done',0],'Shown once; a tap skips to the end');
    assert.ok(Date.now()-holdAt<2600,'Back on the map quickly after committing: '+(Date.now()-holdAt)+'ms');
    assert.equal(await stage(),6,'Holding for a second commits');
    let saved=await stored();

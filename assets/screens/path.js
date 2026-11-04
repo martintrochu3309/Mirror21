@@ -123,11 +123,118 @@
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && openDayCard) { event.preventDefault(); closeDayCard(true); }
   });
+  // The unlock moment. Committing a step leaves a note (store.device.setUnlock); back on My Path the path is drawn as
+  // it was, centred on the step just committed, and after 1.5 seconds it plays, slowly: that tile settles, the footprints
+  // stamp one by one to the next tile, which flips like a coin from grey to black, and its bubble pops in. After a
+  // block's last step (07, 14) the block tile goes first; after Step 21, the flag tile (CHECK IN). After the final
+  // check, the flag flips from black to gold (RESULT). Once only; a tap skips to the end; nothing with reduce motion.
+  function pendingUnlock() {
+    const note = store.device.takeUnlock();
+    if (!note || matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+    if (note === 'finish') return state.finishedAt ? { finish: true } : null;
+    const n = Number(note);
+    // Only while it is still the latest news: the step committed, the next one (or the final check) not yet done.
+    return Number.isInteger(n) && n >= 1 && n <= 21 && state.lessons[n] && (n < 21 ? !state.lessons[n + 1] : !state.finishedAt) ? { step: n } : null;
+  }
+  let moment = null;
+  const waiting = new Set();
+  function prepareMoment(unlock, { path, blockSpots, resultsRow, resultsTile }) {
+    const rowOf = d => path.querySelector('.progress-row[data-day="' + d + '"]');
+    const before = [], actions = [];
+    // Each element shows how it was until the sequence reaches it.
+    const was = (el, look) => { if (el) { el.classList.add(look); before.push([el, look]); } };
+    const unwas = (el, look) => el?.classList.remove(look);
+    // Slow enough to follow each part: a short pause before every flip and between the parts.
+    const PAUSE = ['pause', 300];
+    if (unlock.finish) {
+      const bubble = resultsRow.querySelector('.progress-bubble');
+      was(resultsTile, 'is-was-open'); was(bubble, 'is-waiting');
+      actions.push(['flip', resultsTile, () => unwas(resultsTile, 'is-was-open')], PAUSE, ['pop', bubble]);
+    } else {
+      const n = unlock.step, done = rowOf(n).querySelector('.progress-step');
+      was(done, 'is-was-current'); actions.push(['settle', done], PAUSE);
+      const spot = n === 7 || n === 14 ? blockSpots[n / 7 - 1] : null;
+      if (spot) {
+        const tile = spot.querySelector('.block-tile');
+        was(spot, 'is-was-locked'); was(tile, 'is-was-locked'); waiting.add('block-' + n); before.push([null, 'block-' + n]);
+        actions.push(['walk', 'block-' + n], PAUSE, ['flip', tile, () => { unwas(tile, 'is-was-locked'); unwas(spot, 'is-was-locked'); }], PAUSE);
+      }
+      if (n < 21) {
+        const row = rowOf(n + 1), tile = row.querySelector('.progress-step'), frame = row.querySelector('.progress-ring-frame') || tile;
+        const ring = row.querySelector('.progress-ring'), bubble = row.querySelector('.progress-bubble');
+        was(tile, 'is-was-locked'); was(ring, 'is-waiting'); was(bubble, 'is-waiting'); waiting.add('step-' + (n + 1)); before.push([null, 'step-' + (n + 1)]);
+        actions.push(['walk', 'step-' + (n + 1)], PAUSE, ['flip', frame, () => unwas(tile, 'is-was-locked')], ['show', ring], PAUSE, ['pop', bubble]);
+      } else {
+        const bubble = resultsRow.querySelector('.progress-bubble');
+        was(resultsTile, 'is-was-locked'); was(bubble, 'is-waiting'); waiting.add('results'); before.push([null, 'results']);
+        actions.push(['walk', 'results'], PAUSE, ['flip', resultsTile, () => unwas(resultsTile, 'is-was-locked')], PAUSE, ['pop', bubble]);
+      }
+    }
+    const root = document.documentElement, running = [], sleeps = [];
+    const sleep = ms => new Promise(resolve => { const timer = setTimeout(resolve, ms); sleeps.push([timer, resolve]); });
+    const trail = key => path.querySelector('.journey-segment[data-key="' + key + '"]');
+    let skipped = false;
+    const run = { playing: false };
+    // Skip: everything straight to how it is now.
+    run.skip = () => {
+      if (skipped) return; skipped = true; run.playing = false;
+      sleeps.forEach(([timer, resolve]) => { clearTimeout(timer); resolve(); });
+      running.forEach(animation => animation.cancel());
+      before.forEach(([el, look]) => { if (el) el.classList.remove(look); else { waiting.delete(look); trail(look)?.classList.remove('is-waiting'); } });
+      removeEventListener('pointerdown', touched, true); removeEventListener('click', tapped, true); removeEventListener('keydown', keyed, true);
+      root.dataset.unlock = 'done';
+    };
+    // Only a real tap on My Path (or a key) skips. Scrolling doesn't, and nor does the finger still down from
+    // I'M COMMITTED: lifting it here reads as a tap, but it began on the Act screen, so it never touched down here.
+    let down = false;
+    const touched = () => { down = true; };
+    const tapped = () => { if (down) run.skip(); };
+    // A key held down from committing with Enter repeats here: only a fresh press counts.
+    const keyed = event => { if (!event.repeat) run.skip(); };
+    addEventListener('pointerdown', touched, true); addEventListener('click', tapped, true); addEventListener('keydown', keyed, true);
+    root.dataset.unlock = 'waiting';
+    const animate = (el, frames, options) => { const animation = el.animate(frames, options); running.push(animation); return animation; };
+    const steps = {
+      pause: ms => sleep(ms),
+      // The tile just committed settles into its committed look (0.5s).
+      settle: async el => { el.classList.remove('is-was-current'); animate(el, [{ transform: 'scale(1.1)' }, { transform: 'scale(1)' }], { duration: 500, easing: 'cubic-bezier(.2,.8,.2,1)' }); await sleep(500); },
+      // Each footprint stamps in gold 200ms after the last, growing from 90% to full size as it lands.
+      walk: async key => {
+        const connector = trail(key);
+        if (!connector) return;
+        const prints = connector.querySelectorAll('.journey-footprint-ink');
+        prints.forEach((print, i) => animate(print, [{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 320, delay: i * 200, easing: 'ease-out', fill: 'backwards' }));
+        waiting.delete(key); connector.classList.remove('is-waiting');
+        await sleep(prints.length * 200 + 320);
+      },
+      // A heavy coin turning over on its vertical axis (1s, slow at the end); its face changes when edge-on.
+      flip: async (el, turn) => {
+        const half = animate(el, [{ transform: 'perspective(600px) rotateY(0deg)' }, { transform: 'perspective(600px) rotateY(90deg)' }], { duration: 420, easing: 'cubic-bezier(.5,0,.9,.6)', fill: 'forwards' });
+        await sleep(420);
+        if (skipped) return;
+        turn();
+        animate(el, [{ transform: 'perspective(600px) rotateY(-90deg)' }, { transform: 'perspective(600px) rotateY(0deg)' }], { duration: 580, easing: 'cubic-bezier(.15,.7,.25,1)' });
+        half.cancel();
+        await sleep(580);
+      },
+      show: async el => { if (!el) return; el.classList.remove('is-waiting'); animate(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' }); await sleep(200); },
+      // The bubble pops in from just below (0.45s).
+      pop: async el => { if (!el) return; el.classList.remove('is-waiting'); animate(el, [{ opacity: 0, transform: 'translateY(8px) scale(.6)' }, { opacity: 1, transform: 'translateY(0) scale(1)' }], { duration: 450, easing: 'cubic-bezier(.2,1.5,.4,1)' }); await sleep(450); }
+    };
+    run.start = async () => {
+      if (skipped) return;
+      run.playing = true; root.dataset.unlock = 'playing';
+      for (const [name, ...args] of actions) { if (skipped) return; await steps[name](...args); }
+      run.skip();
+    };
+    return run;
+  }
   let mapDecorObserver;
   function renderMap(center = false) {
     closeDayCard();
     mapDecorObserver?.disconnect();
     const stats = summary();
+    const unlock = center ? pendingUnlock() : null;
     const scroll = document.querySelector('.map-scroll');
     const path = document.createElement('div'); path.className='progress-path';
     const offsets=[0,52,80,52,0,-52,-80,-52];
@@ -220,6 +327,7 @@
       spot.append(label,tile);path.append(spot);return spot;
     });
     scroll.replaceChildren(path);
+    moment = unlock ? prepareMoment(unlock, { path, blockSpots, resultsRow, resultsTile }) : null;
     const ns='http://www.w3.org/2000/svg';
     const trail=document.createElementNS(ns,'svg');trail.classList.add('journey-trail');trail.setAttribute('aria-hidden','true');
     path.prepend(trail);
@@ -238,10 +346,14 @@
         const rect=row.querySelector('.progress-step').getBoundingClientRect();
         return {x:rect.left+rect.width/2-bounds.left,y:rect.top+rect.height/2-bounds.top};
       });
-      // Footprints from one tile to the next, gold once reached.
-      const walk=(a,b,reached)=> {
+      // A redraw (a resize) while the unlock moment plays finishes it first.
+      if(moment?.playing) moment.skip();
+      // Footprints from one tile to the next, gold once reached. key names the trail: 'step-N' (into Step N),
+      // 'block-N' (out to the tile beside Step N) or 'results'. A trail the unlock moment is about to walk waits hidden.
+      const walk=(a,b,reached,key)=> {
         const connector=document.createElementNS(ns,'g');
-        connector.setAttribute('class','journey-segment'+(reached?' reached':''));
+        connector.setAttribute('class','journey-segment'+(reached?' reached':'')+(waiting.has(key)?' is-waiting':''));
+        connector.dataset.key=key;
         const dx=b.x-a.x,dy=b.y-a.y,distance=Math.hypot(dx,dy);
         const available=Math.max(0,distance-72),count=Math.max(1,Math.floor(available/17));
         const angle=Math.atan2(dy,dx)*180/Math.PI+90;
@@ -255,20 +367,22 @@
           for(const [name,value] of Object.entries({cx:0,cy:-5.5,rx:4.5,ry:6.5}))toe.setAttribute(name,String(value));
           const heel=document.createElementNS(ns,'ellipse');
           for(const [name,value] of Object.entries({cx:-1,cy:6,rx:3,ry:3}))heel.setAttribute(name,String(value));
-          foot.append(toe,heel);connector.append(foot);
+          // The print itself, in its own group so it can grow as it lands.
+          const ink=document.createElementNS(ns,'g');ink.setAttribute('class','journey-footprint-ink');
+          ink.append(toe,heel);foot.append(ink);connector.append(foot);
         }
         trail.append(connector);
       };
-      for(let i=0;i<points.length-1;i++) walk(points[i],points[i+1],i+1<stats.today);
+      for(let i=0;i<points.length-1;i++) walk(points[i],points[i+1],i+1<stats.today,'step-'+(i+2));
       // Each block tile sits 110px right of the centre line, level with its last step, joined to it by footprints.
       blockSpots.forEach(spot=> {
         const from=points[Number(spot.dataset.after)-1],to={x:bounds.width/2+110,y:from.y};
         spot.style.left=to.x+'px';spot.style.top=to.y+'px';
-        walk(from,to,spot.classList.contains('open'));
+        walk(from,to,spot.classList.contains('open'),'block-'+spot.dataset.after);
       });
       // Footprints from Step 21 down to My Results, gold once Step 21 is committed.
       const end=resultsTile.getBoundingClientRect();
-      walk(points[20],{x:end.left+end.width/2-bounds.left,y:end.top+end.height/2-bounds.top},resultsOpen);
+      walk(points[20],{x:end.left+end.width/2-bounds.left,y:end.top+end.height/2-bounds.top},resultsOpen,'results');
       words.forEach(word=> {
         const point=points[Number(word.dataset.anchor)-1];
         word.style.top=(point.y-word.offsetHeight/2)+'px';
@@ -289,7 +403,15 @@
     lines[2].textContent=stepsToGo(stats);
     document.querySelector('[role="status"]')?.remove();
     // Open centred on today's step (on My Results once all 21 are committed), or at the top while START sits on 00 Welcome.
-    if(center) requestAnimationFrame(()=> { const current=path.querySelector('.current')||(resultsOpen?resultsRow:null);if(startOnWelcome)scroll.scrollTop=0;else if(current)scroll.scrollTop=Math.max(0,current.offsetTop-scroll.clientHeight/2+88); });
+    if(center&&!moment) requestAnimationFrame(()=> { const current=path.querySelector('.current')||(resultsOpen?resultsRow:null);if(startOnWelcome)scroll.scrollTop=0;else if(current)scroll.scrollTop=Math.max(0,current.offsetTop-scroll.clientHeight/2+88); });
+    // The unlock moment: centred on the step just committed (or the flag), then it plays 1.5 seconds after the page
+    // has settled, so his eyes land first.
+    if(moment) {
+      const focus=unlock.finish?resultsRow:path.querySelector('.progress-row[data-day="'+unlock.step+'"]');
+      requestAnimationFrame(()=> { scroll.scrollTop=Math.max(0,focus.offsetTop+focus.offsetHeight/2-scroll.clientHeight/2); });
+      const run=moment;
+      document.fonts.ready.then(()=>setTimeout(()=>run.start(),1500));
+    }
   }
   renderMap(true);
 };

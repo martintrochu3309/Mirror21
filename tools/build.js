@@ -12,7 +12,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
-const VERSION = '20261021-signin';
+const VERSION = '20261105-unlock';
 const src = (...parts) => path.join(root, 'src', ...parts);
 const read = file => fs.readFileSync(file, 'utf8');
 

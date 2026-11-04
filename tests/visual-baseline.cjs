@@ -245,7 +245,10 @@ async function capture(dir,only){
  const at=name=>evaluate('location.pathname').then(p=>p.replace(/\.html$/,'')==='/html/'+name.replace('.html','')).catch(()=>false);
  const settled=async(expected)=>{
   for(let i=0;i<200;i++){const ok=await evaluate('document.readyState==="complete"&&document.documentElement.dataset.mirrorReady==="true"').catch(()=>false);if(ok&&(!expected||await at(expected)))break;await wait(50);}
-  await evaluate('document.fonts.ready.then(()=>true)').catch(()=>{});await wait(900);
+  await evaluate('document.fonts.ready.then(()=>true)').catch(()=>{});
+  // On My Path, the unlock moment skips to its end (a tap), so every capture shows the settled path.
+  await evaluate('(()=>{const u=document.documentElement.dataset.unlock;if(u==="waiting"||u==="playing")(document.body.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true})),document.body.dispatchEvent(new MouseEvent("click",{bubbles:true})));return true})()').catch(()=>{});
+  await wait(900);
  };
  const open=async(url,local,expected)=>{
   await command('Page.navigate',{url:base+'/__blank'});await wait(150);

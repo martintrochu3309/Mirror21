@@ -45,7 +45,8 @@ MirrorStore.ready(() => {
     });
     next.addEventListener('click', event => {
       if (!state.answers[21]) { event.preventDefault(); return; }
-      if (!state.finishedAt) { state.finishedAt = Date.now(); save(); }
+      // The final check done: next time on My Path, the flag turns gold in front of him.
+      if (!state.finishedAt) { state.finishedAt = Date.now(); save(); store.device.setUnlock('finish'); }
     });
     render();
     document.documentElement.dataset.mirrorReady = 'true';

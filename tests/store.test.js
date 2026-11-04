@@ -42,11 +42,12 @@ test('This device only: bar positions, Welcome, block summaries and the arrival 
  assert.equal(store.device.welcomeWatched(),false);store.device.markWelcomeWatched();assert.equal(local.getItem('mirror21-watched-0'),'true');assert.equal(store.device.welcomeWatched(),true);
  store.device.markWelcomeSeen();assert.equal(local.getItem('mirror21-seen-0'),'true');assert.equal(store.device.welcomeSeen(),true);
  store.device.markBlockSeen(2);assert.equal(local.getItem('mirror21-block-2'),'true');assert.equal(store.device.blockSeen(2),true);assert.equal(store.device.blockSeen(3),false);
+ store.device.setUnlock(4);assert.equal(local.getItem('mirror21-unlock'),'4');assert.equal(store.device.takeUnlock(),'4');assert.equal(store.device.takeUnlock(),null,'Shown once');
  store.device.setArrival('light:5');assert.equal(session.getItem('mirror21-intro'),'light:5');
  assert.equal(store.device.takeArrival(),'light:5');assert.equal(session.getItem('mirror21-intro'),null,'The note is used up');assert.equal(store.device.takeArrival(),null);
 });
 test('Start over clears the course on this device but keeps settings and finished runs; Delete my data clears it all',()=>{
- const entries=[['mirror21-progress','{}'],['mirror21-bar-3','[1]'],['mirror21-watched-0','true'],['mirror21-seen-0','true'],['mirror21-block-1','true'],['mirror21-reminder','07:15'],['mirror21-runs','[]'],['other-app','keep']];
+ const entries=[['mirror21-progress','{}'],['mirror21-unlock','4'],['mirror21-bar-3','[1]'],['mirror21-watched-0','true'],['mirror21-seen-0','true'],['mirror21-block-1','true'],['mirror21-reminder','07:15'],['mirror21-runs','[]'],['other-app','keep']];
  const a=load(storage(entries),storage([['mirror21-scroll-2-4','100'],['mirror21-intro','3']]));
  assert.equal(a.store.course.clear(),true);
  assert.deepEqual([...a.local.values.keys()].sort(),['mirror21-reminder','mirror21-runs','other-app']);
