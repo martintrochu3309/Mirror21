@@ -320,7 +320,10 @@ function writePng(w,h,px){
  return Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),chunk('IHDR',ihdr),chunk('IDAT',zlib.deflateSync(raw)),chunk('IEND',Buffer.alloc(0))]);
 }
 // Times change from run to run (the clock moves on while a page runs): compared as placeholders.
-const steady=text=>text.replace(/\b1[789]\d{11}\b/g,'<ms>').replace(/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z/g,'<iso>');
+// So are the test server's port (in full link addresses) and an empty style="" (left by measuring a title before
+// or after the fonts load: nothing on screen).
+const steady=text=>text.replace(/\b1[789]\d{11}\b/g,'<ms>').replace(/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z/g,'<iso>')
+ .replace(/127\.0\.0\.1:\d+/g,'<server>').replace(/ style=\\?"\\?"/g,'');
 async function compare(a,b){
  const out=path.join(b,'_diff');await fs.mkdir(out,{recursive:true});
  const problems=[],notes=[];let checked=0;
