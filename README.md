@@ -4,7 +4,7 @@ Everything you need to build the light iPhone version of the course in VS Code.
 
 ```
 Mirror21/
-├── index.html     opens Sign in (the Offer page is hidden for now)
+├── index.html     opens My Path when signed in, the first page otherwise (the Offer page is hidden for now)
 ├── src/           the pages' sources: edit these, then run node tools/build.js
 │   ├── steps/stepNN/     everything about one step: learn.html, act.html (its pages) and step.js (its title,
 │   │                     video length, examples, block skill, how its promise is built, its journal lines)
@@ -14,13 +14,14 @@ Mirror21/
 │   └── content-head.js   the frame of assets/core/content.js, where every step.js is gathered
 ├── html/          the app as served, built from src/ (never edit by hand: the unit tests check it matches)
 ├── assets/
-│   ├── core/             no screen of its own: progress.js (course rules), store.js (all saved data),
-│   │                     content.js (built from every step.js), steps.js (the step catalogue and blocks, from
-│   │                     content.js), journal.js (answers as sentences)
+│   ├── core/             no screen of its own: auth.js (who may open the course), progress.js (course rules),
+│   │                     store.js (all saved data), content.js (built from every step.js), steps.js (the step
+│   │                     catalogue and blocks, from content.js), journal.js (answers as sentences)
 │   ├── shell/            what every page of a kind shares: app.js (My Path, My Mirror, My Journey, Offer),
 │   │                     step.js (Check in, Watch, Learn, Act: routing, the step bar, titles)
-│   ├── screens/          one file per screen: path, mirror, journey, settings, checkin, watch, learn, act,
+│   ├── screens/          one file per screen: sign-in, path, mirror, journey, settings, checkin, watch, learn, act,
 │   │                     block, final (final check and result), restart-session
+│   ├── vendor/           supabase.js (Supabase's browser library: a pinned copy, so Sign in needs no CDN)
 │   ├── step/             Step screens' styles: tokens.css, step.css, step02.css, step03.css, checkin.css,
 │   │                     watch.css, step-app.css; fonts/
 │   ├── prototype.css, journey.css, block.css, result.css, opening-pages.css
@@ -31,7 +32,9 @@ Mirror21/
 ├── tools/build.js builds html/ from src/ (plain Node, nothing to install)
 ├── screens/       screenshots written by the browser test
 ├── tests/         unit tests, the browser test and the visual baseline
-├── supabase/      the server side (see **Payments**): paid_users.sql, functions/stripe-webhook/, config.toml
+├── supabase/      the server side (see **Payments and sign-in**): paid_users.sql, functions/ (stripe-webhook,
+│                  checkout-email, _shared), config.toml
+├── _redirects     Netlify: /signin opens Sign in
 ├── manifest.webmanifest  makes the Home Screen icon open Mirror 21 as a full-screen app
 └── _headers       Netlify: always serve the latest files
 ```
@@ -48,7 +51,7 @@ Mirror21/
 
 Open `index.html` in a browser, ideally through a local server such as VS Code Live Server so progress persists.
 
-Opening the link goes straight to the Offer page. The preview connects Offer → My Path (map) → Step 01: Watch → Learn → Act → My Path → Step 02: Check in → Watch → Learn → Act → …
+It opens on the first page; Already bought? Sign in, then use a buyer's email (one in `paid_users`) and the code Supabase emails; signing in works from the folder too. After that the device stays signed in, and the preview connects My Path (map) → Step 01: Watch → Learn → Act → My Path → Step 02: Check in → Watch → Learn → Act → …
 
 ## Home Screen app (iPhone)
 
@@ -189,16 +192,21 @@ The third tab (book icon) replaces My Tools. The tabs are **MY PATH** (the map),
 - `node tests/visual-baseline.cjs capture <dir>` then `compare <dirA> <dirB>`: the guard for restructuring work. It saves every screen in every state (the step screens at each stage, My Path with its cards, My Mirror, My Journey, Settings, the blocks, the final check and the result, plus a few full flows) at phone, iPad and desktop sizes: a screenshot, the page as rendered, and what the app saved. Compare lists any pixel, element or saved value that differs. Capture before a change, again after, and compare; captures go in `.visual/`, which is never committed. Set `MIRROR21_SCREENS=<folder>` to send the browser test's screenshots somewhere other than `screens/`.
 - `node tests/browser-smoke.cjs`: runs the real flow in Chrome at phone, iPad and desktop sizes (Welcome, Watch with real playback, Learn, every Act state, hold to commit, Step 02 unlock, the check-in in all three answers with its lock and map tile looks, My Mirror, restart) against a local server that simulates Netlify. It writes phone screenshots to `screens/` (`step-watch-mobile.png`, `step-learn-mobile.png`, `step-act-*.png`, `journey-map-mobile.png` …) for comparison with the design handoffs' screenshots. Requires installed Chrome.
 
-## Payments (Stripe → Supabase)
+## Payments and sign-in (Stripe → Supabase)
 
-Buyers pay on a Stripe Payment Link. Stripe then calls the Supabase Edge Function `stripe-webhook` (`supabase/functions/stripe-webhook/index.ts`), which saves one row per buyer in the `paid_users` table. Nothing in the app reads it yet: sign-in will.
+The app opens on the first page (`html/00-start.html`): MIRROR 21 in the middle, the black BUY MIRROR 21 button (the Stripe Payment Link) and "Already bought? Sign in". Buyers pay on the Payment Link. Stripe then calls the Supabase Edge Function `stripe-webhook`, which saves one row per buyer in the `paid_users` table and gives them a sign-in account (Supabase Auth, email confirmed, no password). Stripe sends the buyer on to `mirror21.app/signin?session_id=…`, where they sign in with a 6-digit code emailed by Supabase. Recording a buyer is in `supabase/functions/_shared/buyers.ts`, shared by both functions and safe to run twice.
 
-- **Table:** `supabase/paid_users.sql`, pasted once into the Supabase SQL Editor. Emails are stored lowercase and are unique; `amount_total` is in cents (0 for a 100% coupon order); `promo_code` is the code typed at checkout. Row Level Security is on with no policies, so only the function (server key) can read or write it.
-- **What counts:** `checkout.session.completed` with `payment_status` paid or no_payment_required. The same event twice updates the same row (keyed on `stripe_session_id`). A second purchase with an email already in the table keeps the first row and is logged as "already a buyer".
-- **Replies:** 400 for a bad signature, 500 when the secrets are missing or saving fails (Stripe retries on its own), 200 for everything else.
-- **Keys** live only in Supabase secrets (Edge Functions → Secrets): `STRIPE_SECRET_KEY` (a restricted key that reads Checkout Sessions and Promotion Codes is enough) and `STRIPE_WEBHOOK_SECRET` (the endpoint's signing secret, `whsec_…`). Never in the code or on GitHub.
-- **Deploy:** `npx supabase functions deploy stripe-webhook --no-verify-jwt --use-api`. JWT verification stays off (Stripe can't send a Supabase login token; the function checks Stripe's signature instead), also set in `supabase/config.toml`.
-- **Logs:** Supabase → Edge Functions → stripe-webhook → Logs; every line starts `[stripe-webhook]`, errors with `ERROR`. In Stripe: Developers → Webhooks → the endpoint → its event deliveries.
+- **Table:** `supabase/paid_users.sql`, pasted once into the Supabase SQL Editor. Emails are stored lowercase and are unique; `amount_total` is in cents (0 for a 100% coupon order); `promo_code` is the code typed at checkout. Row Level Security is on with no policies, so only the functions (server key) can read or write it.
+- **What counts:** `checkout.session.completed` with `payment_status` paid or no_payment_required. The same event twice updates the same row (keyed on `stripe_session_id`). A second purchase with an email already in the table keeps the first row and is logged as "already a buyer". Either way the account is made if it's missing, so resending an event from Stripe also fixes a missing account.
+- **Webhook replies:** 400 for a bad signature, 500 when the secrets are missing or saving fails (Stripe retries on its own), 200 for everything else.
+- **`checkout-email`:** `GET …/functions/v1/checkout-email?session_id=cs_…` gives `{ email }` for a paid session (404 otherwise), so Sign in can fill in the email. It records the buyer too, in case the webhook hasn't arrived yet.
+- **Sign in** (`html/02-sign-in.html`, `assets/screens/sign-in.js`, Supabase's library in `assets/vendor/supabase.js`, version 2.49.4): email → SEND MY CODE (`signInWithOtp`, `shouldCreateUser: false`) → six boxes (one field underneath, so typing, pasting and the keyboard's code suggestion all work; it signs in on the sixth digit with `verifyOtp`, type `email`) → the page they were going to (`?next=`), else My Path. An email with no account gets "We couldn't find a purchase" and BUY MIRROR 21 (the Payment Link); no code is sent. Resend waits a minute (Supabase's limit); a code lasts an hour. Supabase answers the same for a wrong code and an old one, so a code over an hour old is called expired.
+- **Every other page needs someone signed in:** `assets/core/auth.js` is the first script in each page's head (`tools/build.js` adds it; `<!--@public-->` in a source leaves it out: the first page, Sign in and the Offer). With no sign-in saved on the device it sends them to Sign in, before the page's screen runs (`MirrorStore.ready` waits), so nothing is saved first. It only reads what supabase-js saved (`sb-mirror21-auth`), so it works offline, and being signed in lasts until Sign out. `index.html` opens My Path when signed in, the first page otherwise; the first page and Sign in also go straight to My Path when signed in. This keeps the course to buyers in the app; files such as the videos can still be opened directly by anyone who knows their address.
+- **Sign out** (Settings › Account) opens `02-sign-in.html?signout`, which signs this device out. Its course stays on the phone, and Start over or Delete my data never sign anyone out.
+- **Public settings** in `assets/core/auth.js`: the Supabase URL, the publishable key (meant to be public) and the Payment Link. The service role key and the Stripe keys live only in Supabase secrets (Edge Functions → Secrets): `STRIPE_SECRET_KEY` (a restricted key that reads Checkout Sessions and Promotion Codes is enough) and `STRIPE_WEBHOOK_SECRET` (the endpoint's signing secret, `whsec_…`). Never in the code or on GitHub.
+- **Deploy:** `npx.cmd supabase functions deploy --no-verify-jwt --use-api` (both functions). JWT verification stays off for both (Stripe can't send a Supabase login token, and Sign in calls `checkout-email` before anyone is signed in; the webhook checks Stripe's signature instead), also set in `supabase/config.toml`. `_redirects` sends `/signin` to Sign in, keeping `?session_id=`.
+- **Logs:** Supabase → Edge Functions → the function → Logs; every line starts `[stripe-webhook]` or `[checkout-email]`, errors with `ERROR`. In Stripe: Developers → Webhooks → the endpoint → its event deliveries. Sign-in emails: Resend's Logs.
+- **Tests:** the browser test simulates Supabase (no email is sent): buyer@example.com has an account and the code is 123456. The visual baseline saves a sign-in for every screen but the first page, Sign in and the Offer.
 - The `supabase/` folder holds no secrets, so Netlify publishing it with the site is harmless.
 
 ## Deploying on Netlify

@@ -1,4 +1,5 @@
-// Records Mirror 21 buyers in paid_users when Stripe reports a completed Checkout.
+// Records Mirror 21 buyers when Stripe reports a completed Checkout: a row in paid_users and a sign-in account
+// (see ../_shared/buyers.ts).
 //
 // Replies to Stripe:
 // - 400 when the signature doesn't check out (not from Stripe: nothing is saved)
@@ -6,49 +7,26 @@
 // - 200 for everything else: saved, the same event again, events we don't use, unpaid sessions,
 //   no email, or an email that's already a buyer (the first purchase is kept)
 //
-// Secrets (Supabase → Edge Functions → Secrets): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET.
-// SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase automatically.
+// Resending an event from Stripe (Webhooks → the event → Resend) also creates the account if it's missing.
 
 import Stripe from 'npm:stripe@17.7.0';
-import { createClient } from 'npm:@supabase/supabase-js@2.49.4';
+import { adminClient, buyerEmail, isPaid, logger, recordBuyer, reply, stripeClient } from '../_shared/buyers.ts';
 
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
-
-const reply = (status: number, message: string) =>
-  new Response(JSON.stringify({ message }), { status, headers: { 'Content-Type': 'application/json' } });
-
-const log = (message: string) => console.log(`[stripe-webhook] ${message}`);
-const fail = (message: string) => console.error(`[stripe-webhook] ERROR ${message}`);
-
-// The code the buyer typed (e.g. MIRRORTEST). Stripe's event only carries its ID, so it's looked up.
-// A failed lookup never blocks saving the buyer: the row is saved with no promo code.
-async function promoCode(stripe: Stripe, sessionId: string): Promise<string | null> {
-  try {
-    const full = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['total_details.breakdown'] });
-    for (const { discount } of full.total_details?.breakdown?.discounts ?? []) {
-      const promo = discount.promotion_code;
-      if (!promo) continue;
-      if (typeof promo !== 'string') return promo.code;
-      return (await stripe.promotionCodes.retrieve(promo)).code;
-    }
-    return null;
-  } catch (err) {
-    fail(`promo code lookup failed for session ${sessionId} (saving without it): ${(err as Error).message}`);
-    return null;
-  }
-}
+const logs = logger('stripe-webhook');
+const { log, fail } = logs;
 
 Deno.serve(async (req) => {
-  if (req.method !== 'POST') return reply(405, 'Method not allowed');
+  if (req.method !== 'POST') return reply(405, { message: 'Method not allowed' });
 
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
   if (!stripeKey || !webhookSecret) {
     fail(`missing secret: ${!stripeKey ? 'STRIPE_SECRET_KEY ' : ''}${!webhookSecret ? 'STRIPE_WEBHOOK_SECRET' : ''}`);
-    return reply(500, 'Server not configured');
+    return reply(500, { message: 'Server not configured' });
   }
 
-  const stripe = new Stripe(stripeKey, { httpClient: Stripe.createFetchHttpClient() });
+  const stripe = stripeClient(stripeKey);
 
   // The signature is checked against the exact text Stripe sent, so the body is read as text.
   const signature = req.headers.get('Stripe-Signature') ?? '';
@@ -58,65 +36,32 @@ Deno.serve(async (req) => {
     event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret, undefined, cryptoProvider);
   } catch (err) {
     fail(`signature check failed: ${(err as Error).message}`);
-    return reply(400, 'Bad signature');
+    return reply(400, { message: 'Bad signature' });
   }
 
   if (event.type !== 'checkout.session.completed') {
     log(`ignored ${event.type} (${event.id})`);
-    return reply(200, 'Ignored');
+    return reply(200, { message: 'Ignored' });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
   const where = `event ${event.id}, session ${session.id}`;
 
-  if (session.payment_status !== 'paid' && session.payment_status !== 'no_payment_required') {
+  if (!isPaid(session)) {
     log(`not paid (payment_status ${session.payment_status}), nothing saved: ${where}`);
-    return reply(200, 'Not paid');
+    return reply(200, { message: 'Not paid' });
   }
 
-  const email = session.customer_details?.email?.trim().toLowerCase();
+  const email = buyerEmail(session);
   if (!email) {
     fail(`no customer_details.email, nothing saved: ${where}`);
-    return reply(200, 'No email');
+    return reply(200, { message: 'No email' });
   }
 
-  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
-    auth: { persistSession: false },
-  });
-
-  // One row per buyer: a later purchase with the same email keeps the first one.
-  const { data: existing, error: findError } = await supabase
-    .from('paid_users')
-    .select('stripe_session_id')
-    .eq('email', email)
-    .maybeSingle();
-  if (findError) {
-    fail(`could not read paid_users (Stripe will retry): ${findError.message} | ${where}`);
-    return reply(500, 'Database error');
+  const outcome = await recordBuyer(stripe, adminClient(), session, email, where, logs);
+  if (outcome === 'failed') {
+    log(`Stripe will retry: ${where}`);
+    return reply(500, { message: 'Database error' });
   }
-  if (existing && existing.stripe_session_id !== session.id) {
-    log(`already a buyer (${email}, first session ${existing.stripe_session_id}), kept the first: ${where}`);
-    return reply(200, 'Already a buyer');
-  }
-
-  const customer = typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null;
-  const row = {
-    email,
-    stripe_session_id: session.id,
-    stripe_customer_id: customer,
-    amount_total: session.amount_total ?? 0,
-    currency: session.currency ?? '',
-    promo_code: await promoCode(stripe, session.id),
-    livemode: session.livemode,
-  };
-
-  // Keyed on the session, so the same event delivered twice updates the same row.
-  const { error: saveError } = await supabase.from('paid_users').upsert(row, { onConflict: 'stripe_session_id' });
-  if (saveError) {
-    fail(`could not save ${email} (Stripe will retry): ${saveError.message} | ${where}`);
-    return reply(500, 'Database error');
-  }
-
-  log(`saved ${email}, ${row.amount_total} ${row.currency}, promo ${row.promo_code ?? 'none'}: ${where}`);
-  return reply(200, 'Saved');
+  return reply(200, { message: outcome === 'saved' ? 'Saved' : 'Already a buyer' });
 });

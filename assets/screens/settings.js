@@ -85,7 +85,7 @@
       show('account', 'ACCOUNT', topButton('back', 'Back to settings', showList), card([
         runs ? { title: 'My past results', sub: runs === 1 ? 'Your finished run' : 'Your ' + runs + ' finished runs', action: () => { location.href = 'result.html?run=' + runs; } }
           : { title: 'My past results', sub: 'None yet' },
-        { title: 'Sign out', action: () => { location.href = '02-sign-in.html'; } }
+        { title: 'Sign out', action: () => { location.href = '02-sign-in.html?signout'; } }
       ]));
     }
     // Help: one question open at a time. Write to us and the email wait for a support address.

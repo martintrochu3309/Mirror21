@@ -5,6 +5,8 @@
 // A page's source holds only what is its own: everything after the head lines every page shares (charset,
 // viewport, Home Screen icon and tags). Inside a source:
 //   <!--@theme-color #000000-->   this page's browser-bar colour (default white)
+//   <!--@public-->                anyone may open it (Sign in, the Offer); every other page loads assets/core/auth.js
+//                                 first, which sends anyone not signed in to Sign in
 //   <!--#name key="value"-->      the shared block src/partials/name.html, with {{key}} filled in
 // Local scripts and stylesheets get the version stamp below, so every device fetches the new files after a change.
 // Step pages come from src/steps/stepNN/learn.html and act.html; each step's step.js (its title, video, examples,
@@ -12,7 +14,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
-const VERSION = '20261105-unlock';
+const VERSION = '20261106-signin';
 const src = (...parts) => path.join(root, 'src', ...parts);
 const read = file => fs.readFileSync(file, 'utf8');
 
@@ -56,8 +58,11 @@ function page(sourceFile) {
   let text = read(sourceFile).replace(/\r\n/g, '\n');
   let theme = '#ffffff';
   text = text.replace(/^<!--@theme-color (#[0-9a-f]{6})-->\n/i, (_, color) => { theme = color; return ''; });
+  let open = false;
+  text = text.replace(/^<!--@public-->\n/m, () => { open = true; return ''; });
   const relative = path.relative(root, sourceFile).split(path.sep).join('/');
   const head = COMMON.map(line => line.replace('{{theme}}', theme));
+  if (!open) head.push('<script src="../assets/core/auth.js"></script>');
   head.splice(3, 0, '<!-- Built from ' + relative + ' by tools/build.js: edit that file, then run node tools/build.js. -->');
   return stamp(head.join('\n') + '\n' + expand(text));
 }

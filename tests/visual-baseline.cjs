@@ -77,6 +77,7 @@ const finishedCourse=(next='again')=>course({done:21,finished:true,extra:s=>{s.r
 const S=[];
 const add=(name,url,local,opts={})=>S.push({name,url,local,...opts});
 // Opening pages and an empty course.
+add('start','00-start.html',{});
 add('sign-in','02-sign-in.html',{});
 add('offer','01-offer.html',{});
 add('map-fresh','04-map-start.html',{});
@@ -211,7 +212,9 @@ walk(document.documentElement,0);
 const styles=Array.from(document.querySelectorAll('link[rel=stylesheet]'),l=>new URL(l.href).pathname);
 const scripts=Array.from(document.querySelectorAll('script'),s=>s.src?new URL(s.src).pathname:'inline:'+s.textContent.length);
 return {page:location.pathname+location.search,title:document.title,styles,scripts,dom:out.join('\\n'),scroll:[scrollX,scrollY,...Array.from(document.querySelectorAll('.map-scroll,.mirror-scroll'),e=>e.scrollTop)]};})()`;
-const STORAGE=`(()=>{const dump=s=>Object.fromEntries(Array.from({length:s.length},(_,i)=>s.key(i)).sort().map(k=>[k,s.getItem(k)]));return {local:dump(localStorage),session:dump(sessionStorage)};})()`;
+// Every screen but the first page, Sign in and the Offer needs someone signed in (assets/core/auth.js); left out of the saved data.
+const SIGNED_IN=JSON.stringify({access_token:'test',refresh_token:'test',expires_at:4102444800,user:{email:'buyer@example.com'}});
+const STORAGE=`(()=>{const dump=s=>Object.fromEntries(Array.from({length:s.length},(_,i)=>s.key(i)).filter(k=>k!=='sb-mirror21-auth').sort().map(k=>[k,s.getItem(k)]));return {local:dump(localStorage),session:dump(sessionStorage)};})()`;
 // Stops every animation at a fixed point: running ones finished, endless ones at their start.
 const FREEZE=`(async()=>{for(const a of document.getAnimations()){try{const t=a.effect&&a.effect.getComputedTiming();if(t&&t.iterations===Infinity){a.pause();a.currentTime=0;}else a.finish();}catch{}}
  const s=document.createElement('style');s.id='__visual';s.textContent='*,*::before,*::after{caret-color:transparent!important}';document.head.append(s);
@@ -252,6 +255,7 @@ async function capture(dir,only){
  };
  const open=async(url,local,expected)=>{
   await command('Page.navigate',{url:base+'/__blank'});await wait(150);
+  if(!/^0[012]-/.test(url))local={'sb-mirror21-auth':SIGNED_IN,...local};
   await evaluate('localStorage.clear();sessionStorage.clear();'+Object.entries(local).map(([k,v])=>'localStorage.setItem('+JSON.stringify(k)+','+JSON.stringify(v)+');').join(''));
   await command('Page.navigate',{url:base+'/html/'+url.replace('.html','')});
   await settled(expected||url.split('?')[0]);

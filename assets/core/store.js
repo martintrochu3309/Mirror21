@@ -4,8 +4,9 @@
      learner keeps them on any phone. Today they are saved in this browser.
    - This device only: where the step bar stood, whether the Welcome was watched or left, which block summaries
      were opened, and one-time notes passed between pages (sessionStorage).
-   ready(fn) runs a screen once its saved data is available: straight away today; once accounts exist, after the
-   account's course has loaded. Needs MirrorProgress (progress.js) loaded first. */
+   ready(fn) runs a screen once its saved data is available: straight away today when someone is signed in (never
+   while auth.js is sending them to Sign in, so nothing is saved first); once the course is kept in Supabase, after
+   the account's course has loaded. Needs MirrorProgress (progress.js) loaded first. */
 (function (root) {
   const PREFIX = 'mirror21-';
   const COURSE = PREFIX + 'progress', RUNS = PREFIX + 'runs', REMINDER = PREFIX + 'reminder';
@@ -68,7 +69,7 @@
 
   const api = {
     course, device,
-    ready: fn => fn(),
+    ready: fn => { if (!root.MirrorAuth || root.MirrorAuth.signedIn()) fn(); },
     // Delete my data: everything Mirror 21 saved in this browser, settings included.
     deleteAll: () => forget(key => key.startsWith(PREFIX))
   };

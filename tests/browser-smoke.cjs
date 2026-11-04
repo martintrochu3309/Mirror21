@@ -32,6 +32,25 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   // What the unlock moment was doing when My Path was last ready (null: nothing to show).
   let lastUnlock=null;
   const errors=[];socket.addEventListener('message',event=>{const r=JSON.parse(event.data);if(r.method==='Runtime.exceptionThrown')errors.push(r.params.exceptionDetails);});
+  // Supabase, simulated (no real email is sent): buyer@example.com has an account, anyone else hasn't; the code is
+  // 123456; Stripe's session cs_test_paid was paid with buyer@example.com.
+  const SIGNED_IN={access_token:'test',token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+365*86400,refresh_token:'test',user:{id:'00000000-0000-4000-8000-000000000000',aud:'authenticated',role:'authenticated',email:'buyer@example.com'}};
+  const supabaseCalls=[];
+  const fakeSupabase=({method,url,postData})=>{
+   const {pathname,searchParams}=new URL(url),body=postData?JSON.parse(postData):{};
+   if(method==='OPTIONS')return [204,null];
+   if(pathname==='/auth/v1/otp')return body.email==='buyer@example.com'&&body.create_user===false?[200,{}]:[422,{code:422,error_code:'otp_disabled',msg:'Signups not allowed for otp'}];
+   if(pathname==='/auth/v1/verify')return body.token==='123456'&&body.type==='email'?[200,SIGNED_IN]:[403,{code:403,error_code:'otp_expired',msg:'Token has expired or is invalid'}];
+   if(pathname==='/auth/v1/logout')return [204,null];
+   if(pathname==='/functions/v1/checkout-email')return searchParams.get('session_id')==='cs_test_paid'?[200,{email:'buyer@example.com'}]:[404,{message:'Not paid'}];
+   return [404,{message:'Not simulated'}];
+  };
+  socket.addEventListener('message',event=>{const m=JSON.parse(event.data);if(m.method!=='Fetch.requestPaused')return;
+   const [status,body]=fakeSupabase(m.params.request);supabaseCalls.push(m.params.request.method+' '+new URL(m.params.request.url).pathname);
+   const headers=[['Content-Type','application/json'],['Access-Control-Allow-Origin','*'],['Access-Control-Allow-Methods','GET, POST, OPTIONS'],['Access-Control-Allow-Headers','apikey, authorization, content-type, x-client-info, x-supabase-api-version']].map(([name,value])=>({name,value}));
+   command('Fetch.fulfillRequest',{requestId:m.params.requestId,responseCode:status,responseHeaders:headers,body:Buffer.from(body?JSON.stringify(body):'').toString('base64')}).catch(()=>{});});
+  await command('Fetch.enable',{patterns:[{urlPattern:'https://xcabmwcfvzgavhsjsmxu.supabase.co/*'}]});
+  const screenNow=()=>evaluate('document.documentElement.dataset.screen');
   // On My Path the unlock moment may be waiting to play: a tap skips it, as a user in a hurry would.
   const ready=async expected=>{for(let i=0;i<100;i++){if(await evaluate('location.pathname.replace(/\\.html$/, "") === '+JSON.stringify('/html/'+expected.replace('.html',''))+' && document.documentElement?.dataset.mirrorReady === "true"')){await evaluate('document.fonts.ready.then(()=>true)');lastUnlock=await evaluate('(()=>{const u=document.documentElement.dataset.unlock;if(u==="waiting"||u==="playing")(document.body.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true})),document.body.dispatchEvent(new MouseEvent("click",{bubbles:true})));return u||null})()');await wait(700);return;}await wait(50);}throw Error('Page not ready: '+expected+' (at '+await evaluate('location.href')+') '+JSON.stringify(errors.map(e=>e.exception?.description||e.text)));};
   const go=async name=>{console.log('Opening '+name);await command('Page.navigate',{url:base+'/html/'+name.replace('.html','')});await ready(name.split('?')[0]);};
@@ -78,18 +97,72 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   for(const [label,width,height] of [['phone',390,844],['iPad',820,1180],['desktop',1440,900]]){
    const phone=label==='phone';
    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:phone?2:1,mobile:label!=='desktop'});
-   await command('Page.navigate',{url:base+'/'});await ready('02-sign-in.html');await evaluate('localStorage.clear()');
+   await command('Page.navigate',{url:base+'/'});await ready('00-start.html');await evaluate('localStorage.clear()');
    assert.equal(await evaluate('document.fonts.check("italic 700 22px Magistral")'),true);
    // Opens as a full-screen app from the Home Screen: manifest, Apple tags and icon on every page.
    const app=await evaluate('(async()=>{const m=document.querySelector("link[rel=manifest]"),i=document.querySelector("link[rel=apple-touch-icon]");const manifest=await (await fetch(m.href)).json();const icon=await fetch(i.href);return {display:manifest.display,name:manifest.name,capable:document.querySelector("meta[name=apple-mobile-web-app-capable]")?.content,bar:document.querySelector("meta[name=apple-mobile-web-app-status-bar-style]")?.content,title:document.querySelector("meta[name=apple-mobile-web-app-title]")?.content,icon:icon.ok}})()');
    assert.deepEqual(app,{display:'standalone',name:'Mirror 21',capable:'yes',bar:'default',title:'Mirror 21',icon:true});
-   // The app opens on Sign in (the Offer is hidden), MIRROR 21 at the top left. Blank fields still sign in › My Path.
-   assert.equal(await evaluate('document.querySelector(".wordmark").textContent'),'MIRROR 21');
-   assert.equal(await evaluate('document.querySelector("h1").textContent'),'SIGN IN.');
-   await click('[data-mode="email"]');
-   assert.deepEqual(await evaluate('[document.querySelector("[data-for=phone]").hidden,document.querySelector("[data-for=email]").hidden]'),[true,false]);
+   // The app opens on the first page (the Offer is hidden): MIRROR 21 in the middle, BUY MIRROR 21 (black) at the
+   // bottom, and Already bought? Sign in.
+   assert.equal(await text('.start .wordmark'),'MIRROR 21');
+   assert.equal(await evaluate('document.querySelector("#buy").href'),'https://buy.stripe.com/test_14A9AT4EIanw91b5cK8EM01');
+   assert.deepEqual(await evaluate('[document.querySelector("#buy").textContent,getComputedStyle(document.querySelector("#buy")).backgroundColor,getComputedStyle(document.querySelector("#buy")).color]'),['BUY MIRROR 21','rgb(17, 17, 17)','rgb(255, 255, 255)']);
+   const markBox=await evaluate('(()=>{const m=document.querySelector(".start .wordmark").getBoundingClientRect(),b=document.querySelector("#buy").getBoundingClientRect();return {middle:Math.abs((m.left+m.right)/2-innerWidth/2),buyBottom:innerHeight-b.bottom}})()');
+   assert.ok(markBox.middle<2&&markBox.buyBottom<40,'MIRROR 21 centred, the button at the bottom: '+JSON.stringify(markBox));
+   if(phone)await shot('start-mobile.png');
+   await click('.start .link');await ready('02-sign-in.html');
+   // Sign in: MIRROR 21 at the top left, the email first.
+   assert.equal(await screenNow(),'emailScreen');
+   assert.equal(await evaluate('document.querySelector("#emailScreen .wordmark").textContent'),'MIRROR 21');
+   assert.equal(await text('#emailScreen h1'),'SIGN IN NOW');
+   assert.equal(await text('#send'),'SEND MY CODE');
    if(phone)await shot('sign-in-mobile.png');
-   await click('.go');await ready('04-map-start.html');
+   // No one signed in: every course page sends you to Sign in, remembering where you were going, and saves nothing.
+   for(const [page,next] of [['04-map-start','04-map-start.html'],['step-watch?step=3','step-watch.html?step=3'],['18-my-mirror','18-my-mirror.html'],['final-check','final-check.html']]){
+    await command('Page.navigate',{url:base+'/html/'+page});await ready('02-sign-in.html');
+    assert.equal(await evaluate('new URLSearchParams(location.search).get("next")'),next);
+   }
+   assert.equal(await evaluate('localStorage.getItem("mirror21-progress")'),null,'Nothing is saved before signing in');
+   // Not an email: asked again, nothing sent.
+   supabaseCalls.length=0;
+   await click('#send');
+   assert.equal(await text('#emailMessage'),'Enter the email you used to buy Mirror 21.');
+   // An email with no purchase: no code is sent; the wordmark, big, and BUY MIRROR 21.
+   await typeInto('#email',' Nobody@Example.com ');await click('#send');
+   await until(async()=>await screenNow()==='noPurchase','No purchase');
+   assert.equal(await text('#unknownEmail'),'nobody@example.com');
+   assert.equal(await evaluate('document.querySelector("#buy").href'),'https://buy.stripe.com/test_14A9AT4EIanw91b5cK8EM01');
+   assert.deepEqual(await evaluate('[document.querySelector("#buy").textContent,getComputedStyle(document.querySelector("#buy")).backgroundColor]'),['BUY MIRROR 21','rgb(17, 17, 17)'],'The same black button as the first page');
+   if(phone)await shot('sign-in-no-purchase-mobile.png');
+   await click('#noPurchase [data-change-email]');
+   assert.deepEqual([await screenNow(),await evaluate('document.querySelector("#email").value')],['emailScreen','Nobody@Example.com'],'Wrong email? Change it keeps what was typed');
+   // After paying: Stripe's session fills in the email, so the buyer only taps SEND MY CODE.
+   await command('Page.navigate',{url:base+'/html/02-sign-in?session_id=cs_test_paid&next=18-my-mirror.html'});await ready('02-sign-in.html');
+   await until(async()=>await evaluate('document.querySelector("#email").value')==='buyer@example.com','the email from Stripe');
+   await click('#send');
+   await until(async()=>await screenNow()==='codeScreen','the code screen');
+   assert.equal(await text('#sentTo'),'buyer@example.com');
+   assert.match(await text('#resend'),/^Resend code in (1:00|0:5\d)$/);
+   assert.equal(await evaluate('document.querySelector("#resend").disabled'),true,'Resend waits a minute');
+   assert.equal(await evaluate('document.querySelectorAll("#code .digit").length'),6);
+   assert.equal(await evaluate('document.activeElement.id'),'codeInput');
+   await typeInto('#codeInput','48');
+   assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("#code .digit"),d=>d.textContent+(d.classList.contains("is-active")?"|":""))'),['4','8','|','','','']);
+   if(phone)await shot('sign-in-code-mobile.png');
+   // A wrong code: cleared, with a message; the boxes stay.
+   await typeInto('#codeInput','111111');
+   await until(async()=>!(await evaluate('document.querySelector("#codeMessage").hidden')),'the wrong-code message');
+   assert.equal(await text('#codeMessage'),'That code isn’t right. Check it and try again.');
+   assert.equal(await evaluate('document.querySelector("#codeInput").value'),'');
+   // Pasting the whole code (letters and spaces dropped) signs in by itself and opens the page you were going to.
+   await typeInto('#codeInput','123 456');await ready('18-my-mirror.html');
+   assert.equal(await evaluate('MirrorAuth.signedIn()'),true);
+   assert.deepEqual(supabaseCalls.filter(c=>!c.startsWith('OPTIONS')),['POST /auth/v1/otp','GET /functions/v1/checkout-email','POST /auth/v1/otp','POST /auth/v1/verify','POST /auth/v1/verify']);
+   // Signed in on this device: the app opens on My Path, and the first page and Sign in go straight on.
+   await command('Page.navigate',{url:base+'/'});await ready('04-map-start.html');
+   for(const page of ['00-start','02-sign-in']){await command('Page.navigate',{url:base+'/html/'+page});await ready('04-map-start.html');}
+   // The rest of the test stays signed in, even when it clears storage.
+   const keepSignedIn=(await command('Page.addScriptToEvaluateOnNewDocument',{source:'try{localStorage.getItem("sb-mirror21-auth")||localStorage.setItem("sb-mirror21-auth",'+JSON.stringify(JSON.stringify(SIGNED_IN))+')}catch{}'})).identifier;
    await evaluate('localStorage.clear()');
 
    // Step 00 · Welcome: watch-only, no bar, never starts an attempt.
@@ -1352,7 +1425,18 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    await command('Page.navigate',{url:base+'/html/restart-session'});await ready('step-watch.html');
    assert.equal(await evaluate('localStorage.getItem("mirror21-progress")'),null);
    await go('04-map-start.html');assert.equal(await evaluate('document.querySelector(".progress-step.current").textContent'),'01');
-   console.log(label+': Welcome, Watch, Learn, Act, commit, Step 02 unlock, check-in colour and restart passed');
+   // Settings › Account › Sign out: this device is signed out and back on Sign in; its course stays.
+   await command('Page.removeScriptToEvaluateOnNewDocument',{identifier:keepSignedIn});
+   const course=await evaluate('localStorage.getItem("mirror21-progress")');
+   await click('.settings-gear');await wait(400);
+   await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Account")).click()');await wait(350);
+   await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Sign out")).click()');await ready('02-sign-in.html');
+   await until(async()=>!(await evaluate('MirrorAuth.signedIn()')),'signing out');
+   assert.deepEqual([await screenNow(),await evaluate('location.search')],['emailScreen',''],'Sign in, with ?signout dropped from the address');
+   assert.equal(await evaluate('localStorage.getItem("mirror21-progress")'),course,'Signing out keeps this phone’s course');
+   await command('Page.navigate',{url:base+'/html/04-map-start'});await ready('02-sign-in.html');
+   await evaluate('localStorage.clear()');
+   console.log(label+': Sign in, Welcome, Watch, Learn, Act, commit, Step 02 unlock, check-in colour, restart and sign out passed');
   }
   assert.equal(errors.length,0,JSON.stringify(errors));
  }finally{socket?.close();browser.kill();server.closeAllConnections();server.close();}

@@ -5,3 +5,7 @@ project_id = "Mirror21"
 # It checks Stripe's signature instead. Kept here so a redeploy never turns JWT back on.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Called by the sign-in page right after payment, before anyone is signed in.
+[functions.checkout-email]
+verify_jwt = false

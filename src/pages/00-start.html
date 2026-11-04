@@ -1,0 +1,38 @@
+<title>Mirror 21</title>
+<!--@public-->
+<!-- The first page for anyone not signed in: MIRROR 21, BUY MIRROR 21 (the Stripe Payment Link: after paying, Stripe
+     sends buyers to Sign in) and, for buyers, Already bought? Sign in. Signed in, it goes straight to My Path. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<style>
+html, body { margin: 0; background: var(--bg); }
+body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+.start { display: flex; flex-direction: column; align-items: center; max-width: var(--column); min-height: 100vh; min-height: 100svh; margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)); text-align: center; }
+.mark { display: flex; flex: 1; align-items: center; justify-content: center; }
+.wordmark { display: flex; margin: 0; font: italic 700 46px/1 var(--font-display); letter-spacing: .06em; white-space: nowrap; }
+.wordmark span { margin-left: .3em; color: var(--gold); }
+.foot { width: 100%; padding-top: 32px; }
+.link { display: inline-block; margin-bottom: 22px; color: var(--ink); font: 700 13px/1.3 var(--font-body); text-decoration: underline; text-underline-offset: 3px; }
+.buy { display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border-radius: 29px; background: var(--ink);
+  color: #fff; font: 700 12px/1 var(--font-body); letter-spacing: .24em; text-decoration: none; }
+.buy:active { transform: translateY(1px); }
+:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main class="start">
+  <div class="mark"><h1 class="wordmark">MIRROR <span>21</span></h1></div>
+  <div class="foot">
+    <a class="link" href="02-sign-in.html">Already bought? Sign in</a>
+    <a class="buy" id="buy" href="02-sign-in.html">BUY MIRROR 21</a>
+  </div>
+</main>
+<script src="../assets/core/auth.js" data-gate="off"></script>
+<script>
+  if (MirrorAuth.signedIn()) location.replace(MirrorAuth.home);
+  document.getElementById('buy').href = MirrorAuth.paymentLink;
+  document.documentElement.dataset.mirrorReady = 'true';
+</script>
+</body>
+</html>

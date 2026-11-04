@@ -1,96 +1,120 @@
 <title>Mirror 21 · Sign in</title>
-<!-- Preview only: between the Offer and My Path. Nothing is checked, saved or sent; SIGN IN always opens My Path. -->
+<!--@public-->
+<!-- Sign in with a 6-digit code emailed by Supabase: email → code → My Path, or "no purchase" with BUY MIRROR 21.
+     Behaviour lives in ../assets/screens/sign-in.js. -->
 <link rel="stylesheet" href="../assets/step/tokens.css">
 <style>
 html, body { margin: 0; background: var(--bg); }
 body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 .signin { display: flex; flex-direction: column; max-width: var(--column); min-height: 100vh; min-height: 100svh; margin: 0 auto;
   padding: max(16px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)); }
+.screen { display: flex; flex: 1; flex-direction: column; }
 .wordmark { display: flex; align-items: center; height: 44px; margin: 0; font: italic 700 22px/1 var(--font-display); letter-spacing: .06em; white-space: nowrap; }
 .wordmark span { margin-left: .3em; color: var(--gold); }
 h1 { margin: 26px 0 0; font: italic 700 34px/1 var(--font-display); letter-spacing: -.035em; }
 .lede { margin: 12px 0 0; font-size: 17px; font-weight: 300; line-height: 1.4; color: var(--muted); }
-/* Email / Phone */
-.switch { display: flex; margin-top: 30px; padding: 4px; border-radius: 26px; background: #f2f2ef; }
-.switch button { flex: 1; height: 42px; border: 0; border-radius: 21px; background: none; color: #8a8a86; font: 700 11px/1 var(--font-body); letter-spacing: .2em; cursor: pointer; }
-.switch button[aria-pressed="true"] { background: var(--gold-gradient); color: var(--on-gold); }
-.field { margin-top: 26px; }
-.field + .field { margin-top: 22px; }
-label, .label { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 700; letter-spacing: .2em; color: #4a4a48; }
-input { width: 100%; height: 58px; padding: 0 18px; border: 1px solid #ebebe7; border-radius: var(--radius-box); background: #f5f5f2;
+.lede strong { font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.field { margin-top: 30px; }
+label { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 700; letter-spacing: .2em; color: #4a4a48; }
+.field input { width: 100%; height: 58px; padding: 0 18px; border: 1px solid #ebebe7; border-radius: var(--radius-box); background: #f5f5f2;
   color: var(--ink); font: 500 17px/1 var(--font-body); outline: none; -webkit-appearance: none; appearance: none; }
-input::placeholder { color: #a3a3a0; }
-input:focus { border-color: var(--gold); background: #fffdf6; box-shadow: 0 0 0 3px rgba(224, 184, 76, .16); }
-.phone { display: flex; gap: 10px; }
-.country { flex: none; display: flex; align-items: center; gap: 6px; height: 58px; padding: 0 18px; border: 1px solid #ebebe7; border-radius: var(--radius-box); background: #f5f5f2; font-size: 17px; font-weight: 500; }
+.field input::placeholder { color: #a3a3a0; }
+.field input:focus { border-color: var(--gold); background: #fffdf6; box-shadow: 0 0 0 3px rgba(224, 184, 76, .16); }
 .note { display: flex; gap: 12px; margin: 22px 0 0; font-size: 14px; font-weight: 300; line-height: 1.45; color: var(--muted); }
 .note svg { flex: none; margin-top: 1px; }
-[hidden] { display: none !important; }
+.message { margin: 16px 0 0; font-size: 14px; font-weight: 500; line-height: 1.4; color: #b3261e; }
+.message.is-info { color: var(--muted); font-weight: 300; }
 .foot { margin-top: auto; padding-top: 32px; }
-.go { width: 100%; height: 58px; border: 0; border-radius: 29px; background: var(--gold-gradient); color: var(--on-gold); font: 700 12px/1 var(--font-body); letter-spacing: .24em; cursor: pointer; }
+.go { display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border: 0; border-radius: 29px; background: var(--gold-gradient);
+  color: var(--on-gold); font: 700 12px/1 var(--font-body); letter-spacing: .24em; text-decoration: none; cursor: pointer; }
 .go:active { transform: translateY(1px); }
+.go:disabled { cursor: default; opacity: .6; }
+.go.buy { background: var(--ink); color: #fff; }
 .terms { margin: 14px 0 0; font-size: 11.5px; font-weight: 300; text-align: center; color: #8a8a86; }
 .terms span { color: var(--muted); }
+/* The code: one real field over six boxes, so typing, pasting and the keyboard's code suggestion all work. */
+.code { position: relative; display: flex; gap: 10px; margin-top: 30px; }
+.code input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0;
+  font-size: 16px; caret-color: transparent; cursor: text; }
+.digit { display: flex; flex: 1; align-items: center; justify-content: center; max-width: 52px; height: 56px; border: 1px solid #ebebe7; border-radius: 12px;
+  background: #f5f5f2; font: 700 20px/1 var(--font-body); }
+.digit.is-active { border: 2px solid var(--ink); background: var(--bg); }
+.code.is-wrong .digit { border-color: #b3261e; }
+.code.is-busy { opacity: .55; }
+.small { margin: 18px 0 0; }
+.small + .small { margin-top: 26px; }
+.link { padding: 0; border: 0; background: none; color: var(--ink); font: 700 13px/1.3 var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.link:disabled { color: #6b6b68; text-decoration: none; cursor: default; }
+.spam { margin-top: auto; padding-top: 32px; font-size: 12.5px; }
+/* No purchase: the wordmark alone, big, in the middle. */
+.nobuy { align-items: center; text-align: center; }
+.nobuy-mark { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; }
+.nobuy-mark .wordmark { height: auto; font-size: 46px; }
+.nobuy-text { margin: 20px 0 0; font-size: 15px; font-weight: 300; line-height: 1.45; color: var(--muted); }
+.nobuy-text strong { font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.nobuy .foot { width: 100%; }
+.nobuy .link { margin-bottom: 22px; }
 :focus-visible { outline: 2px solid var(--gold-text); outline-offset: 3px; }
-input:focus-visible { outline: none; }
+.field input:focus-visible, .code input:focus-visible { outline: none; }
 </style>
 </head>
 <body>
-<form class="signin" id="signin" novalidate>
-  <!-- Sign in is the first page while the Offer is hidden: the wordmark takes the back arrow's place. -->
-  <p class="wordmark">MIRROR <span>21</span></p>
-
-  <h1>SIGN IN.</h1>
-  <p class="lede">So your steps and journal are saved, on any phone.</p>
-
-  <div class="switch" role="group" aria-label="Sign in with">
-    <button type="button" data-mode="email" aria-pressed="false">EMAIL</button>
-    <button type="button" data-mode="phone" aria-pressed="true">PHONE</button>
-  </div>
-
-  <div class="field">
-    <label for="name">FIRST NAME</label>
-    <input id="name" type="text" autocomplete="given-name" autocapitalize="words" placeholder="Your first name">
-  </div>
-
-  <div class="field" data-for="phone">
-    <span class="label" id="phoneLabel">MOBILE NUMBER</span>
-    <div class="phone">
-      <span class="country" aria-label="United States, +1"><span aria-hidden="true">🇺🇸</span> +1</span>
-      <input id="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(941) 555 0123" aria-labelledby="phoneLabel">
+<main class="signin">
+  <!-- 1 · Email. After paying, Stripe sends buyers here with their email filled in. -->
+  <form class="screen" id="emailScreen" novalidate>
+    <!-- Sign in is the first page while the Offer is hidden: the wordmark takes the back arrow's place. -->
+    <p class="wordmark">MIRROR <span>21</span></p>
+    <h1>SIGN IN NOW</h1>
+    <p class="lede">Enter the email you used to buy Mirror 21.</p>
+    <div class="field">
+      <label for="email">EMAIL</label>
+      <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com">
     </div>
-  </div>
+    <p class="note">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#f6efdc"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#896a00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>No password. We’ll email you a 6-digit code.</span>
+    </p>
+    <p class="message" id="emailMessage" role="alert" hidden></p>
+    <div class="foot">
+      <button class="go" type="submit" id="send">SEND MY CODE</button>
+      <p class="terms">By continuing you agree to the <span>Terms</span> and <span>Privacy policy</span>.</p>
+    </div>
+  </form>
 
-  <div class="field" data-for="email" hidden>
-    <label for="email">EMAIL</label>
-    <input id="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" placeholder="you@example.com">
-  </div>
+  <!-- 2 · The code. It signs in by itself on the sixth digit. -->
+  <form class="screen" id="codeScreen" novalidate hidden>
+    <p class="wordmark">MIRROR <span>21</span></p>
+    <h1>SIGN IN NOW</h1>
+    <p class="lede">We sent a 6-digit code to <strong id="sentTo"></strong>. Enter it to start.</p>
+    <div class="code" id="code">
+      <input id="codeInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" aria-label="6-digit code">
+      <span class="digit" aria-hidden="true"></span><span class="digit" aria-hidden="true"></span><span class="digit" aria-hidden="true"></span><span class="digit" aria-hidden="true"></span><span class="digit" aria-hidden="true"></span><span class="digit" aria-hidden="true"></span>
+    </div>
+    <p class="message" id="codeMessage" role="alert" hidden></p>
+    <p class="small"><button class="link" type="button" id="resend" disabled>Resend code in 1:00</button></p>
+    <p class="small"><button class="link" type="button" data-change-email>Wrong email? Change it</button></p>
+    <p class="note spam">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="2" y="4" width="14" height="10" rx="1.5" fill="none" stroke="#646461" stroke-width="1.4"/><path d="M2.6 4.8L9 9.6l6.4-4.8" fill="none" stroke="#646461" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <span>Can’t find it? Check your spam folder. It comes from Mirror 21 (noreply@mirror21.app).</span>
+    </p>
+  </form>
 
-  <p class="note">
-    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#f6efdc"/><path d="M6 10.4l2.6 2.6L14 7.6" fill="none" stroke="#896a00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span id="noteText">No password. We’ll text you a 6-digit code each time you sign in.</span>
-  </p>
-
-  <div class="foot">
-    <button class="go" type="submit">SIGN IN</button>
-    <p class="terms">By continuing you agree to the <span>Terms</span> and <span>Privacy policy</span>.</p>
-  </div>
-</form>
-<script>
-(() => {
-  // Email / Phone swaps the second field and the note's wording.
-  const notes = { phone: 'No password. We’ll text you a 6-digit code each time you sign in.', email: 'No password. We’ll email you a 6-digit code each time you sign in.' };
-  document.querySelectorAll('.switch button').forEach(button => button.addEventListener('click', () => {
-    const mode = button.dataset.mode;
-    document.querySelectorAll('.switch button').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
-    document.querySelectorAll('[data-for]').forEach(field => { field.hidden = field.dataset.for !== mode; });
-    document.getElementById('noteText').textContent = notes[mode];
-  }));
-  // Preview: any input, even none, signs in.
-  document.getElementById('signin').addEventListener('submit', event => { event.preventDefault(); location.href = '04-map-start.html'; });
-  document.documentElement.dataset.mirrorReady = 'true';
-})();
-</script>
+  <!-- 3 · No account for this email: no code was sent. -->
+  <section class="screen nobuy" id="noPurchase" hidden>
+    <div class="nobuy-mark">
+      <p class="wordmark">MIRROR <span>21</span></p>
+      <p class="nobuy-text">We couldn’t find a purchase for <strong id="unknownEmail"></strong>.</p>
+    </div>
+    <div class="foot">
+      <button class="link" type="button" data-change-email>Wrong email? Change it</button>
+      <a class="go buy" id="buy" href="#">BUY MIRROR 21</a>
+    </div>
+  </section>
+</main>
+<script src="../assets/core/auth.js" data-gate="off"></script>
+<script src="../assets/vendor/supabase.js"></script>
+<script src="../assets/screens/sign-in.js"></script>
 </body>
 </html>
