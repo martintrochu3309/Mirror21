@@ -4,19 +4,21 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const model = require('../assets/progress.js');
 const script = fs.readFileSync(require.resolve('../assets/prototype.js'), 'utf8');
+const store = fs.readFileSync(require.resolve('../assets/core/store.js'), 'utf8');
 function open(stored, hash = '') {
   const storage = new Map(stored ? [['mirror21-progress', JSON.stringify(stored)]] : []);
   const events = {};
   let replaced;
-  const context = {
+  const context = vm.createContext({
     MirrorProgress: model, URL, URLSearchParams, Date,
     location: { pathname: '/html/00-landing.html', search: '', hash, href: 'file:///preview/html/00-landing.html'+hash, protocol: 'file:' },
     localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
     history: { replaceState: (_state, _title, url) => { replaced = url; } },
     document: { querySelector: () => null, querySelectorAll: () => [], addEventListener: (name, fn) => { (events[name] ||= []).push(fn); } },
-    window: { addEventListener() {} }, setInterval() {}
-  };
-  vm.runInNewContext(script, context);
+    window: { addEventListener() {} }, addEventListener() {}, setInterval() {}
+  });
+  vm.runInContext(store, context);
+  vm.runInContext(script, context);
   return { storage, events, replaced };
 }
 test('a shared progress URL starts fresh on a new device', () => {

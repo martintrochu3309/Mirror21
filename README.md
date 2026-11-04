@@ -110,6 +110,17 @@ Opening `step-learn` or `step-act` for Steps 02 and 03 (or their pages for any o
 
 Progress lives in this browser's local storage under `mirror21-progress`: per step, `steps[N]` (screen, watched, scroll, Act stage, `checkedIn`, `committedAt`), `responses[N]` (HERE, THERE, STEP, and the optional check-in NOTE), `lessons[N]` (committed) and `answers[N]` (check-in on that step). A new browser or device starts at Step 01. Shared URL fragments never import progress.
 
+## Saved data (`assets/core/store.js`)
+
+Every read and write of saved data goes through `MirrorStore`: no screen touches `localStorage` or `sessionStorage` itself. It keeps two kinds apart, because they will live in different places once accounts exist:
+
+| Kind | What | Today | With accounts |
+|---|---|---|---|
+| `MirrorStore.course` | the course (`mirror21-progress`), finished runs (`mirror21-runs`), the reminder time (`mirror21-reminder`) | this browser | the learner's account (Supabase), on any phone |
+| `MirrorStore.device` | where the step bar stood (`mirror21-bar-N`), Welcome watched or left (`mirror21-watched-0`, `mirror21-seen-0`), block summaries opened (`mirror21-block-N`), the one-time arrival note for Watch (`mirror21-intro`, session) | this browser | still this browser |
+
+Each screen starts with `MirrorStore.ready(…)`, which runs it once the saved course is available: straight away today, and after the account's course has loaded once Supabase is connected. `course.load()` always gives a safe course (a fresh one when nothing valid is saved), `course.save(state)` stamps the time, `course.clear()` is Start over (and a new run), `deleteAll()` is Delete my data, and `course.onChange(fn)` reports a save from another tab. The keys and format are unchanged, so saved progress keeps working. The one exception to "only through the store" is the tiny script in `step-watch.html`'s head, which reads the arrival note before the first paint.
+
 ## Rules to keep
 
 - **Gold on white:** use `--gold` for fills and `--gold-text` / `--gold-ink` (#896a00) for gold text. Plain `#e0b84c` text on white is unreadable.

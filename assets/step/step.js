@@ -1,19 +1,15 @@
 /* Mirror 21 · Step screens (Watch → Learn → Act). Behaviour follows the Step 01 and Step 02 design handoffs;
-   answers and progress live in the shared mirror21-progress store, one record per step. */
-(() => {
-  const model = MirrorProgress, steps = MirrorSteps;
+   answers and progress live in the saved course (MirrorStore), one record per step. */
+MirrorStore.ready(() => {
+  const model = MirrorProgress, steps = MirrorSteps, store = MirrorStore;
   const screenName = document.body.dataset.screen;
-  const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
-  const write = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
   const map = '04-map-start.html';
   const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   // One-time note from the map's step card (the step number) or the check-in ('light:' + step): Watch
   // plays its arrival sequence, from black or from white. Used up on any step page.
-  let arrival = null;
-  try { arrival = sessionStorage.getItem('mirror21-intro'); sessionStorage.removeItem('mirror21-intro'); } catch {}
+  const arrival = store.device.takeArrival();
 
-  let raw; try { raw = JSON.parse(read('mirror21-progress')); } catch {}
-  const state = model.normalize(raw);
+  const state = store.course.load();
   const stats = model.stats(state);
   const param = new URLSearchParams(location.search).get('step');
   const asked = param === null || param === '' ? NaN : Number(param);
@@ -30,7 +26,7 @@
   if (screenName === 'checkin' && step < 2) { location.replace(href('watch')); return; }
   if (screenName !== 'checkin' && !welcome && model.needsCheckIn(state, step)) { location.replace(href('checkin')); return; }
 
-  const save = () => { if (welcome) return; state.updatedAt = Date.now(); write('mirror21-progress', JSON.stringify(state)); };
+  const save = () => { if (welcome) return; store.course.save(state); };
   const pad = steps.pad;
   const record = welcome ? null : (state.steps[step] ||= { screen: step >= 2 ? 'checkin' : 'watch', reached: 0, watch: 0, watched: false, learn: 0, stage: 0, notSure: false, checkedIn: false });
   // Revisiting a finished check-in doesn't move where CONTINUE resumes.
@@ -47,7 +43,6 @@
   // Step bar: Watch · Learn · Act, with Check in first from Step 02. Each part fills gold as it is done.
   // Labels under it: gold once that part is done, black (white on Watch) for this screen, grey to come.
   const bar = document.getElementById('stepBar');
-  const barKey = 'mirror21-bar-' + step;
   const names = step >= 2 ? ['checkin', 'watch', 'learn', 'act'] : ['watch', 'learn', 'act'];
   const parts = names.map(name => {
     const part = bar.appendChild(document.createElement('div'));
@@ -71,14 +66,14 @@
     bar.setAttribute('aria-valuenow', String(pct));
     bar.setAttribute('aria-valuetext', pct + ' percent complete');
     draw(values);
-    write(barKey, JSON.stringify(values));
+    store.device.saveBarPosition(step, values);
   }
   const refreshBar = () => { if (!welcome) paint(model.segments(state, step)); };
   if (welcome) bar.hidden = true;
   else {
     // Start from where the bar was on the previous screen, then advance.
     const values = model.segments(state, step);
-    let previous; try { previous = JSON.parse(read(barKey)); } catch {}
+    const previous = store.device.barPosition(step);
     bar.classList.add('is-instant');
     draw(values.map((value, i) => Math.min(Array.isArray(previous) && Number.isFinite(previous[i]) ? previous[i] : 0, value)));
     void bar.offsetWidth;
@@ -162,13 +157,12 @@
     // Without a video, playback is simulated for this long and shows VIDEO COMING SOON.
     const DEMO_SECONDS = 8;
     const fake = !media.video;
-    const watchedKey = 'mirror21-watched-0';
     const sep = '  ·  ';
     const clock = seconds => Math.floor(seconds / 60) + ':' + String(Math.floor(seconds % 60)).padStart(2, '0');
     const [mins, secs] = media.duration.split(':').map(Number);
     // Length shown before the file loads; the file's own length replaces it.
     let total = mins * 60 + secs || 0;
-    let watched = welcome ? read(watchedKey) === 'true' : committed || record.watched;
+    let watched = welcome ? store.device.welcomeWatched() : committed || record.watched;
     // Where playback stands, as a share of the video; an unfinished first watch resumes from here.
     let at = watched || welcome ? 0 : record.watch;
     let current, immerse, raf, t0 = 0, lastSaved = 0, savedWatch = at, arriving = false;
@@ -202,7 +196,7 @@
     }
     function markWatched() {
       watched = true; screen.classList.add('is-watched');
-      if (welcome) write(watchedKey, 'true');
+      if (welcome) store.device.markWelcomeWatched();
       else if (!committed) { record.watched = true; record.watch = 1; save(); }
     }
     const scrub = document.getElementById('scrub'), knob = document.getElementById('knob');
@@ -306,7 +300,7 @@
     if (welcome) {
       next.href = map;
       // Leaving Welcome with its button counts as done: the map's START moves on to Step 01.
-      next.addEventListener('click', () => write('mirror21-seen-0', 'true'));
+      next.addEventListener('click', () => store.device.markWelcomeSeen());
     }
     else next.href = href('learn');
     // Dark to white: a quick fade into the next screen rather than a hard cut.
@@ -412,7 +406,7 @@
     next.addEventListener('click', event => {
       if (leaving) { event.preventDefault(); return; }
       leaving = true;
-      try { sessionStorage.setItem('mirror21-intro', 'light:' + step); } catch {}
+      store.device.setArrival('light:' + step);
       if (reduceMotion()) return;
       event.preventDefault(); document.querySelector('.screen').classList.add('is-leaving');
       setTimeout(() => { location.href = next.href; }, 200);
@@ -947,4 +941,4 @@
     holdToCommit(hold, $('holdFill'), () => go(DONE));
     render(false);
   }
-})();
+});

@@ -2,17 +2,13 @@
    promise word for word. Opens only once the block's last step is committed; otherwise back to My Path.
    Opening it marks the block seen, so its map tile turns from black to white. Block 3 ends the course: it opens
    after the final check (finishedAt), and its one button, SEE MY RESULTS, leads to the result page. */
-(() => {
-  const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
-  const write = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
-  let raw;
-  try { raw = JSON.parse(read('mirror21-progress')); } catch {}
-  const state = MirrorProgress.normalize(raw);
+MirrorStore.ready(() => {
+  const state = MirrorStore.course.load();
   const n = Number(new URLSearchParams(location.search).get('block'));
   const info = MirrorSteps.block(n);
   const last = n === 3;
   if (!info || !info.ready || !state.lessons[info.last] || (last && !state.finishedAt)) { location.replace(last && state.lessons[21] ? 'final-check.html' : '04-map-start.html'); return; }
-  write('mirror21-block-' + n, 'true');
+  MirrorStore.device.markBlockSeen(n);
 
   const pad = step => String(step).padStart(2, '0');
   const el = (tag, className, text) => { const node = document.createElement(tag); node.className = className; if (text != null) node.textContent = text; return node; };
@@ -49,4 +45,4 @@
     button.firstChild.textContent = 'SEE MY RESULTS ';
   }
   document.documentElement.dataset.mirrorReady = 'true';
-})();
+});

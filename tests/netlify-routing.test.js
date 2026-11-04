@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const source=fs.readFileSync(require.resolve('../assets/prototype.js'),'utf8');
-const setup=source.slice(source.indexOf('  // Netlify Pretty URLs'),source.indexOf('  const model = MirrorProgress;'));
+const setup=source.slice(source.indexOf('  // Netlify Pretty URLs'),source.indexOf('  const model = MirrorProgress'));
 function route(pathname,hrefs=[]){
  const links=hrefs.map(href=>({href,getAttribute(){return this.href;},setAttribute(_key,value){this.href=value;}}));
  const context={URL,location:{pathname,origin:'https://mirror21.netlify.app',href:'https://mirror21.netlify.app'+pathname},document:{querySelectorAll:()=>links}};

@@ -1,21 +1,17 @@
 /* The end of the course. The final check (html/final-check.html) is the evening check on Step 21's promise: Step 21
    has no next step to hold it. The answer can change until SEE YOUR RESULT, which locks it (finishedAt) and opens
    the Block 3 summary; its SEE MY RESULTS leads here.
-   The result page (html/result.html) opens only after that; result.html?run=N shows an earlier run, kept in
-   mirror21-runs when the learner starts a new one. */
-(() => {
-  const model = MirrorProgress, steps = MirrorSteps;
-  const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
-  const write = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
+   The result page (html/result.html) opens only after that; result.html?run=N shows an earlier run, kept with
+   the course's finished runs when the learner starts a new one. */
+MirrorStore.ready(() => {
+  const model = MirrorProgress, steps = MirrorSteps, store = MirrorStore;
   const map = '04-map-start.html';
   const $ = id => document.getElementById(id);
   const el = (tag, className, text) => { const node = document.createElement(tag); node.className = className; if (text != null) node.textContent = text; return node; };
-  let raw; try { raw = JSON.parse(read('mirror21-progress')); } catch {}
-  const state = model.normalize(raw);
-  const save = () => { state.updatedAt = Date.now(); write('mirror21-progress', JSON.stringify(state)); };
+  const state = store.course.load();
+  const save = () => store.course.save(state);
   // Finished runs, oldest first: { endedAt, progress }.
-  let runs; try { runs = JSON.parse(read('mirror21-runs')); } catch {}
-  if (!Array.isArray(runs)) runs = [];
+  const runs = store.course.runs();
 
   if (document.body.dataset.page === 'final-check') finalCheck(); else result();
 
@@ -97,18 +93,15 @@
     // WHAT'S NEXT and MY NEXT ACTION, as chosen in Step 21.
     $('nextChoice').textContent = { keep: 'Keep working on this change.', again: 'Run the steps again.', new: 'Use the method on something new.' }[r21.NEXT] || '';
     $('nextAction').textContent = sentence('Today, I’ll', r21.ACTION);
-    // Running the steps again starts a new run; this one is kept, with its result, in mirror21-runs.
+    // Running the steps again starts a new run; this one is kept, with its result, in the finished runs.
     const newRun = $('newRun');
     newRun.hidden = Boolean(run) || r21.NEXT !== 'again';
     newRun.addEventListener('click', () => {
       if (!confirm('Start a new run? This run and its result are kept, and you start again at Step 01.')) return;
       runs.push({ endedAt: Date.now(), progress: state });
-      write('mirror21-runs', JSON.stringify(runs));
-      // The same keys Start over clears: the course, bar and video positions, which blocks were seen.
-      const matches = key => key === 'mirror21-progress' || /^mirror21-(audio|bar|watched|seen|block)-\d+$/.test(key) || /^mirror21-scroll-\d+-\d+$/.test(key);
-      for (const storage of [localStorage, sessionStorage]) {
-        try { Array.from({ length: storage.length }, (_, i) => storage.key(i)).filter(matches).forEach(key => storage.removeItem(key)); } catch {}
-      }
+      store.course.saveRuns(runs);
+      // What Start over clears: the course, bar and video positions, which blocks were seen.
+      store.course.clear();
       location.href = map;
     });
     // Earlier runs, each with its date and score; the current one too once it is finished.
@@ -127,4 +120,4 @@
     }
     document.documentElement.dataset.mirrorReady = 'true';
   }
-})();
+});

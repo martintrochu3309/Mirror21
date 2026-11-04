@@ -1,5 +1,5 @@
 /* One progress state drives My Path, all map variants, My Mirror and My Journey. */
-(() => {
+MirrorStore.ready(() => {
   // Netlify Pretty URLs remove .html from paths and exported anchor hrefs.
   function pageFilename(pathname) {
     const segment = pathname.split('/').filter(Boolean).pop() || '';
@@ -18,26 +18,22 @@
     if (url.origin !== location.origin || !pages.has(name)) return;
     link.setAttribute('href', name + url.search + url.hash);
   });
-  const model = MirrorProgress;
-  const read = key => { try { return localStorage.getItem(key); } catch { return null; } };
-  const write = (key,value) => { try { localStorage.setItem(key,value); } catch {} };
+  const model = MirrorProgress, store = MirrorStore;
   // Progress belongs to this browser. Shared links must never import another device's attempt.
-  let raw;
-  try { raw = JSON.parse(read('mirror21-progress')); } catch {}
-  const state = model.normalize(raw);
+  const state = store.course.load();
   const fragment = new URLSearchParams(location.hash.slice(1));
   if (fragment.has('progress')) {
     fragment.delete('progress');
     history.replaceState(null, '', location.pathname + location.search + (fragment.size ? '#'+fragment : ''));
   }
-  const save = () => { state.updatedAt = Date.now(); write('mirror21-progress', JSON.stringify(state)); };
+  const save = () => store.course.save(state);
   const summary = () => model.stats(state);
   const pad = day => String(day).padStart(2,'0');
   const labels = {yes:'Yes, I did it',partly:'Partly',no:'No'};
   const weekThemes = ['SEE IT','OWN IT','CHANGE IT'];
   const stepsToGo = stats => stats.stepsToGo === 0 ? 'All 21 steps done' : stats.stepsToGo === 1 ? '1 step to go' : stats.stepsToGo+' steps to go';
   const currentMap = '04-map-start.html';
-  if(!raw || raw.version !== 1) save();
+  if(!store.course.exists()) save();
   function setActionLabel(link, label) {
     const text = document.createElement('span');
     text.className = 'action-label';
@@ -129,7 +125,7 @@
   function expandIntoWatch(card, href, dayNumber) {
     if (leaving) return;
     leaving = true;
-    try { sessionStorage.setItem('mirror21-intro', String(dayNumber)); } catch {}
+    store.device.setArrival(String(dayNumber));
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.href = href; return; }
     const box = card.getBoundingClientRect();
     const cover = card.cloneNode(true);
@@ -172,7 +168,7 @@
     welcome.addEventListener('click',event=>{event.preventDefault();showDayCard(welcome,welcomeRow,scroll,0);});
     // START sits on 00 until Welcome is done (watched to the end, or left with its MY PATH button),
     // unless Step 01 has already been started.
-    const welcomeDone=read('mirror21-watched-0')==='true'||read('mirror21-seen-0')==='true';
+    const welcomeDone=store.device.welcomeWatched()||store.device.welcomeSeen();
     const startOnWelcome=!welcomeDone&&stats.today===1&&!state.steps[1];
     welcomeRow.append(welcomeLabel);
     if(startOnWelcome){
@@ -226,7 +222,7 @@
     const check='<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     const blockSpots=[1,2,3].map(n=> {
       // Block 3 ends the course: its summary opens once the final check is done.
-      const info=MirrorSteps.block(n),open=info.ready&&Boolean(state.lessons[info.last])&&(n<3||Boolean(state.finishedAt)),seen=read('mirror21-block-'+n)==='true';
+      const info=MirrorSteps.block(n),open=info.ready&&Boolean(state.lessons[info.last])&&(n<3||Boolean(state.finishedAt)),seen=store.device.blockSeen(n);
       const spot=document.createElement('div');spot.className='block-spot'+(open?' open':'');spot.dataset.after=String(info.last);
       const label=document.createElement('span');label.className='block-label';label.textContent='BLOCK '+n;
       const tile=document.createElement(open?'a':'button');tile.className='progress-step block-tile'+(open?(seen?' committed':' block-new'):'');tile.innerHTML=check;
@@ -346,25 +342,20 @@
     gear.addEventListener('click',()=>openSettings(gear));
     document.querySelector('.app-frame').append(gear);
   }
-  const forget=matches=>{
-    for(const storage of [localStorage,sessionStorage]) {
-      try { Array.from({length:storage.length},(_,i)=>storage.key(i)).filter(matches).forEach(key=>storage.removeItem(key)); } catch {}
-    }
-  };
   // Start over clears the course (steps, journal, bar and video positions) and keeps the settings;
   // Delete my data clears everything Mirror 21 saved in this browser. Both open My Path at Step 01.
   function startOver() {
     if(!confirm('Start over? This clears your steps and journal on this phone.'))return;
-    forget(key=>key==='mirror21-progress'||/^mirror21-(audio|bar|watched|seen|block)-\d+$/.test(key)||/^mirror21-scroll-\d+-\d+$/.test(key));
+    store.course.clear();
     location.href=currentMap;
   }
   function deleteData() {
     if(!confirm('Delete your data? This removes your steps, journal and settings from this phone.'))return;
-    forget(key=>key.startsWith('mirror21-'));
+    store.deleteAll();
     location.href=currentMap;
   }
-  // Finished runs kept by START A NEW RUN on the result page (mirror21-runs).
-  const pastRuns=()=>{ try { const runs=JSON.parse(read('mirror21-runs'));return Array.isArray(runs)?runs.length:0; } catch { return 0; } };
+  // Finished runs kept by START A NEW RUN on the result page.
+  const pastRuns=()=>store.course.runs().length;
   // Settings: a scrolling sheet over the page. Rows without an action are placeholders for parts still to build.
   function openSettings(gear) {
     if(document.querySelector('.settings'))return;
@@ -563,9 +554,7 @@
     save();link.href=carried(link.href);
   });
   window.addEventListener('pageshow',event=> { if(event.persisted)location.reload(); });
-  window.addEventListener('storage', event => {
-    if(event.key === 'mirror21-progress') location.reload();
-  });
+  store.course.onChange(() => location.reload());
   document.documentElement?.setAttribute('data-mirror-ready', 'true');
   document.querySelectorAll('a[href="#reminder"]').forEach(link => {
     link.addEventListener('click', event => {
@@ -576,13 +565,13 @@
         dialog.id = 'reminder';
         dialog.setAttribute('aria-labelledby', 'reminder-title');
         dialog.innerHTML = '<form method="dialog"><h2 id="reminder-title">Daily reminder</h2><label for="reminder-time">Your preferred time</label><input id="reminder-time" type="time" required value="09:00"><p>This preview remembers your time for this session. Notifications are not sent.</p><button value="cancel" formnovalidate>Cancel</button> <button value="save">Save</button></form>';
-        dialog.querySelector('input').value = read('mirror21-reminder') || '09:00';
+        dialog.querySelector('input').value = store.course.reminder() || '09:00';
         dialog.addEventListener('close', () => {
-          if (dialog.returnValue === 'save') write('mirror21-reminder', dialog.querySelector('input').value);
+          if (dialog.returnValue === 'save') store.course.saveReminder(dialog.querySelector('input').value);
         });
         document.querySelector('.app-frame').append(dialog);
       }
       dialog.showModal();
     });
   });
-})();
+});
