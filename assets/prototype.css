@@ -328,12 +328,14 @@ button.settings-row:active { background: #ececE8; }
 .results-tile.is-done { background: linear-gradient(#f2cf6c,#e0b84c); color: #101010; box-shadow: 0 7px 0 #b8922f; }
 .results-tile.is-open:hover { color: #e0b84c; }
 .results-tile.is-done:hover { color: #101010; }
-/* The unlock moment (path.js): until the sequence reaches them, the tiles look as they did before the commit. */
-.progress-step.is-was-current { background: linear-gradient(#2a2a2a,#111); color: #e0b84c; box-shadow: 0 6px #000, inset 0 2px rgba(255,255,255,.22); }
+/* The unlock moment (path.js): until the sequence reaches them, the tiles and footprints look as they did before
+   the commit; the footprints then turn gold one by one. */
 .progress-step.is-was-locked, .progress-step.block-tile.is-was-locked { background: linear-gradient(#f6f6f3,#ebebe7); color: #8a8a86; box-shadow: 0 7px 0 #d6d6d1; }
 .block-spot.open.is-was-locked .block-label { color: #a3a39e; }
 .progress-step.results-tile.is-was-open { background: linear-gradient(#2a2a2a,#111); color: #e0b84c; box-shadow: 0 7px 0 #000, inset 0 2px rgba(255,255,255,.22); }
-.progress-row .is-waiting, .journey-segment.is-waiting { visibility: hidden; }
+.progress-row .is-waiting { visibility: hidden; }
+.journey-segment.is-waiting { fill: #d2d2ce; }
+.journey-segment.is-waiting .journey-footprint.is-gold { fill: #dcc36e; }
 .journey-footprint-ink { transform-box: fill-box; transform-origin: center; }
 /* Opened from the Home Screen as an app: keep clear of the clock and the home indicator. */
 .app-frame > div[style*="top: 59px"] { top: max(59px, calc(env(safe-area-inset-top) + 12px)) !important; }
