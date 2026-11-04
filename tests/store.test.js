@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const model=require('../assets/progress.js');
+const model=require('../assets/core/progress.js');
 // Values made inside the store's own context, compared as plain data.
 const plain=value=>JSON.parse(JSON.stringify(value));
 function storage(entries=[]){const values=new Map(entries);return {values,get length(){return values.size;},key:i=>[...values.keys()][i]??null,getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,String(value)),removeItem:key=>values.delete(key)};}

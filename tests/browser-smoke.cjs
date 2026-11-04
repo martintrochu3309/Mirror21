@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const http=require('node:http');
 const assert=require('node:assert/strict');
-const steps=require('../assets/steps.js');
+const steps=require('../assets/core/steps.js');
 const root=path.resolve(__dirname,'..');
 // Screenshots go to screens/ unless MIRROR21_SCREENS names another folder (so a check run leaves the repo as it was).
 const screens=process.env.MIRROR21_SCREENS?path.resolve(process.env.MIRROR21_SCREENS):path.join(root,'screens');

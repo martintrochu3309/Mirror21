@@ -1,6 +1,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const steps=require('../assets/steps.js');
+const steps=require('../assets/core/steps.js');
 test('all 21 step titles plus Welcome are listed in order',()=>{
  assert.equal(steps.titles.length,22);
  assert.equal(steps.title(0),'Welcome to Mirror 21');

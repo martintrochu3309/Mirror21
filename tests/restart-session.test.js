@@ -2,7 +2,7 @@ const {test}=require('node:test');const assert=require('node:assert/strict');con
 function storage(entries){const values=new Map(entries);return {get length(){return values.size;},key:i=>[...values.keys()][i]??null,getItem:key=>values.get(key)??null,removeItem:key=>values.delete(key)};}
 function restart(local,session){let destination;const status={textContent:''};
  const context=vm.createContext({localStorage:local,sessionStorage:session,location:{replace:value=>destination=value},document:{querySelector:()=>status}});
- for(const file of ['../assets/core/store.js','../assets/restart-session.js'])vm.runInContext(fs.readFileSync(require.resolve(file),'utf8'),context);
+ for(const file of ['../assets/core/store.js','../assets/screens/restart-session.js'])vm.runInContext(fs.readFileSync(require.resolve(file),'utf8'),context);
  return {destination,status:status.textContent};}
 test('Restart clears this device’s attempt, bar, watch and scroll positions while preserving unrelated data',()=>{
  const local=storage([['mirror21-progress','saved'],['mirror21-audio-1','20'],['mirror21-audio-0','5'],['mirror21-bar-1','.5'],['mirror21-watched-0','true'],['mirror21-block-1','true'],['mirror21-reminder','09:00'],['other-app','keep']]);const session=storage([['mirror21-scroll-1-4','200'],['other-session','keep']]);

@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
-const source=fs.readFileSync(require.resolve('../assets/prototype.js'),'utf8');
+const source=fs.readFileSync(require.resolve('../assets/shell/app.js'),'utf8');
 const setup=source.slice(source.indexOf('  // Netlify Pretty URLs'),source.indexOf('  const model = MirrorProgress'));
 function route(pathname,hrefs=[]){
  const links=hrefs.map(href=>({href,getAttribute(){return this.href;},setAttribute(_key,value){this.href=value;}}));

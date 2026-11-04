@@ -1,0 +1,54 @@
+<!--@theme-color #000000-->
+<!-- Dark screen: Safari's bar turns black here only; the rest of the app stays white. -->
+<title>Mirror 21 · Step · Watch</title>
+<!-- Built from the Watch screen design handoff, index.html (locked design): Start → Mid → Finish. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/watch.css">
+<!-- Opened from the map's step card: start on black; from the check-in: start on white, with Safari's
+     bar white too. Set before the first paint (step.js runs the sequence). -->
+<script>try { const note = sessionStorage.getItem('mirror21-intro'); if (note !== null) document.documentElement.classList.add('intro'); if (note && note.startsWith('light:')) { document.documentElement.classList.add('intro-light'); document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff'); } } catch {}</script>
+<!--#scripts-step screen="watch"-->
+</head>
+<body data-screen="watch">
+<main class="watch" id="watch" data-state="start">
+  <img class="still" id="still" alt="">
+  <!-- playsinline: the video plays in the page, never in Apple's full-screen player. -->
+  <video class="media" id="player" playsinline webkit-playsinline preload="metadata"></video>
+
+  <!-- Always on: black at the very bottom, gone just under the video's own text (height per step, steps.js). -->
+  <div class="fade cover"></div>
+  <div class="fade top"></div><div class="fade bottom"></div><div class="fade end"></div>
+
+  <a class="close" href="04-map-start.html" aria-label="Close step">
+    <svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="1.6" aria-hidden="true"><path d="M2 2l14 14M16 2L2 16"/></svg>
+  </a>
+  <div class="steps" id="stepBar" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+
+  <div class="heading">
+    <p class="meta"><span id="stepLabel">STEP 01 OF 21</span><span class="done">&nbsp;&nbsp;·&nbsp;&nbsp;WATCHED&nbsp;&nbsp;✓</span></p>
+    <h1 class="title" id="stepTitle">KNOW WHERE YOU ARE GOING.</h1>
+  </div>
+
+  <button class="play" id="play" aria-label="Play video">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v19l16-9.5z" fill="#fff"/></svg>
+  </button>
+
+  <p class="hint" id="hint">
+    <svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.4" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z" fill="#fff"/><path d="M11.5 5.5a3.5 3.5 0 010 5"/></svg>
+    <span id="hintText">BEST WITH SOUND</span>
+  </p>
+
+  <!-- Timeline: the thin gold line, draggable to go back or forward (a 40px-tall touch strip around it). -->
+  <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Video position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <span class="scrub-time" id="scrubAt">0:00</span><span class="scrub-time scrub-total" id="scrubTotal"></span>
+    <div class="line"><i id="line"></i><b class="knob" id="knob"></b></div>
+  </div>
+  <p class="soon">VIDEO COMING SOON</p>
+
+  <div class="end">
+    <button class="again" id="again">↻&nbsp;&nbsp;WATCH AGAIN</button>
+    <a class="learn" id="next" href="step-learn.html"><b id="nextLabel">LEARN</b><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</main>
+</body>
+</html>

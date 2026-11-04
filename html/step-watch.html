@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Built from src/pages/step-watch.html by tools/build.js: edit that file, then run node tools/build.js. -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="../manifest.webmanifest">
@@ -8,9 +9,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Mirror 21">
-<!-- Dark screen: Safari's bar turns black here only; the rest of the app stays white. -->
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<!-- Dark screen: Safari's bar turns black here only; the rest of the app stays white. -->
 <title>Mirror 21 · Step · Watch</title>
 <!-- Built from the Watch screen design handoff, index.html (locked design): Start → Mid → Finish. -->
 <link rel="stylesheet" href="../assets/step/tokens.css?v=20261021-signin">
@@ -18,9 +19,11 @@
 <!-- Opened from the map's step card: start on black; from the check-in: start on white, with Safari's
      bar white too. Set before the first paint (step.js runs the sequence). -->
 <script>try { const note = sessionStorage.getItem('mirror21-intro'); if (note !== null) document.documentElement.classList.add('intro'); if (note && note.startsWith('light:')) { document.documentElement.classList.add('intro-light'); document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff'); } } catch {}</script>
-<script src="../assets/progress.js?v=20261021-signin" defer></script><script src="../assets/core/store.js?v=20261021-signin" defer></script>
-<script src="../assets/steps.js?v=20261021-signin" defer></script>
-<script src="../assets/step/step.js?v=20261021-signin" defer></script>
+<script src="../assets/core/progress.js?v=20261021-signin" defer></script>
+<script src="../assets/core/store.js?v=20261021-signin" defer></script>
+<script src="../assets/core/steps.js?v=20261021-signin" defer></script>
+<script src="../assets/screens/watch.js?v=20261021-signin" defer></script>
+<script src="../assets/shell/step.js?v=20261021-signin" defer></script>
 </head>
 <body data-screen="watch">
 <main class="watch" id="watch" data-state="start">

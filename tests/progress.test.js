@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const model = require('../assets/progress.js');
+const model = require('../assets/core/progress.js');
 const now = Date.UTC(2026, 9, 7, 12);
 const DAY = 86400000;
 const commit = (state, ...steps) => steps.forEach(step => { state.lessons[step] = true; });

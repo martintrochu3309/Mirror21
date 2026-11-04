@@ -1,0 +1,179 @@
+<title>Mirror 21 · Step 20 · Act</title>
+<!-- Step 20 · Use it on something new. MY TOOLS (the same closed reference panel as Step 19), then a blank Mirror
+     Method card: five boxes with their headings only. On purpose: no starters, helper lines, examples, tool buttons
+     or pre-filled answers, and nothing copied from the first change. No check. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<link rel="stylesheet" href="../assets/step/step.css">
+<link rel="stylesheet" href="../assets/step/step02.css">
+<link rel="stylesheet" href="../assets/step/step03.css">
+<link rel="stylesheet" href="../assets/step/step-app.css">
+<!--#scripts-step screen="act"-->
+</head>
+<body data-screen="act">
+<main class="screen">
+
+  <div class="topbar">
+    <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="progress" id="stepBar" role="progressbar" aria-label="Step progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+  </div>
+
+  <div class="step-label" id="stepLabel">STEP 20</div>
+  <h1 class="title">YOUR TURN.</h1>
+  <p class="intro">A new change, on a blank card.</p>
+
+  <div class="rows">
+
+    <!-- 01 MY TOOLS — read-only reference, closed until tapped; nothing here is copied into the card -->
+    <section class="row row-static is-done">
+      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <p class="question">MY TOOLS</p>
+        <div class="from"><span>FROM YOUR STEPS</span></div>
+        <details class="tools" id="tools">
+          <summary class="tools-toggle"><span class="tools-open">Tap to open</span><span class="tools-close">Close</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="tool" data-from-of="3">
+            <p class="tool-name">MY MOVE · <span data-from-step>FROM STEP 03</span></p>
+            <p class="mine-text" data-from="move" data-starter="My move is"></p>
+          </div>
+          <div class="tool" data-from-of="7">
+            <p class="tool-name">MY ANCHOR · FROM STEP 07</p>
+            <p class="mine-text" data-from="anchor" data-starter="Every day, I"></p>
+            <p class="mine-text" data-from="action" data-starter="Straight after, I will"></p>
+          </div>
+          <div class="tool">
+            <p class="tool-name">MY SWAP AND LINE · FROM STEPS 09 AND 10</p>
+            <p class="mine-text" data-from-of="9" data-from="swap" data-starter="Instead, I will"></p>
+            <p class="mine-text" data-from-of="10" data-from="line" data-starter="My line is"></p>
+          </div>
+          <div class="tool" data-from-of="12">
+            <p class="tool-name">MY MINIMUM · FROM STEP 12</p>
+            <p class="mine-text" data-from="minimum" data-starter="On a bad day, the least I will do is"></p>
+          </div>
+          <div class="tool" data-from-of="15">
+            <p class="tool-name">MY RESTART RULE · FROM STEP 15</p>
+            <p class="mine-text" data-from="rule" data-starter="If I miss, I will restart"></p>
+          </div>
+          <div class="tool" data-from-of="16">
+            <p class="tool-name">WHAT I FOUND · FROM STEP 16</p>
+            <p class="mine-text" data-from="working" data-starter="One thing that’s working is"></p>
+            <p class="mine-text" data-from="notyet" data-starter="One thing that isn’t working yet is"></p>
+          </div>
+          <div class="tool" data-from-of="17">
+            <p class="tool-name">WHAT I DID · FROM STEP 17</p>
+            <p class="mine-text" data-from="did" data-starter="What I did was"></p>
+          </div>
+          <div class="tool" data-from-of="18">
+            <p class="tool-name">KEEP, STOP, START · FROM STEP 18</p>
+            <p class="mine-text" data-from="keep" data-starter="Keep:"></p>
+            <p class="mine-text" data-from="stop" data-starter="Stop:"></p>
+            <p class="mine-text" data-from="start" data-starter="I’ll start"></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 02 MY NEW CHANGE — blank -->
+    <section class="row" id="rowOne">
+      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxOne">MY NEW CHANGE</label>
+        <div class="eyebrow">NEW CHANGE</div>
+        <div class="starter-wrap">
+          <textarea class="answer-box" id="boxOne" data-answer="NEWCHANGE"rows="3" maxlength="200" aria-label="My new change"></textarea>
+        </div>
+        <div class="next-row" id="oneNextRow" style="display: flex">
+          <button class="next" id="oneNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 SEE IT — blank -->
+    <section class="row is-locked" id="rowTwo">
+      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxTwo">SEE IT</label>
+        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve named your new change"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <div class="starter-wrap">
+          <textarea class="answer-box" id="boxTwo" data-answer="SEE" rows="3" maxlength="200" aria-label="See it"></textarea>
+        </div>
+        <div class="next-row" id="twoNextRow" style="display: flex" hidden>
+          <button class="next" id="twoNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 OWN IT — blank -->
+    <section class="row is-locked" id="rowThree">
+      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxThree">OWN IT</label>
+        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve seen it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <div class="starter-wrap">
+          <textarea class="answer-box" id="boxThree" data-answer="OWN" rows="3" maxlength="200" aria-label="Own it"></textarea>
+        </div>
+        <div class="next-row" id="threeNextRow" style="display: flex" hidden>
+          <button class="next" id="threeNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 CHANGE IT — blank: the chosen move and tool, in the learner's words (no tool buttons) -->
+    <section class="row is-locked" id="rowFour">
+      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxFour">CHANGE IT</label>
+        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve owned it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <div class="starter-wrap">
+          <textarea class="answer-box" id="boxFour" data-answer="CHANGEIT" rows="3" maxlength="200" aria-label="Change it"></textarea>
+        </div>
+        <div class="next-row" id="fourNextRow" style="display: flex" hidden>
+          <button class="next" id="fourNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 MY FIRST MOVE TODAY — blank (no check: the arrow goes to MY PROMISE) -->
+    <section class="row is-locked" id="rowFive">
+      <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
+      <div class="row-body">
+        <label class="question" for="boxFive">MY FIRST MOVE TODAY</label>
+        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve changed it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <div class="starter-wrap">
+          <textarea class="answer-box" id="boxFive" data-answer="FIRST" rows="3" maxlength="200" aria-label="My first move today"></textarea>
+        </div>
+        <div class="next-row" id="fiveNextRow" style="display: flex" hidden>
+          <button class="next" id="fiveNext" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MY PROMISE — from MY FIRST MOVE TODAY only, locked with I'M COMMITTED once all five boxes are filled -->
+    <section class="row is-locked" id="rowPromise">
+      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
+      <div class="row-body">
+        <p class="promise-title">MY PROMISE</p>
+        <p class="promise" id="promise" aria-live="polite">Today, I’ll <span class="promise-rest is-empty">…</span>.</p>
+
+        <div id="commitBlock">
+          <button class="hold" id="hold" disabled aria-describedby="holdHelp">
+            <span class="hold-fill" id="holdFill"></span>
+            <span class="hold-label hold-label--lg">I’M COMMITTED</span>
+          </button>
+          <p class="hold-help" id="holdHelp">Press and hold. Once committed, your promise can’t be changed.</p>
+        </div>
+
+        <div id="lockedBlock" hidden>
+          <div class="locked-row">
+            <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+            COMMITTED
+          </div>
+          <p class="done-text" id="lockedText" style="margin-top: 12px"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
