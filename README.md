@@ -31,6 +31,7 @@ Mirror21/
 ├── tools/build.js builds html/ from src/ (plain Node, nothing to install)
 ├── screens/       screenshots written by the browser test
 ├── tests/         unit tests, the browser test and the visual baseline
+├── supabase/      the server side (see **Payments**): paid_users.sql, functions/stripe-webhook/, config.toml
 ├── manifest.webmanifest  makes the Home Screen icon open Mirror 21 as a full-screen app
 └── _headers       Netlify: always serve the latest files
 ```
@@ -187,6 +188,18 @@ The third tab (book icon) replaces My Tools. The tabs are **MY PATH** (the map),
 - `node --test tests/*.test.js`: course rules, step catalogue, progress bar, routing, device storage and restart.
 - `node tests/visual-baseline.cjs capture <dir>` then `compare <dirA> <dirB>`: the guard for restructuring work. It saves every screen in every state (the step screens at each stage, My Path with its cards, My Mirror, My Journey, Settings, the blocks, the final check and the result, plus a few full flows) at phone, iPad and desktop sizes: a screenshot, the page as rendered, and what the app saved. Compare lists any pixel, element or saved value that differs. Capture before a change, again after, and compare; captures go in `.visual/`, which is never committed. Set `MIRROR21_SCREENS=<folder>` to send the browser test's screenshots somewhere other than `screens/`.
 - `node tests/browser-smoke.cjs`: runs the real flow in Chrome at phone, iPad and desktop sizes (Welcome, Watch with real playback, Learn, every Act state, hold to commit, Step 02 unlock, the check-in in all three answers with its lock and map tile looks, My Mirror, restart) against a local server that simulates Netlify. It writes phone screenshots to `screens/` (`step-watch-mobile.png`, `step-learn-mobile.png`, `step-act-*.png`, `journey-map-mobile.png` …) for comparison with the design handoffs' screenshots. Requires installed Chrome.
+
+## Payments (Stripe → Supabase)
+
+Buyers pay on a Stripe Payment Link. Stripe then calls the Supabase Edge Function `stripe-webhook` (`supabase/functions/stripe-webhook/index.ts`), which saves one row per buyer in the `paid_users` table. Nothing in the app reads it yet: sign-in will.
+
+- **Table:** `supabase/paid_users.sql`, pasted once into the Supabase SQL Editor. Emails are stored lowercase and are unique; `amount_total` is in cents (0 for a 100% coupon order); `promo_code` is the code typed at checkout. Row Level Security is on with no policies, so only the function (server key) can read or write it.
+- **What counts:** `checkout.session.completed` with `payment_status` paid or no_payment_required. The same event twice updates the same row (keyed on `stripe_session_id`). A second purchase with an email already in the table keeps the first row and is logged as "already a buyer".
+- **Replies:** 400 for a bad signature, 500 when the secrets are missing or saving fails (Stripe retries on its own), 200 for everything else.
+- **Keys** live only in Supabase secrets (Edge Functions → Secrets): `STRIPE_SECRET_KEY` (a restricted key that reads Checkout Sessions and Promotion Codes is enough) and `STRIPE_WEBHOOK_SECRET` (the endpoint's signing secret, `whsec_…`). Never in the code or on GitHub.
+- **Deploy:** `npx supabase functions deploy stripe-webhook --no-verify-jwt --use-api`. JWT verification stays off (Stripe can't send a Supabase login token; the function checks Stripe's signature instead), also set in `supabase/config.toml`.
+- **Logs:** Supabase → Edge Functions → stripe-webhook → Logs; every line starts `[stripe-webhook]`, errors with `ERROR`. In Stripe: Developers → Webhooks → the endpoint → its event deliveries.
+- The `supabase/` folder holds no secrets, so Netlify publishing it with the site is harmless.
 
 ## Deploying on Netlify
 

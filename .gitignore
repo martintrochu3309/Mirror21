@@ -1,2 +1,9 @@
 # Captures from tests/visual-baseline.cjs: machine-specific, never committed.
 .visual/
+
+# Supabase CLI: local link files and any key file, never committed.
+supabase/.temp/
+supabase/.branches/
+.env
+.env.*
+supabase/.env

@@ -1,0 +1,7 @@
+# Supabase CLI settings for Mirror 21. No keys here: they live in Supabase secrets.
+project_id = "Mirror21"
+
+# Stripe can't send a Supabase login token, so this function must accept calls without one.
+# It checks Stripe's signature instead. Kept here so a redeploy never turns JWT back on.
+[functions.stripe-webhook]
+verify_jwt = false
