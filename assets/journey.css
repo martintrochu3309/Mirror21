@@ -5,14 +5,14 @@
 .journey-title { margin: 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 40px; line-height: 1; letter-spacing: -0.04em; }
 .journey-sub { margin: 10px 0 0; font-size: var(--intro-size); line-height: 1.5; font-weight: 500; color: var(--muted); }
 
-/* Block heading: BLOCK 1 · SEE IT in Magistral, a little bigger than the entry titles. */
-.journey-week { margin: 40px 0 26px; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 26px; line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); }
-.journey-week-label { white-space: pre; }
-.journey-week-label b { font-weight: inherit; color: var(--gold-text); }
+/* The steps follow straight on, no block headings. */
+.journey { margin-top: 40px; }
 
 /* One entry per step, like Learn and Act: "01 TITLE" (gold number), the date and how the evening went under it,
    then the words, all from the number's left edge. No circles, no line. */
-.entry { padding-bottom: 36px; }
+.entry { padding-bottom: 26px; }
+/* Between two steps: a short centred line, a third of the width. */
+.entry + .entry::before { content: ""; display: block; width: 33%; height: 1px; margin: 0 auto 26px; background: var(--rule); }
 .entry-head { display: block; width: 100%; padding: 0; border: none; background: transparent; text-align: left; font: inherit; color: inherit; cursor: pointer; }
 .entry-title-row { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 20px; line-height: 1.15; letter-spacing: -0.02em; }
 .entry-num { flex: none; color: var(--gold); }
@@ -26,14 +26,15 @@
 .entry-detail { display: none; }
 .entry.is-open .entry-detail { display: block; }
 
-/* The step's own answers: each label in small dark capitals above its answer, no rules between them. */
+/* The step's own answers: each label (HERE, THERE, MY PROMISE…) in Magistral above its answer, no rules between them. */
 .entry-answers { margin: 18px 0 0; }
-.entry-answer + .entry-answer { margin-top: 16px; }
-.entry-answer dt { font-size: var(--eyebrow-size); line-height: 1.4; font-weight: 700; letter-spacing: 0.2em; color: var(--ink); }
-.entry-answer dd { margin: 6px 0 0; font-size: var(--move-text-size); line-height: 1.5; font-weight: 500; color: var(--example-ink); }
-.entry-promise-label { margin-top: 18px; font-size: var(--eyebrow-size); line-height: 1.4; font-weight: 700; letter-spacing: 0.2em; color: var(--ink); }
+.entry-answer + .entry-answer { margin-top: 18px; }
+.entry-answer dt, .entry-promise-label { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 15px; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
+/* The answers a step smaller and lighter than their labels, so the labels lead. */
+.entry-answer dd { margin: 6px 0 0; font-size: 15px; line-height: 1.5; font-weight: 500; color: var(--muted); }
+.entry-promise-label { margin-top: 18px; }
 /* The locked promise in an open entry, in the user's black. */
-.entry-locked { margin: 6px 0 0; font-family: var(--font-body); font-weight: 500; font-size: var(--move-text-size); line-height: 1.5; color: var(--ink); }
+.entry-locked { margin: 6px 0 0; font-family: var(--font-body); font-weight: 500; font-size: 15px; line-height: 1.5; color: var(--muted); }
 
 /* Today's step: faded, not clickable */
 .entry.is-today { opacity: 0.4; }

@@ -8,7 +8,6 @@
     const written=committedSteps();
     const today=stats.today&&stats.active?stats.today:null;
     const shown=today?[...written,today]:written;
-    const weeks=['SEE IT','OWN IT','CHANGE IT'];
     const chevron='<svg class="entry-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
     // The evening check-in, in its own words, after the date.
     const said={yes:'Yes',partly:'Partly',no:'No'};
@@ -16,13 +15,9 @@
     const softDate=date=>date.toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase());
     const latestGraded=written.filter(d=>state.answers[d]).pop();
     list.replaceChildren();
-    let week=0,openEntry=null;
+    // The steps one after the other, no block headings: the space between them is enough.
+    let openEntry=null;
     shown.forEach(d=>{
-      if(Math.ceil(d/7)!==week){
-        week=Math.ceil(d/7);
-        const divider=el('h2','journey-week'),name=el('span','journey-week-label','BLOCK '+week+' ');
-        name.append(el('b',null,'· '+weeks[week-1]));divider.append(name);list.append(divider);
-      }
       const isToday=d===today,answer=state.answers[d];
       const entry=el('section','entry'+(isToday?' is-today':''));entry.dataset.step=String(d);
       // As on Learn and Act: "01 TITLE" (gold number), the date and how the evening went under it, then the words,
@@ -59,14 +54,18 @@
     // Open on the latest graded step.
     if(openEntry)requestAnimationFrame(()=>{scroll.scrollTop=Math.max(0,scroll.scrollTop+openEntry.getBoundingClientRect().top-scroll.getBoundingClientRect().top-24);});
   }
-  // Step titles stay on one line: a long one shrinks just enough to fit (as on the Watch screen).
+  // Step titles stay on one line and all share one size: the size at which the longest one fits.
   function fitEntryTitles() {
-    document.querySelectorAll('.entry-title').forEach(title=> {
-      title.style.fontSize='';
+    // The number scales with its title (both take the row's size).
+    const titles=Array.from(document.querySelectorAll('.entry-title')),rows=titles.map(title=>title.parentElement);
+    rows.forEach(row=>{row.style.fontSize='';});
+    let scale=1;
+    titles.forEach(title=>{
       const range=document.createRange();range.selectNodeContents(title);
       const needed=range.getBoundingClientRect().width,available=title.clientWidth;
-      if(needed>available)title.style.fontSize=Math.floor(parseFloat(getComputedStyle(title).fontSize)*available/needed*0.985*10)/10+'px';
+      if(needed>available)scale=Math.min(scale,available/needed*0.985);
     });
+    if(scale<1)rows.forEach(row=>{row.style.fontSize=Math.floor(parseFloat(getComputedStyle(row).fontSize)*scale*10)/10+'px';});
   }
   // Titles fit again once the fonts have loaded, and when the width changes.
   document.fonts.ready.then(fitEntryTitles);

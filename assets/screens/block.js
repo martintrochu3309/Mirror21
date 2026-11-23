@@ -18,22 +18,17 @@ MirrorStore.ready(() => {
   $('blockTitle').textContent = info.name;
   $('blockSub').textContent = 'The ' + info.skills.length + ' skills you’ve learned.';
 
-  // BLOCK 1 · BLOCK 2 · BLOCK 3: gold up to this block, this block's name in black.
-  $('blockBar').replaceChildren(...[1, 2, 3].map(k => {
-    const part = el('div', 'block-bar-part' + (k <= n ? ' is-done' : '') + (k === n ? ' is-here' : ''));
-    part.append(el('span', 'block-bar-fill'), el('span', 'block-bar-label', 'BLOCK ' + k));
-    return part;
-  }));
-
+  // Each skill: its gold number and name, the line under it, then YOUR PROMISE · STEP NN just above a grey tile
+  // holding that step's promise.
   $('blockSkills').replaceChildren(...info.skills.map(([skill, line], i) => {
     const step = info.first + i, promise = (state.dayChanges[step] || '').trim();
     const item = el('li', 'block-skill');
-    const body = el('div', 'block-skill-body');
+    const head = el('div', 'block-skill-head');
+    head.append(el('span', 'block-skill-num', pad(i + 1)), el('h2', 'block-skill-name', skill));
     const card = el('div', 'block-promise');
     card.append(el('p', 'block-promise-label', 'YOUR PROMISE · STEP ' + pad(step)),
       el('p', 'block-promise-text' + (promise ? '' : ' is-empty'), promise || 'Not written yet'));
-    body.append(el('h2', 'block-skill-name', skill), el('p', 'block-skill-line', line), card);
-    item.append(el('span', 'block-skill-num', pad(i + 1)), body);
+    item.append(head, el('p', 'block-skill-line', line), card);
     return item;
   }));
 
@@ -42,7 +37,7 @@ MirrorStore.ready(() => {
   if (last) {
     const button = $('blockButton');
     button.href = 'result.html';
-    button.firstChild.textContent = 'SEE MY RESULTS ';
+    button.textContent = 'SEE MY RESULTS';
   }
   document.documentElement.dataset.mirrorReady = 'true';
 });

@@ -241,7 +241,7 @@ button.settings-row:active { background: #ececE8; }
 .settings-close:focus-visible, .settings-back:focus-visible { outline: 2px solid #896a00; outline-offset: 3px; }
 .settings-text { flex: 1; min-width: 0; }
 .settings-title { display: block; font-size: 16px; font-weight: 500; }
-.settings-sub { display: block; margin-top: 3px; font-size: 12.5px; font-weight: 300; color: #8a8a86; }
+.settings-sub { display: block; margin-top: 3px; font-size: 12.5px; font-weight: 500; color: #8a8a86; }
 .settings-value { flex: none; font-size: 15px; font-weight: 500; color: #646461; }
 .settings-chev { flex: none; color: #b5b5b0; }
 .settings-foot { margin-top: auto; padding-top: 40px; text-align: center; }
@@ -256,12 +256,13 @@ button.settings-row:active { background: #ececE8; }
 .help-q svg { flex: none; color: #b5b5b0; }
 .help-q[aria-expanded="true"] svg { color: #646461; }
 .help-q:focus-visible { outline: 2px solid #896a00; outline-offset: -2px; }
-.help-a { margin: -4px 0 0; padding: 0 18px 18px; font-size: 15px; font-weight: 300; line-height: 1.45; color: #8a8a86; }
+/* The answer: Medium, smaller than its question, same grey. */
+.help-a { margin: -4px 0 0; padding: 0 18px 18px; font-size: 14px; font-weight: 500; line-height: 1.45; color: #8a8a86; }
 .help-foot { margin-top: auto; padding-top: 32px; text-align: center; }
 .help-note { margin: 12px 0 0; font-size: 12.5px; font-weight: 500; color: #646461; }
 .help-email { display: inline-flex; align-items: center; gap: 8px; margin: 16px 0 0; font-size: 13px; font-weight: 700; color: #111111; }
 .help-email button { display: grid; place-items: center; padding: 2px; border: 0; background: none; color: #8a8a86; cursor: pointer; }
-/* The two buttons of Settings: gold (Save, Write to us) and black (Start over), and the plain one (Cancel). */
+/* The buttons of Settings: gold (Save), black (Write to us, Start over), and the plain one (Cancel). */
 .settings-btn { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 56px; margin: 0; padding: 0 52px; box-sizing: border-box; border: 0; border-radius: 28px; font: 700 11px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .24em; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .settings-btn--gold { background: linear-gradient(110deg,#d8ad3e,#ffef9a 53%,#d8ad3e); color: #101010; }
 .settings-btn--ink { background: #111111; color: #ffffff; }

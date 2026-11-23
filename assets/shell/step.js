@@ -128,6 +128,8 @@ MirrorStore.ready(() => {
       if (of !== 3 || !el.closest('.row')?.querySelector('[data-from="move"]')) return of;
       return updated ? 19 : raised ? 14 : 3;
     };
+    // Each row's "(from step 03)", kept aside while the answers are written, then put at the end of the last one.
+    const sources = Array.from(document.querySelectorAll('.row'), row => [row, row.querySelector('.row-from')]).filter(([, source]) => source);
     document.querySelectorAll('[data-from]').forEach(el => {
       const key = el.dataset.from.toUpperCase();
       const words = (key === 'MOVE' && fromOf(el) === 14 ? raised : state.responses[fromOf(el)]?.[key] || '').trim();
@@ -140,5 +142,11 @@ MirrorStore.ready(() => {
       el.replaceChildren(starter, ' ' + own);
     });
     document.querySelectorAll('[data-from-step]').forEach(el => { el.textContent = 'FROM STEP ' + pad(fromOf(el)); });
+    // Where a written answer comes from goes at the end of it: "… ready for the day. (from step 01)". A row with no
+    // written sentence (a record, the tools, the score) keeps it on its title line.
+    sources.forEach(([row, source]) => {
+      const said = row.querySelectorAll('.row-body > [data-from]');
+      if (said.length) said[said.length - 1].append(' ', source);
+    });
   }
 });

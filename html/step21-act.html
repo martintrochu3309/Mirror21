@@ -47,8 +47,7 @@
     <!-- 01 THERE — read-only, from Step 01 (always done) -->
     <section class="row row-static is-done">
       <div class="row-body">
-        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span></p>
-        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span><span class="row-from">(<span data-from-step>FROM STEP 01</span>)</span></p>
         <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
     </section>
@@ -56,8 +55,7 @@
     <!-- 02 MY SCORE SO FAR — read-only, Steps 01–20 (no tier until the final check) -->
     <section class="row row-static is-done">
       <div class="row-body">
-        <p class="row-head"><span class="q-num">02</span><span class="row-key">MY SCORE SO FAR</span></p>
-        <div class="from"><span>FROM YOUR CHECK-INS, STEPS 01–20</span></div>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">MY SCORE SO FAR</span><span class="row-from">(<span>FROM YOUR CHECK-INS, STEPS 01–20</span>)</span></p>
         <p class="score-so-far" id="scoreSoFar">0%</p>
         <p class="prompt">Your final score and tier appear after tonight’s check.</p>
         <p class="prompt">This shows how consistently you kept your promises, not how much you’ve changed.</p>
@@ -67,8 +65,7 @@
     <!-- 03 MY HERE THEN — read-only, Step 01's HERE -->
     <section class="row row-static is-done">
       <div class="row-body">
-        <p class="row-head"><span class="q-num">03</span><span class="row-key">MY HERE THEN</span></p>
-        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">MY HERE THEN</span><span class="row-from">(<span data-from-step>FROM STEP 01</span>)</span></p>
         <p class="mine-text" data-from="here" data-starter="Right now, I"></p>
       </div>
     </section>
@@ -92,8 +89,7 @@
     <!-- 05 MY TWO CARDS — read-only, Step 19's and Step 20's cards with their evening results (built by steps.js) -->
     <section class="row row-static is-done">
       <div class="row-body">
-        <p class="row-head"><span class="q-num">05</span><span class="row-key">MY TWO CARDS</span></p>
-        <div class="from"><span>FROM STEPS 19 AND 20</span></div>
+        <p class="row-head"><span class="q-num">05</span><span class="row-key">MY TWO CARDS</span><span class="row-from">(<span>FROM STEPS 19 AND 20</span>)</span></p>
         <div class="method-cards" id="cards"></div>
       </div>
     </section>
@@ -146,10 +142,8 @@
         </div>
 
         <div id="lockedBlock" hidden>
-          <div class="locked-row">
-            <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
-            COMMITTED
-          </div>
+          <!-- What was held stays filled: a black pill reading COMMITTED. -->
+          <div class="locked-pill">COMMITTED</div>
           <p class="done-text" id="lockedText" style="margin-top: 12px"></p>
         </div>
       </div>

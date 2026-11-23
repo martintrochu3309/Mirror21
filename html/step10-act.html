@@ -45,8 +45,7 @@
     <!-- 01 THERE — read-only, from Step 01 (always done) -->
     <section class="row row-static is-done">
       <div class="row-body">
-        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span></p>
-        <div class="from"><span data-from-step>FROM STEP 01</span></div>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span><span class="row-from">(<span data-from-step>FROM STEP 01</span>)</span></p>
         <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
     </section>
@@ -54,8 +53,7 @@
     <!-- 02 MY MOMENT — read-only, Step 08's WHEN after its starter -->
     <section class="row row-static is-done" data-from-of="8">
       <div class="row-body">
-        <p class="row-head"><span class="q-num">02</span><span class="row-key">MY MOMENT</span></p>
-        <div class="from"><span data-from-step>FROM STEP 08</span></div>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">MY MOMENT</span><span class="row-from">(<span data-from-step>FROM STEP 08</span>)</span></p>
         <p class="mine-text" data-from="when" data-starter="It usually happens when"></p>
       </div>
     </section>
@@ -63,8 +61,7 @@
     <!-- 03 MY SWAP — read-only, Step 09's SWAP after its starter -->
     <section class="row row-static is-done" data-from-of="9">
       <div class="row-body">
-        <p class="row-head"><span class="q-num">03</span><span class="row-key">MY SWAP</span></p>
-        <div class="from"><span data-from-step>FROM STEP 09</span></div>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">MY SWAP</span><span class="row-from">(<span data-from-step>FROM STEP 09</span>)</span></p>
         <p class="mine-text" data-from="swap" data-starter="Instead, I will"></p>
       </div>
     </section>
@@ -116,10 +113,8 @@
         </div>
 
         <div id="lockedBlock" hidden>
-          <div class="locked-row">
-            <div class="locked-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
-            COMMITTED
-          </div>
+          <!-- What was held stays filled: a black pill reading COMMITTED. -->
+          <div class="locked-pill">COMMITTED</div>
           <p class="done-text" id="lockedText" style="margin-top: 12px"></p>
         </div>
       </div>

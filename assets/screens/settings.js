@@ -110,7 +110,7 @@
       const email = el('p', 'help-email'); email.append(el('span', null, '[support email]'));
       const copy = el('button'); copy.type = 'button'; copy.setAttribute('aria-label', 'Copy the support email'); copy.innerHTML = svg(icons.copy, 14, 1.8);
       email.append(copy);
-      foot.append(button('gold', 'WRITE TO US', null, true), el('p', 'help-note', 'We usually reply within a day'), email);
+      foot.append(button('ink', 'WRITE TO US'), el('p', 'help-note', 'We usually reply within a day'), email);
       show('help', 'HELP', topButton('back', 'Back to settings', showList), list, foot);
     }
     frame().append(panel);

@@ -171,7 +171,8 @@
       promise.replaceChildren('Today, I will ', words);
       document.getElementById('notSureHint').hidden = !(record.notSure && st === 2);
       commit.classList.toggle('is-locked', st < 5);
-      commit.hidden = st === 6;
+      // Committed: MY PROMISE stays; the hold button and its help give way to the COMMITTED pill below.
+      hold.hidden = document.getElementById('holdHelp').hidden = st === 6;
       hold.disabled = st !== 5 || !allWritten();
       done.hidden = st !== 6;
       if (scroll) scrollToRow(st === 6 ? done : st === 5 ? commit : rows[st], true);
