@@ -72,3 +72,13 @@ test('Another tab saving the course is reported; other keys are not',()=>{
 test('ready() runs the screen straight away while the course lives in this browser',()=>{
  const {store}=load();let ran=false;store.ready(()=>{ran=true;});assert.equal(ran,true);
 });
+test('A block video stays due until MY PATH, then never again; Start over makes it due-able again',()=>{
+ const {store,local}=load();
+ assert.equal(store.device.blockVideo(),0);
+ store.device.setBlockVideo(1);
+ assert.deepEqual([store.device.blockVideo(),store.device.blockVideoSeen(1)],[1,false],'Due after Step 07, even if the app closes');
+ store.device.markBlockVideoSeen(1);
+ assert.deepEqual([store.device.blockVideo(),store.device.blockVideoSeen(1)],[0,true],'MY PATH: done, and not due any more');
+ store.device.setBlockVideo(2);store.course.clear();
+ assert.deepEqual([local.getItem('mirror21-blockvideo'),local.getItem('mirror21-blockvideo-1')],[null,null],'Start over clears both');
+});

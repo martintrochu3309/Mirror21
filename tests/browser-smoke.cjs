@@ -75,6 +75,26 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    await ready('step-watch.html');
   };
   const until=async(check,what)=>{for(let n=0;n<150;n++){if(await check())return;await wait(100);}throw Error('Timed out waiting for '+what);};
+  // Committing a block's last step plays Kevin's block video first: no X, no dragging ahead, MY PATH only at the
+  // end. Leaving early (to My Path) brings it back; once done, My Path (unlock moment, congratulations) and never again.
+  const blockVideo=async(n,name)=>{
+   await ready('step-watch.html');
+   assert.equal(await evaluate('new URLSearchParams(location.search).get("block")'),String(n));
+   assert.deepEqual(await evaluate('[document.querySelector(".close"),getComputedStyle(document.querySelector("#stepBar")).display==="none",document.querySelector("#stepLabel").textContent,document.querySelector("#stepTitle").textContent,document.querySelector("#watch").classList.contains("placeholder"),document.querySelector("#player").getAttribute("src")]'),[null,true,'BLOCK '+n+' COMPLETE',name+'.',false,'../Audio-Video/Block0'+n+'-Watch.mp4'],'Block '+n+' video: no X, no step bar');
+   await command('Page.navigate',{url:base+'/html/04-map-start'});await ready('step-watch.html');
+   assert.equal(await evaluate('new URLSearchParams(location.search).get("block")'),String(n),'My Path sends the unfinished block video back first');
+   await click('#play');await until(async()=>await watchState()==='playing','the block video to play');
+   const strip=await evaluate('(()=>{const r=document.querySelector("#scrub .line").getBoundingClientRect();return {x:r.left+r.width*.95,y:r.top+r.height/2}})()');
+   await command('Input.dispatchMouseEvent',{type:'mousePressed',x:strip.x,y:strip.y,button:'left',clickCount:1});await command('Input.dispatchMouseEvent',{type:'mouseReleased',x:strip.x,y:strip.y,button:'left',clickCount:1});
+   assert.ok(await evaluate('parseFloat(document.querySelector("#line").style.width)<50'),'The timeline cannot be dragged ahead');
+   assert.equal(await shows('.end'),false,'No MY PATH before the end');
+   // Watched to the end (the test jumps the player itself).
+   await evaluate('(()=>{const p=document.querySelector("#player");p.currentTime=Math.max(0,p.duration-.3);if(p.paused)p.play();return true})()');
+   await until(async()=>await watchState()==='finish','the end of the block video');
+   assert.equal(await text('#nextLabel'),'MY PATH');
+   await click('#next');await ready('04-map-start.html');
+   assert.deepEqual(await evaluate('[localStorage.getItem("mirror21-blockvideo"),localStorage.getItem("mirror21-blockvideo-'+n+'")]'),[null,'true'],'Done for good: not due any more');
+  };
   const noOverflow=async()=>assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth'),false,'No horizontal page scroll');
   const titleFits=()=>evaluate('(()=>{const t=document.querySelector(".title"),r=document.createRange();r.selectNodeContents(t);const rects=r.getClientRects();return {lines:new Set(Array.from(rects,x=>Math.round(x.top))).size,width:r.getBoundingClientRect().width,available:t.clientWidth,size:parseFloat(getComputedStyle(t).fontSize),text:t.textContent}})()');
   const shot=async(name,full)=>{
@@ -168,12 +188,13 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    // Step 00 · Welcome: watch-only, no bar, never starts an attempt.
    await go('step-watch.html?step=0');
    assert.equal(await evaluate('document.querySelector("#stepTitle").textContent'),'WELCOME TO MIRROR 21.');
-   assert.equal(await evaluate('document.querySelector("#stepBar").hidden'),true);
+   assert.deepEqual(await evaluate('[document.querySelector("#stepBar").hidden,getComputedStyle(document.querySelector("#stepBar")).display]'),[true,'none'],'Welcome has no step bar');
    assert.equal(await watchState(),'start');
    assert.equal(await text('#nextLabel'),'MY PATH');
    assert.equal(await evaluate('new URL(document.querySelector("#next").href).pathname.replace(/\\.html$/,"")'),'/html/04-map-start');
    assert.equal(await text('#stepLabel'),'STEP 00 OF 21');
-   assert.equal(await text('#hintText'),'BEST WITH SOUND · 0:37');
+   assert.equal(await text('#hintText'),'BEST WITH SOUND · 0:50');
+   assert.deepEqual(await evaluate('[document.querySelector("#watch").classList.contains("placeholder"),document.querySelector("#player").getAttribute("src")]'),[false,'../Audio-Video/Step00-Watch.mp4'],'Welcome plays its own video');
    assert.equal(await evaluate('localStorage.getItem("mirror21-progress")'),null,'Welcome must not create an attempt or start its clock');
    if(phone){
     await shot('welcome-watch-mobile.png');
@@ -756,7 +777,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     assert.equal(await evaluate('document.querySelector("#promise").textContent'),'Today, after I get home from work, I will put my laptop in a drawer.');
     await noOverflow();
     if(phone)await shot('step07-act-ready-mobile.png',true);
-    await holdFor(1250);await ready('04-map-start.html');assert.equal(await stage7(),4);
+    await holdFor(1250);await blockVideo(1,'MAKE THE MOVE');assert.equal(await stage7(),4);
     const s=await stored();
     assert.deepEqual([s.responses[7].ANCHOR,s.responses[7].ACTION,s.dayChanges[7]],['get home from work','put my laptop in a drawer.','Today, after I get home from work, I will put my laptop in a drawer.']);
     await ready('04-map-start.html');await wait(400);
@@ -1019,7 +1040,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     assert.equal(await evaluate('document.querySelector("#promise").textContent'),promise14);
     await noOverflow();
     if(phone)await shot('step14-act-ready-mobile.png',true);
-    await holdFor(1250);await ready('04-map-start.html');assert.equal(await stage14(),4);
+    await holdFor(1250);await blockVideo(2,'MAKE IT STICK');assert.equal(await stage14(),4);
     const s=await stored();
     assert.deepEqual([s.responses[14].DECISION,s.responses[14].NEWBAR,s.dayChanges[14],s.responses[3].MOVE],['raise','leaving the office by 6:30pm',promise14,'saying no to extra evening work'],'The new bar is kept apart; the Step 03 move is never changed');
     await ready('04-map-start.html');await wait(400);
@@ -1313,7 +1334,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     assert.equal(await evaluate('document.querySelector("#promise").textContent'),promise21);
     await noOverflow();
     if(phone){await evaluate('document.querySelectorAll(".method-card").forEach(c=>c.open=true)');await wait(200);await shot('step21-act-ready-mobile.png',true);}
-    await holdFor(1250);await ready('04-map-start.html');assert.equal(await stage21(),5);
+    await holdFor(1250);await blockVideo(3,'MAKE IT YOURS');assert.equal(await stage21(),5);
     let s=await stored();
     assert.deepEqual([s.responses[21].HERENOW,s.responses[21].NEXT,s.responses[21].ACTION,s.dayChanges[21]],['leave on time most evenings and have two evenings a week to myself','again','ask my manager to move Thursday’s late meeting',promise21]);
     // Block 3 complete: its congratulations, with SEE MY RESULT (to the final check); a tap closes it.

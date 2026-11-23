@@ -29,14 +29,24 @@
   const example = (step, key) => content[lesson(step)]?.examples?.[key] || '';
   // The three blocks of seven steps. Each ends with a summary page (html/block.html?block=N), reached from a tile
   // beside its last step: one skill per step (its step.js), then the closing lines. A block without skills has no page yet.
+  // video: the length of Kevin's block video (Audio-Video/BlockNN-Watch.mp4, first and last frames as
+  // blockNN-start/-finish.jpg), played once, straight after the block's last step is committed.
   const blocks = [
     // description: what the block is for (not shown anywhere yet).
-    { name: 'MAKE THE MOVE', description: 'Build the actions.', first: 1, last: 7, closing: ['You’ve made the move.', 'Next, you make it stick.'] },
-    { name: 'MAKE IT STICK', description: 'Learn how to sustain and progress them.', first: 8, last: 14, closing: ['You’ve learned how to make it stick.', 'Next, you make it yours.'] },
+    { name: 'MAKE THE MOVE', description: 'Build the actions.', first: 1, last: 7, video: '0:16', closing: ['You’ve made the move.', 'Next, you make it stick.'] },
+    { name: 'MAKE IT STICK', description: 'Learn how to sustain and progress them.', first: 8, last: 14, video: '0:14', closing: ['You’ve learned how to make it stick.', 'Next, you make it yours.'] },
     // Block 3's summary opens after the final check, just before the result page (see assets/screens/block.js).
-    { name: 'MAKE IT YOURS', description: 'Use the Mirror Method on any change, for the rest of your life.', first: 15, last: 21, closing: ['You’ve learned the method.', 'What you do with it starts with you.'] }
+    { name: 'MAKE IT YOURS', description: 'Use the Mirror Method on any change, for the rest of your life.', first: 15, last: 21, video: '0:23', closing: ['You’ve learned the method.', 'What you do with it starts with you.'] }
   ].map(block => ({ ...block, skills: Array.from({ length: block.last - block.first + 1 }, (_, i) => content[block.first + i].skill).filter(Boolean) }));
   const block = n => blocks[n - 1] ? { number: n, ...blocks[n - 1], ready: blocks[n - 1].skills.length > 0 } : null;
+  // The block a step completes (7 → 1, 14 → 2, 21 → 3), or 0.
+  const blockEndingAt = step => blocks.findIndex(b => b.last === step) + 1;
+  // A block video's Watch content: no step bar, MY PATH at the end.
+  const blockMedia = n => {
+    if (!blocks[n - 1]) return null;
+    const nn = String(n).padStart(2, '0');
+    return { ...defaults, video: '../Audio-Video/Block' + nn + '-Watch.mp4', image: '../assets/images/block' + nn + '-start.jpg', finish: '../assets/images/block' + nn + '-finish.jpg', duration: blocks[n - 1].video, next: 'MY PATH' };
+  };
   // A saved date (YYYY-MM-DD) in plain words: within the coming week just the weekday ("Sunday"),
   // otherwise weekday, day and month ("Sunday 9 November"). Without `from`, always the full form.
   const plainDate = (iso, from) => {
@@ -93,7 +103,7 @@
     });
   }
   const api = {
-    titles, available, lesson, page, plainDate, block, example, cards, cardList, resultMark,
+    titles, available, lesson, page, plainDate, block, blockEndingAt, blockMedia, example, cards, cardList, resultMark,
     title: step => titles[step] || '',
     // Screen headline: caps with a closing full stop, as in the handoff.
     headline: step => titles[step] ? titles[step].toUpperCase() + '.' : '',

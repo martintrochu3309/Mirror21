@@ -2,6 +2,9 @@
    header card. Run by the app shell. */
 (globalThis.MirrorScreens ||= {}).path = app => {
   const { model, store, state, summary, pad, labels, stepsToGo, pageFilename } = app;
+  // A block video still due (the app was closed during it): it plays first, before anything here.
+  const dueVideo = store.device.blockVideo();
+  if (dueVideo) { location.replace('step-watch.html?block=' + dueVideo); return; }
   function setActionLabel(link, label) {
     const text = document.createElement('span');
     text.className = 'action-label';

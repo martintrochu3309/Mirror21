@@ -62,6 +62,8 @@ function page(sourceFile) {
   text = text.replace(/^<!--@public-->\n/m, () => { open = true; return ''; });
   const relative = path.relative(root, sourceFile).split(path.sep).join('/');
   const head = COMMON.map(line => line.replace('{{theme}}', theme));
+  // preview.html's phones get their pretend storage first (assets/core/preview.js; does nothing anywhere else).
+  head.push('<script src="../assets/core/preview.js"></script>');
   if (!open) head.push('<script src="../assets/core/auth.js"></script>');
   head.splice(3, 0, '<!-- Built from ' + relative + ' by tools/build.js: edit that file, then run node tools/build.js. -->');
   return stamp(head.join('\n') + '\n' + expand(text));

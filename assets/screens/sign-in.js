@@ -147,6 +147,10 @@
     location.replace(next);
     return;
   }
+  // preview.html: a phone showing the code or "no purchase" screen straight away (assets/core/preview.js).
+  const previewed = globalThis.MirrorPreview?.screen;
+  if (previewed === 'codeScreen') { email = 'you@example.com'; openCode(); startCooldown(); }
+  if (previewed === 'noPurchase') { $('unknownEmail').textContent = 'someone@example.com'; show('noPurchase'); }
   const sessionId = params.get('session_id');
   if (sessionId && /^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) {
     fetch(auth.url + '/functions/v1/checkout-email?session_id=' + encodeURIComponent(sessionId))

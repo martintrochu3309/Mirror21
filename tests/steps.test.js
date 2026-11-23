@@ -66,15 +66,25 @@ test('Steps 02–21 have their own Learn and Act; Step 01 uses the generic pages
  assert.equal(steps.page(2,'watch'),'step-watch.html');assert.equal(steps.page(2,'checkin'),'step-checkin.html');
  assert.equal(steps.page(1,'act'),'step-act.html');assert.equal(steps.page(1,'learn'),'step-learn.html');
 });
-test('Watch content: Steps 01–21 have their portrait video with its first and last frames; Welcome waits',()=>{
- for(let step=1;step<=21;step++){const m=steps.media(step),nn=steps.pad(step);
-  assert.deepEqual([m.video,m.image,m.finish],['../Audio-Video/Step'+nn+'-Watch.mp4','../assets/images/step'+nn+'-start.jpg','../assets/images/step'+nn+'-finish.jpg']);}
- for(const step of [0]){const m=steps.media(step);assert.equal(m.video,'','VIDEO COMING SOON until the portrait video arrives');assert.equal(m.image,'../assets/images/step01-start.jpg');assert.equal(m.finish,'');}
+test('Watch content: Welcome and Steps 01–21 have their portrait video with its first and last frames',()=>{
+ const fs=require('node:fs'),path=require('node:path'),there=rel=>fs.existsSync(path.join(__dirname,'../html',rel));
+ for(let step=0;step<=21;step++){const m=steps.media(step),nn=steps.pad(step);
+  assert.deepEqual([m.video,m.image,m.finish],['../Audio-Video/Step'+nn+'-Watch.mp4','../assets/images/step'+nn+'-start.jpg','../assets/images/step'+nn+'-finish.jpg']);
+  assert.ok(there(m.video)&&there(m.image)&&there(m.finish),'Step '+nn+': video and both images exist');}
  for(let step=0;step<=21;step++){assert.equal(steps.available(step),true);assert.equal(steps.media(step).cover,30,'The bottom fade covers 30% unless a step sets its own');}
  assert.deepEqual([steps.media(0).next,steps.media(1).next,steps.media(2).next,steps.media(18).next],['MY PATH','LEARN','LEARN','LEARN']);
- assert.deepEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map(s=>steps.media(s).duration),['0:37','1:45','1:18','1:18','1:25','1:38','1:13','1:20','1:27','1:30','1:27','1:35','1:29','1:27','1:31','1:20','1:23','1:26','1:28','1:28','1:22','1:24']);
+ assert.deepEqual([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].map(s=>steps.media(s).duration),['0:50','1:45','1:18','1:18','1:25','1:38','1:13','1:20','1:27','1:30','1:27','1:35','1:29','1:27','1:31','1:20','1:23','1:26','1:28','1:28','1:22','1:24']);
  for(const step of [22,-1]){assert.equal(steps.available(step),false);assert.equal(steps.media(step),null);}
  assert.equal(steps.pad(3),'03');
+});
+test('Block videos: one per block, played after its last step (07, 14, 21), with MY PATH at the end',()=>{
+ const fs=require('node:fs'),path=require('node:path'),there=rel=>fs.existsSync(path.join(__dirname,'../html',rel));
+ assert.deepEqual([1,6,7,8,14,20,21].map(steps.blockEndingAt),[0,0,1,0,2,0,3]);
+ for(const n of [1,2,3]){const m=steps.blockMedia(n),nn='0'+n;
+  assert.deepEqual([m.video,m.image,m.finish,m.next],['../Audio-Video/Block'+nn+'-Watch.mp4','../assets/images/block'+nn+'-start.jpg','../assets/images/block'+nn+'-finish.jpg','MY PATH']);
+  assert.ok(there(m.video)&&there(m.image)&&there(m.finish),'Block '+n+': video and both images exist');}
+ assert.deepEqual([1,2,3].map(n=>steps.blockMedia(n).duration),['0:16','0:14','0:23']);
+ assert.equal(steps.blockMedia(4),null);
 });
 test('The two Mirror Method cards: whole sentences, the move as it stood, each with its evening result',()=>{
  const state={answers:{19:'yes'},responses:{3:{MOVE:'saying no to extra evening work'},14:{DECISION:'raise',NEWBAR:'leaving by 6:30pm'},

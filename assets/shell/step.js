@@ -13,24 +13,29 @@ MirrorStore.ready(() => {
 
   const state = store.course.load();
   const stats = model.stats(state);
-  const param = new URLSearchParams(location.search).get('step');
+  const params = new URLSearchParams(location.search);
+  const param = params.get('step');
   const asked = param === null || param === '' ? NaN : Number(param);
   // Step 00 (Welcome) is watch-only and never starts or changes an attempt.
   const welcome = screenName === 'watch' && asked === 0;
-  const step = welcome ? 0 : Number.isInteger(asked) && asked >= 1 && asked <= 21 ? asked : (stats.today || 21);
+  // A block video (?block=N): watch-only too, and only while it is due (straight after the block's last step).
+  const block = screenName === 'watch' && params.has('block') ? Number(params.get('block')) : 0;
+  if (block && block !== store.device.blockVideo()) { location.replace(map); return; }
+  const watchOnly = welcome || Boolean(block);
+  const step = watchOnly ? 0 : Number.isInteger(asked) && asked >= 1 && asked <= 21 ? asked : (stats.today || 21);
   const committed = Boolean(state.lessons[step]);
-  if (!welcome && (!steps.available(step) || (!committed && step !== stats.today))) { location.replace(map); return; }
+  if (!watchOnly && (!steps.available(step) || (!committed && step !== stats.today))) { location.replace(map); return; }
   const href = name => steps.page(step, name) + '?step=' + step;
   // Learn and Act follow the step's lesson (Step 02 has its own pages).
   const here = (location.pathname.split('/').pop() || '').replace(/\.html$/, '') + '.html';
-  if (!welcome && here !== steps.page(step, screenName)) { location.replace(href(screenName)); return; }
+  if (!watchOnly && here !== steps.page(step, screenName)) { location.replace(href(screenName)); return; }
   // Step 01 has no check-in; from Step 02, Watch, Learn and Act wait for it.
   if (screenName === 'checkin' && step < 2) { location.replace(href('watch')); return; }
-  if (screenName !== 'checkin' && !welcome && model.needsCheckIn(state, step)) { location.replace(href('checkin')); return; }
+  if (screenName !== 'checkin' && !watchOnly && model.needsCheckIn(state, step)) { location.replace(href('checkin')); return; }
 
-  const save = () => { if (welcome) return; store.course.save(state); };
+  const save = () => { if (watchOnly) return; store.course.save(state); };
   const pad = steps.pad;
-  const record = welcome ? null : (state.steps[step] ||= { screen: step >= 2 ? 'checkin' : 'watch', reached: 0, watch: 0, watched: false, learn: 0, stage: 0, notSure: false, checkedIn: false });
+  const record = watchOnly ? null : (state.steps[step] ||= { screen: step >= 2 ? 'checkin' : 'watch', reached: 0, watch: 0, watched: false, learn: 0, stage: 0, notSure: false, checkedIn: false });
   // Revisiting a finished check-in doesn't move where CONTINUE resumes.
   if (record && !committed && !(screenName === 'checkin' && record.checkedIn)) {
     record.screen = screenName;
@@ -40,7 +45,7 @@ MirrorStore.ready(() => {
 
   const label = document.getElementById('stepLabel');
   label.textContent = 'STEP ' + pad(step);
-  document.title = 'Mirror 21 · Step ' + pad(step) + ' · ' + { checkin: 'Check in', watch: 'Watch', learn: 'Learn', act: 'Act' }[screenName];
+  document.title = 'Mirror 21 · ' + (block ? 'Block ' + block : 'Step ' + pad(step)) + ' · ' + { checkin: 'Check in', watch: 'Watch', learn: 'Learn', act: 'Act' }[screenName];
 
   // Step bar: Watch · Learn · Act, with Check in first from Step 02. Each part fills gold as it is done.
   // Labels under it: gold once that part is done, black (white on Watch) for this screen, grey to come.
@@ -70,8 +75,8 @@ MirrorStore.ready(() => {
     draw(values);
     store.device.saveBarPosition(step, values);
   }
-  const refreshBar = () => { if (!welcome) paint(model.segments(state, step)); };
-  if (welcome) bar.hidden = true;
+  const refreshBar = () => { if (!watchOnly) paint(model.segments(state, step)); };
+  if (watchOnly) bar.hidden = true;
   else {
     // Start from where the bar was on the previous screen, then advance.
     const values = model.segments(state, step);
@@ -95,7 +100,7 @@ MirrorStore.ready(() => {
 
   // What every step screen is given.
   const screen = globalThis.MirrorScreens?.[screenName];
-  if (screen) screen({ model, steps, store, state, stats, step, welcome, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival, showEarlier });
+  if (screen) screen({ model, steps, store, state, stats, step, welcome, block, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival, showEarlier });
 
   fitTitles();
   document.fonts.ready.then(fitTitles);

@@ -1,15 +1,17 @@
 /* Watch: Start → Mid (playing / paused) → Finish, from the Watch screen handoff.
    Learn appears at Finish once 90% of the video is reached. The timeline can be dragged freely either way,
    so dragging past 90% counts as watched (for now).
+   A block video (block 1–3, straight after the block's last step) is watched through: no X, no dragging, MY PATH
+   at the end.
    Run by the step shell. */
-(globalThis.MirrorScreens ||= {}).watch = ({ steps, store, step, welcome, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival }) => {
+(globalThis.MirrorScreens ||= {}).watch = ({ steps, store, step, welcome, block, committed, record, save, refreshBar, label, pad, map, href, reduceMotion, arrival }) => {
   const screen = document.getElementById('watch');
   const player = document.getElementById('player');
   const still = document.getElementById('still');
   const line = document.getElementById('line');
   const hint = document.getElementById('hint');
   const next = document.getElementById('next');
-  const media = steps.media(step);
+  const media = block ? steps.blockMedia(block) : steps.media(step);
   // Without a video, playback is simulated for this long and shows VIDEO COMING SOON.
   const DEMO_SECONDS = 8;
   const fake = !media.video;
@@ -18,13 +20,14 @@
   const [mins, secs] = media.duration.split(':').map(Number);
   // Length shown before the file loads; the file's own length replaces it.
   let total = mins * 60 + secs || 0;
-  let watched = welcome ? store.device.welcomeWatched() : committed || record.watched;
+  let watched = block ? false : welcome ? store.device.welcomeWatched() : committed || record.watched;
   // Where playback stands, as a share of the video; an unfinished first watch resumes from here.
-  let at = watched || welcome ? 0 : record.watch;
+  let at = watched || welcome || block ? 0 : record.watch;
   let current, immerse, raf, t0 = 0, lastSaved = 0, savedWatch = at, arriving = false;
 
-  label.textContent = 'STEP ' + pad(step) + ' OF 21';
-  document.getElementById('stepTitle').textContent = steps.headline(step);
+  label.textContent = block ? 'BLOCK ' + block + ' COMPLETE' : 'STEP ' + pad(step) + ' OF 21';
+  document.getElementById('stepTitle').textContent = block ? steps.block(block).name + '.' : steps.headline(step);
+  if (block) document.querySelector('.close').remove();
   document.getElementById('nextLabel').textContent = media.next;
   if (fake) screen.classList.add('placeholder'); else player.src = media.video;
   screen.style.setProperty('--cover', media.cover + '%');
@@ -47,15 +50,17 @@
   }
   // Saves how far the first watch got, only when it moved since the last save.
   function keep() {
-    if (welcome || committed || watched || record.watch === savedWatch) return;
+    if (welcome || block || committed || watched || record.watch === savedWatch) return;
     savedWatch = record.watch; lastSaved = Date.now(); save();
   }
   function markWatched() {
     watched = true; screen.classList.add('is-watched');
     if (welcome) store.device.markWelcomeWatched();
-    else if (!committed) { record.watched = true; record.watch = 1; save(); }
+    else if (!block && !committed) { record.watched = true; record.watch = 1; save(); }
   }
   const scrub = document.getElementById('scrub'), knob = document.getElementById('knob');
+  // A block video's timeline only shows how far it has played.
+  if (block) { scrub.removeAttribute('tabindex'); scrub.setAttribute('aria-disabled', 'true'); scrub.style.cursor = 'default'; }
   function showTimes() {
     document.getElementById('scrubAt').textContent = clock(at * total);
     document.getElementById('scrubTotal').textContent = total ? clock(total) : '';
@@ -67,7 +72,7 @@
     showTimes();
     if (watched) return;
     if (p >= 0.9) markWatched();
-    else if (!welcome && !committed && p > record.watch) {
+    else if (!welcome && !block && !committed && p > record.watch) {
       record.watch = p;
       if (Date.now() - lastSaved > 1000) keep();
     }
@@ -106,7 +111,7 @@
   }
   const pointAt = event => { const r = line.parentElement.getBoundingClientRect(); return (event.clientX - r.left) / r.width; };
   scrub.addEventListener('pointerdown', event => {
-    if (current !== 'playing' && current !== 'paused') return;
+    if (block || (current !== 'playing' && current !== 'paused')) return;
     event.preventDefault();
     dragging = true; wasPlaying = current === 'playing';
     scrub.setPointerCapture(event.pointerId);
@@ -125,7 +130,7 @@
   scrub.addEventListener('pointercancel', release);
   scrub.addEventListener('keydown', event => {
     const jump = event.key === 'ArrowRight' ? 5 : event.key === 'ArrowLeft' ? -5 : 0;
-    if (!jump || !total) return;
+    if (block || !jump || !total) return;
     event.preventDefault(); seek(at + jump / total);
   });
 
@@ -157,6 +162,11 @@
     next.href = map;
     // Leaving Welcome with its button counts as done: the map's START moves on to Step 01.
     next.addEventListener('click', () => store.device.markWelcomeSeen());
+  }
+  else if (block) {
+    next.href = map;
+    // MY PATH: the block video is done for good; My Path then plays the unlock moment and the congratulations card.
+    next.addEventListener('click', () => store.device.markBlockVideoSeen(block));
   }
   else next.href = href('learn');
   // Dark to white: a quick fade into the next screen rather than a hard cut.

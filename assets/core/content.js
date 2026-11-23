@@ -22,7 +22,7 @@
   // Step 00 · Welcome to Mirror 21
   step(0, {
     title: 'Welcome to Mirror 21',
-    watch: { duration: '0:37', next: 'MY PATH' }
+    watch: { filmed: '0:50', next: 'MY PATH' }
   });
 
   // ---- src/steps/step01/step.js

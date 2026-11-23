@@ -92,9 +92,15 @@
     state.change = state.dayChanges[step];
     // My Path shows the next step opening in front of him (assets/screens/path.js).
     store.device.setUnlock(step);
+    // The last step of a block: Kevin's block video first, the first time only.
+    const block = steps.blockEndingAt(step);
+    if (block && !store.device.blockVideoSeen(block)) store.device.setBlockVideo(block);
   }
-  // After I'M COMMITTED: COMMITTED shows for a moment, then straight back to My Path.
-  function returnToMap() { setTimeout(() => { location.href = map; }, 300); }
+  // After I'M COMMITTED: COMMITTED shows for a moment, then straight back to My Path (or the block video, when due).
+  function returnToMap() {
+    const block = store.device.blockVideo();
+    setTimeout(() => { location.href = block ? 'step-watch.html?block=' + block : map; }, 300);
+  }
 
   function scrollToRow(target, focusBox) {
     setTimeout(() => {

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Every screen of Mirror 21 in phone frames, live, for reviewing changes. Open it from the folder on a computer:
+     each phone runs the real app with its own pretend course (preview/scenarios.js, assets/core/preview.js), and nothing
+     is saved. On mirror21.app it is not served (_redirects). -->
+<title>Mirror 21 · Preview</title>
+<link rel="stylesheet" href="assets/step/tokens.css">
+<style>
+:root { --s: .75; --bg: #0b0b0b; --line: #262626; --text: #f2f2ef; --dim: #8a8a86; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+main { max-width: 1320px; margin: 0 auto; padding: 40px 28px 80px; }
+h1 { margin: 0; font: italic 700 40px/1 var(--font-display); letter-spacing: .02em; }
+h1 span { color: var(--gold); }
+.intro { max-width: 720px; margin: 14px 0 0; font-size: 16px; font-weight: 300; line-height: 1.5; color: #c9c9c5; }
+.intro a { color: var(--gold); font-weight: 700; }
+.controls { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 -28px; padding: 18px 28px; background: rgba(11, 11, 11, .92); backdrop-filter: blur(10px); }
+.pill { padding: 10px 16px; border: 1px solid #3a3a3a; border-radius: 22px; background: none; color: var(--text); font: 700 11px/1 var(--font-body); letter-spacing: .2em; text-decoration: none; cursor: pointer; }
+.pill[aria-pressed="true"] { border-color: var(--gold); }
+.pill:hover { border-color: #6a6a66; }
+.sep { width: 1px; height: 26px; margin: 0 6px; background: #3a3a3a; }
+section { margin-top: 44px; scroll-margin-top: 80px; }
+h2 { display: flex; align-items: center; gap: 18px; margin: 0 0 22px; font: 700 12px/1 var(--font-body); letter-spacing: .24em; }
+h2::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+h3 { margin: 30px 0 14px; font: italic 700 18px/1.1 var(--font-display); color: #d8d8d4; }
+h3 small { margin-right: 10px; color: var(--gold); font: inherit; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, calc(390px * var(--s) + 24px)); gap: 34px 26px; }
+.phone { width: calc(390px * var(--s) + 24px); }
+.bezel { position: relative; width: 100%; height: calc(844px * var(--s) + 24px); padding: 12px; border-radius: calc(54px * var(--s) + 12px); background: #1b1b1b; box-shadow: 0 0 0 1px #2c2c2c, 0 18px 40px rgba(0, 0, 0, .55); }
+.screen { width: calc(390px * var(--s)); height: calc(844px * var(--s)); overflow: hidden; border-radius: calc(54px * var(--s)); background: #fff; }
+.screen iframe { display: block; width: 390px; height: 844px; border: 0; transform: scale(var(--s)); transform-origin: 0 0; }
+.caption { display: flex; align-items: baseline; gap: 8px; margin-top: 14px; padding: 0 6px; }
+.caption b { color: #5a5a57; font: italic 700 15px/1 var(--font-display); }
+.caption span { flex: 1; font: italic 700 15px/1.2 var(--font-display); }
+.caption a { color: var(--dim); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; }
+.caption a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<main>
+  <h1>MIRROR <span>21</span> · PREVIEW</h1>
+  <p class="intro">Every screen of the course, live. Tap and scroll inside any phone: each one has its own pretend course, and nothing here is saved. Reload this page to reset them all. To walk the real journey from the start, open <a href="index.html">index.html</a>.</p>
+  <nav class="controls" aria-label="Preview">
+    <button class="pill" data-size=".6">SMALL</button>
+    <button class="pill" data-size=".75" aria-pressed="true">MEDIUM</button>
+    <button class="pill" data-size=".95">LARGE</button>
+    <span class="sep" aria-hidden="true"></span>
+    <a class="pill" href="#start">START</a>
+    <a class="pill" href="#tabs">MY PATH</a>
+    <a class="pill" href="#block-1">BLOCK 1</a>
+    <a class="pill" href="#block-2">BLOCK 2</a>
+    <a class="pill" href="#block-3">BLOCK 3</a>
+    <a class="pill" href="#end">END</a>
+  </nav>
+  <div id="sections"></div>
+</main>
+<script src="assets/core/content.js"></script>
+<script src="assets/core/steps.js"></script>
+<script src="preview/scenarios.js"></script>
+<script>
+(() => {
+  const steps = MirrorSteps, pad = steps.pad;
+  const { course, finishedCourse, signedIn, BOXES } = MirrorScenarios(new Date());
+  const TAG = 'mirror21-preview:';
+  // A phone: its name, the page (in html/), its pretend saved data, and what to tap or show first.
+  const phone = (name, page, local = {}, extra = {}) => ({ name, page, data: { local, ...extra } });
+  const inApp = local => ({ ...signedIn, ...local });
+
+  const mid = course({ done: 9, graded: 8, current: { step: 10, screen: 'checkin' } });
+  const blockDone = n => {
+    const last = steps.block(n).last;
+    return course({ done: last, graded: last - 1, current: last < 21 ? { step: last + 1, screen: 'checkin' } : null });
+  };
+  function stepPhones(n) {
+    const list = [];
+    if (n >= 2) list.push(phone('Check in', 'step-checkin.html?step=' + n, inApp(course({ done: n - 1, graded: n - 2, current: { step: n, screen: 'checkin' } }))));
+    list.push(phone('Watch', 'step-watch.html?step=' + n, inApp(course({ done: n - 1, current: { step: n, screen: 'watch' }, extra: s => { s.steps[n].checkedIn = n >= 2; } }))));
+    list.push(phone('Learn', steps.page(n, 'learn') + '?step=' + n, inApp(course({ done: n - 1, current: { step: n, screen: 'learn' } }))));
+    list.push(phone('Act · start', steps.page(n, 'act') + '?step=' + n, inApp(course({ done: n - 1, current: { step: n, screen: 'act', stage: 0 } }))));
+    list.push(phone('Act · ready to commit', steps.page(n, 'act') + '?step=' + n, inApp(course({ done: n - 1, current: { step: n, screen: 'act', stage: n === 1 ? 5 : BOXES[n] + 1, fill: true } }))));
+    return list;
+  }
+  function blockEnd(n) {
+    const last = steps.block(n).last, done = blockDone(n);
+    return [
+      phone('Block ' + n + ' video', 'step-watch.html?block=' + n, inApp({ ...done, 'mirror21-blockvideo': String(n), 'mirror21-unlock': String(last) })),
+      phone('My Path · congratulations', '04-map-start.html', inApp({ ...done, 'mirror21-unlock': String(last) })),
+      ...(n < 3 ? [phone('Block ' + n + ' summary', 'block.html?block=' + n, inApp(done))] : [])
+    ];
+  }
+
+  // The sections, top to bottom: [id, heading, [[subheading, phones], …]].
+  const sections = [
+    ['start', 'BEFORE SIGN-IN', [[null, [
+      phone('First page', '00-start.html'),
+      phone('Sign in · email', '02-sign-in.html'),
+      phone('Sign in · code', '02-sign-in.html', {}, { screen: 'codeScreen' }),
+      phone('No purchase', '02-sign-in.html', {}, { screen: 'noPurchase' })
+    ]]]],
+    ['welcome', 'WELCOME', [[null, [
+      phone('Welcome video', 'step-watch.html?step=0', inApp({})),
+      phone('My Path · first visit', '04-map-start.html', inApp({}))
+    ]]]],
+    ['tabs', 'MY PATH, MY MIRROR, MY JOURNEY, SETTINGS', [[null, [
+      phone('My Path · start', '04-map-start.html', inApp({ 'mirror21-seen-0': 'true' })),
+      phone('My Path · middle', '04-map-start.html', inApp(mid)),
+      phone('My Path · finished', '04-map-start.html', inApp(finishedCourse())),
+      phone('My Mirror', '18-my-mirror.html', inApp(mid)),
+      phone('My Journey', '19-my-journey.html', inApp(mid)),
+      phone('Settings', '04-map-start.html', inApp(mid), { act: ['click .settings-gear'] }),
+      phone('Help', '04-map-start.html', inApp(mid), { act: ['click .settings-gear', 'clickText .settings-row|Help'] }),
+      phone('Account', '04-map-start.html', inApp(mid), { act: ['click .settings-gear', 'clickText .settings-row|Account'] })
+    ]]]],
+    ...[1, 2, 3].map(n => {
+      const b = steps.block(n);
+      const rows = [];
+      for (let s = b.first; s <= b.last; s++) rows.push([[pad(s), steps.title(s)], stepPhones(s)]);
+      rows.push([['', 'End of Block ' + n], blockEnd(n)]);
+      return ['block-' + n, 'BLOCK ' + n + ' · ' + b.name, rows];
+    }),
+    ['end', 'THE END', [[null, [
+      phone('Final check', 'final-check.html', inApp(course({ done: 21, graded: 20 }))),
+      phone('Block 3 summary', 'block.html?block=3', inApp(finishedCourse())),
+      phone('Result', 'result.html', inApp(finishedCourse()))
+    ]]]]
+  ];
+
+  const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text != null) node.textContent = text; return node; };
+  let count = 0;
+  const host = document.getElementById('sections');
+  for (const [id, heading, rows] of sections) {
+    const section = el('section'); section.id = id;
+    section.append(el('h2', '', heading));
+    for (const [sub, phones] of rows) {
+      if (sub) { const h3 = el('h3'); if (sub[0]) h3.append(el('small', '', sub[0])); h3.append(sub[1]); section.append(h3); }
+      const grid = el('div', 'grid');
+      for (const p of phones) {
+        const box = el('div', 'phone'), bezel = el('div', 'bezel'), screen = el('div', 'screen'), frame = el('iframe');
+        frame.name = TAG + JSON.stringify(p.data);
+        frame.title = p.name;
+        frame.loading = 'lazy';
+        frame.src = 'html/' + p.page;
+        screen.append(frame); bezel.append(screen);
+        const caption = el('div', 'caption'), open = el('a', '', 'Open ↗');
+        open.addEventListener('click', () => window.open('html/' + p.page, TAG + JSON.stringify(p.data)));
+        caption.append(el('b', '', String(++count)), el('span', '', p.name), open);
+        box.append(bezel, caption); grid.append(box);
+      }
+      section.append(grid);
+    }
+    host.append(section);
+  }
+
+  // SMALL / MEDIUM / LARGE, remembered on this computer.
+  const sizes = document.querySelectorAll('[data-size]');
+  const size = value => {
+    document.documentElement.style.setProperty('--s', value);
+    sizes.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.size === value)));
+    try { localStorage.setItem('mirror21-preview-size', value); } catch {}
+  };
+  sizes.forEach(button => button.addEventListener('click', () => size(button.dataset.size)));
+  try { const saved = localStorage.getItem('mirror21-preview-size'); if (saved && document.querySelector('[data-size="' + saved + '"]')) size(saved); } catch {}
+})();
+</script>
+</body>
+</html>

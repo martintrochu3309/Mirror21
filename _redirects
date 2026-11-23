@@ -1,3 +1,6 @@
 # Netlify: mirror21.app/signin is Sign in (Stripe sends buyers to /signin?session_id=… after paying; the query
 # string is passed along).
 /signin   /html/02-sign-in   302
+# preview.html is for reviewing screens on a computer only.
+/preview       /   302
+/preview.html  /   302

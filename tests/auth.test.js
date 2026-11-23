@@ -36,7 +36,9 @@ test('The first page, Sign in and the Offer are open to anyone; every other page
   const gate=/<script src="\.\.\/assets\/core\/auth\.js\?v=[^"]+"><\/script>/.exec(text);
   if(['00-start.html','01-offer.html','02-sign-in.html'].includes(name)){assert.equal(gate,null,name+' is open');continue;}
   assert.ok(gate,name+' checks for a sign-in');
-  assert.ok(gate.index<text.indexOf('</head>')&&!/<script/.test(text.slice(0,gate.index)),name+': the check is the first script in the head');
+  const before=text.slice(0,gate.index).match(/<script[^>]*>/g)||[];
+  assert.ok(gate.index<text.indexOf('</head>'),name+': the check is in the head');
+  assert.deepEqual(before.map(tag=>tag.replace(/\?v=[^"]+/,'')),['<script src="../assets/core/preview.js">'],name+': only preview.js (which does nothing outside preview.html) runs before the check');
  }
 });
 test('While a page is sending someone to Sign in, its screen never runs (nothing is saved)',()=>{

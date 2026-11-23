@@ -27,7 +27,7 @@
   }
   // The course and what goes with it on this device: bar and video positions, which Welcome and block summaries
   // were seen. Settings (the reminder) and finished runs stay.
-  const courseKeys = key => key === COURSE || key === PREFIX + 'unlock' || /^mirror21-(audio|bar|watched|seen|block)-\d+$/.test(key) || /^mirror21-scroll-\d+-\d+$/.test(key);
+  const courseKeys = key => key === COURSE || key === PREFIX + 'unlock' || key === PREFIX + 'blockvideo' || /^mirror21-(audio|bar|watched|seen|block|blockvideo)-\d+$/.test(key) || /^mirror21-scroll-\d+-\d+$/.test(key);
 
   const course = {
     // The saved course, made safe to use (a fresh one when nothing valid is saved).
@@ -62,6 +62,12 @@
     // until My Path has shown it, even if the app is closed first.
     setUnlock: what => write(PREFIX + 'unlock', String(what)),
     takeUnlock: () => { const value = read(PREFIX + 'unlock'); try { localStorage.removeItem(PREFIX + 'unlock'); } catch {} return value; },
+    // A block's video, due straight after its last step is committed (1, 2 or 3), and watched to the end only once.
+    // It stays due, even if the app is closed, until its MY PATH button is tapped: My Path sends it back first.
+    setBlockVideo: n => write(PREFIX + 'blockvideo', String(n)),
+    blockVideo: () => Number(read(PREFIX + 'blockvideo')) || 0,
+    blockVideoSeen: n => read(PREFIX + 'blockvideo-' + n) === 'true',
+    markBlockVideoSeen: n => { write(PREFIX + 'blockvideo-' + n, 'true'); try { localStorage.removeItem(PREFIX + 'blockvideo'); } catch {} },
     // One-time note from My Path or the check-in telling Watch how to arrive (read in step-watch.html's head too).
     setArrival: value => { try { sessionStorage.setItem(PREFIX + 'intro', value); } catch {} },
     takeArrival: () => { let value = null; try { value = sessionStorage.getItem(PREFIX + 'intro'); sessionStorage.removeItem(PREFIX + 'intro'); } catch {} return value; }
