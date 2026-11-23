@@ -50,7 +50,7 @@ test('Start over clears the course on this device but keeps settings and finishe
  const entries=[['mirror21-progress','{}'],['mirror21-unlock','4'],['mirror21-bar-3','[1]'],['mirror21-watched-0','true'],['mirror21-seen-0','true'],['mirror21-block-1','true'],['mirror21-reminder','07:15'],['mirror21-runs','[]'],['other-app','keep']];
  const a=load(storage(entries),storage([['mirror21-scroll-2-4','100'],['mirror21-intro','3']]));
  assert.equal(a.store.course.clear(),true);
- assert.deepEqual([...a.local.values.keys()].sort(),['mirror21-reminder','mirror21-runs','other-app']);
+ assert.deepEqual([...a.local.values.keys()].sort(),['mirror21-reminder','mirror21-runs','mirror21-saved-at','other-app'],'Clearing is a change the account copy gets too');
  assert.deepEqual([...a.session.values.keys()],['mirror21-intro'],'The one-time arrival note is not part of the course');
  const b=load(storage(entries),storage([['mirror21-intro','3']]));
  assert.equal(b.store.deleteAll(),true);
@@ -66,7 +66,7 @@ test('A browser that refuses storage: reads give nothing, writes do nothing, cle
 test('Another tab saving the course is reported; other keys are not',()=>{
  const {store,listeners}=load();let changed=0;
  store.course.onChange(()=>changed++);
- const [[name,fn]]=listeners;assert.equal(name,'storage');
+ const [,fn]=listeners.find(([name])=>name==='storage');
  fn({key:'mirror21-reminder'});fn({key:'mirror21-progress'});assert.equal(changed,1);
 });
 test('ready() runs the screen straight away while the course lives in this browser',()=>{

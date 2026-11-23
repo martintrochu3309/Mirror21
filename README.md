@@ -146,14 +146,24 @@ Progress lives in this browser's local storage under `mirror21-progress`: per st
 
 ## Saved data (`assets/core/store.js`)
 
-Every read and write of saved data goes through `MirrorStore`: no screen touches `localStorage` or `sessionStorage` itself. It keeps two kinds apart, because they will live in different places once accounts exist:
+Every read and write of saved data goes through `MirrorStore`: no screen touches `localStorage` or `sessionStorage` itself. It keeps two kinds apart:
 
-| Kind | What | Today | With accounts |
-|---|---|---|---|
-| `MirrorStore.course` | the course (`mirror21-progress`), finished runs (`mirror21-runs`), the reminder time (`mirror21-reminder`) | this browser | the learner's account (Supabase), on any phone |
-| `MirrorStore.device` | where the step bar stood (`mirror21-bar-N`), Welcome watched or left (`mirror21-watched-0`, `mirror21-seen-0`), block summaries opened (`mirror21-block-N`), the step still to be shown opening on My Path (`mirror21-unlock`), a block video still due and the ones watched (`mirror21-blockvideo`, `mirror21-blockvideo-N`), the one-time arrival note for Watch (`mirror21-intro`, session) | this browser | still this browser |
+| Kind | What | Where |
+|---|---|---|
+| The account's | the course (`mirror21-progress`), finished runs (`mirror21-runs`), the reminder time (`mirror21-reminder`), Welcome watched or left (`mirror21-watched-0`, `mirror21-seen-0`), block summaries opened (`mirror21-block-N`), a block video still due and the ones watched (`mirror21-blockvideo`, `mirror21-blockvideo-N`) | this browser first, then the learner's account in Supabase (`courses`), so it follows them to any phone or computer |
+| This device only | where the step bar stood (`mirror21-bar-N`), the step still to be shown opening on My Path (`mirror21-unlock`), the one-time arrival note for Watch (`mirror21-intro`, session) | this browser |
 
-Each screen starts with `MirrorStore.ready(…)`, which runs it once the saved course is available: straight away today, and after the account's course has loaded once Supabase is connected. `course.load()` always gives a safe course (a fresh one when nothing valid is saved), `course.save(state)` stamps the time, `course.clear()` is Start over (and a new run), `deleteAll()` is Delete my data, and `course.onChange(fn)` reports a save from another tab. The keys and format are unchanged, so saved progress keeps working. The one exception to "only through the store" is the tiny script in `step-watch.html`'s head, which reads the arrival note before the first paint.
+**The account copy** (`supabase/courses.sql`; `MirrorStore.cloud` in `store.js`):
+
+- Every change to the account's data stamps `mirror21-saved-at` and is sent through `save_course` 1.5 s later, or straight away when the page is left. Whichever copy was saved last wins, on the phone and in Supabase: an older phone never overwrites a newer one.
+- Each page compares once with the account. On a device that has never held this account's course, the page waits for the account's copy, for 6 s at most. Otherwise it opens straight away and reloads if another device saved since.
+- `mirror21-owner` holds whose course is on the device. If someone else signs in on the same phone, the last person's course is cleared first, settings kept.
+- A course saved before accounts existed goes up on the first sign-in.
+- Offline, everything keeps working on the phone and goes up when it's back.
+- Only on the live site (https). On a computer (`file:`, `localhost`), in `preview.html` and in the tests, nothing is sent.
+- Learners can read and delete only their own row. Nobody can read the `admins` table through the public keys.
+
+Each screen starts with `MirrorStore.ready(…)`, which runs it once the saved course is there (see above). `course.load()` always gives a safe course (a fresh one when nothing valid is saved), `course.save(state)` stamps the time, `course.clear()` is Start over, `deleteAll()` is Delete my data (the account copy too), and `course.onChange(fn)` reports a save from another tab. The keys and format are unchanged, so saved progress keeps working. The one exception to "only through the store" is the tiny script in `step-watch.html`'s head, which reads the arrival note before the first paint.
 
 ## The look (November 2026)
 
@@ -166,6 +176,8 @@ One style across the step screens, tried on Step 01 first, then brought to every
 - **Check in and the final check:** the question, the promise under it in Medium, then three tiles (light; the pick black with white text, the others fading). No STEP label, intro, MY PROMISE label, circles or ticks; WATCH / SEE YOUR RESULT black, no arrow.
 - **My Journey:** no circles or line; each entry is **01 TITLE** (gold number), then "Sat 14 Nov · Yes" (the evening's answer as a word), then the promise in Medium. Titles share one size (the longest that fits); a short centred line, a third wide, between steps; no block headings. Opened: each label in Magistral, 15px, above its answer in lighter grey, 15px.
 - **Block complete:** the block's name, BLOCK N COMPLETE under it in gold Magistral, the skills line in Medium; no BLOCK 1 · 2 · 3 bar, circles or dotted rail. Each skill is **01 DIRECTION** (gold number) with its line in Medium, then YOUR PROMISE · STEP NN in small grey Magistral just above a light grey tile holding the promise; a short centred line between skills. The closing lines in Magistral, black then grey; BACK TO STEPS (SEE MY RESULTS on Block 3) black, no arrow.
+- **Result page:** the score, its note and the black tier tile; WHERE YOU STARTED (grey tile) and WHERE YOU ARE (gold-ringed tile), their words in Medium; YOUR MIRROR METHOD's two cards; the closing lines, then BACK TO MY PATH black, no arrow. No WHERE YOU'RE GOING, journey list, WHAT'S NEXT tile or START A NEW RUN.
+- **Evening results:** YES, PARTLY or NO as a word only, no dots.
 - **Help and Account:** WRITE TO US black, no arrow; answers in Medium, 14px.
 - **Sign in:** text in Medium; SEND MY CODE black with white text. My Path's header card shows the block and the step only.
 
@@ -227,6 +239,22 @@ The app opens on the first page (`html/00-start.html`): MIRROR 21 in the middle,
 - **Logs:** Supabase → Edge Functions → the function → Logs; every line starts `[stripe-webhook]` or `[checkout-email]`, errors with `ERROR`. In Stripe: Developers → Webhooks → the endpoint → its event deliveries. Sign-in emails: Resend's Logs.
 - **Tests:** the browser test simulates Supabase (no email is sent): buyer@example.com has an account and the code is 123456. The visual baseline saves a sign-in for every screen but the first page, Sign in and the Offer.
 - The `supabase/` folder holds no secrets, so Netlify publishing it with the site is harmless.
+
+## Dashboard (`mirror21.app/dashboard`)
+
+For the Mirror 21 team only. You sign in with the usual 6-digit code, then the page calls Supabase's `dashboard_stats()` (`supabase/dashboard.sql`).
+
+- **Who can see it:** only emails in the `admins` table get an answer; everyone else gets "This page is for the Mirror 21 team". To add someone, they need an account (buy with the MIRRORTEST coupon), then add their email in the SQL Editor: `insert into public.admins (email) values ('…');`.
+- **What it returns:** one entry per buyer, with no email and nothing anyone wrote. For each buyer: when they paid, test or real, whether they've signed in, when they started and last saved. For each step: committed and when, opened, checked in, the part reached, and the evening answer (yes / partly / no).
+- **What the page shows** (`assets/core/dashboard-stats.js` counts; `assets/screens/dashboard.js` draws):
+  - the headline numbers
+  - steps completed (01–21)
+  - where people stop: their step and the part of it, filterable to people idle 3+ or 7+ days
+  - the average day each step is committed (Day 1 = the day they started)
+  - days to finish all 21
+  - promises kept per step
+  - one anonymous row per learner
+- **On a computer** (`file:`, `localhost`) it draws made-up sample data, marked as such, so the page can be checked without Supabase.
 
 ## Deploying on Netlify
 

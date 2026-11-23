@@ -117,7 +117,6 @@ const flows=[
  {name:'flow-map-start',url:'04-map-start.html',local:mid,steps:[['click','.progress-row[data-day="10"] .progress-step'],['click','.day-popover-start'],['await','step-checkin.html']]},
  {name:'flow-map-watch',url:'04-map-start.html',local:mid,steps:[['click','.progress-row[data-day="4"] .progress-step'],['click','.day-popover-start'],['await','step-watch.html']]},
  {name:'flow-final',url:'final-check.html',local:course({done:21,graded:20}),steps:[['click','[data-choice="yes"]'],['click','#next'],['await','block.html'],['click','#blockButton'],['await','result.html']]},
- {name:'flow-new-run',url:'result.html',local:finishedCourse('again'),steps:[['scroll'],['click','#newRun'],['await','04-map-start.html']]},
  {name:'flow-settings',url:'04-map-start.html',local:{...mid,'mirror21-reminder':'07:15','mirror21-runs':JSON.stringify([past])},steps:[
   ['click','.settings-gear'],['shot','list'],['clickText','.settings-row','Help'],['shot','help'],['click','.help-q[aria-controls="help-a-3"]'],['shot','help-other-question'],['click','.settings-back'],
   ['clickText','.settings-row','Account'],['shot','account'],['click','.settings-back'],['clickText','.settings-row','Daily reminder'],['shot','reminder'],['clickText','.sheet-link','Turn reminders off'],['shot','reminder-off'],

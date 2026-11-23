@@ -1,0 +1,120 @@
+<title>Mirror 21 · Dashboard</title>
+<!-- mirror21.app/dashboard: how far buyers get, for the Mirror 21 team only. Signing in is the usual 6-digit code
+     (auth.js sends anyone signed out to Sign in, then back here); Supabase's dashboard_stats() then answers only for
+     the emails in its admins table, and only with numbers and dates: no names, nothing anyone wrote.
+     Behaviour: ../assets/screens/dashboard.js; the numbers: ../assets/core/dashboard-stats.js. -->
+<link rel="stylesheet" href="../assets/step/tokens.css">
+<style>
+html, body { margin: 0; background: var(--bg); }
+body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+:root { --bar: #896a00; --bar-hover: #5e4900; --cell: 137, 106, 0; --line: #ebebe7; }
+.dash { max-width: 980px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px max(40px, env(safe-area-inset-bottom)); }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 44px; }
+.wordmark { margin: 0; font: italic 700 18px/1 var(--font-display); letter-spacing: -0.02em; white-space: nowrap; }
+.wordmark span { color: var(--gold); }
+.refresh { height: 36px; padding: 0 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--bg); color: var(--ink); font: 700 11px/1 var(--font-body); letter-spacing: .16em; cursor: pointer; }
+h1 { margin: 26px 0 0; font: italic 700 34px/1 var(--font-display); letter-spacing: -0.035em; }
+.sub { margin: 10px 0 0; font-size: 14px; font-weight: 500; line-height: 1.45; color: var(--muted); }
+.note { margin: 24px 0 0; padding: 14px 16px; border-radius: 14px; background: var(--surface); font-size: 15px; font-weight: 500; line-height: 1.45; }
+/* Headline numbers */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 24px; }
+.tile { padding: 14px 16px 16px; border: 1px solid var(--line); border-radius: 14px; }
+.tile-label { margin: 0; font: italic 700 13px/1.2 var(--font-display); letter-spacing: .04em; color: var(--muted); }
+.tile-value { margin: 8px 0 0; font: italic 700 34px/1 var(--font-display); letter-spacing: -0.03em; }
+.tile-sub { margin: 6px 0 0; font-size: 12px; font-weight: 500; color: var(--muted); }
+/* Sections */
+.section { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); }
+.section h2 { margin: 0; font: italic 700 24px/1.1 var(--font-display); letter-spacing: -0.02em; }
+.section .sub { margin-top: 8px; }
+.switch { display: inline-flex; gap: 4px; margin-top: 16px; padding: 3px; border-radius: 20px; background: var(--surface); }
+.switch button { height: 30px; padding: 0 14px; border: 0; border-radius: 15px; background: none; color: var(--muted); font: 600 13px/1 var(--font-body); cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+/* Column chart: one series, one colour; the value on hover or focus, the numbers in the table under it */
+.chart { position: relative; margin-top: 20px; }
+.chart + .chart, div + div > .chart { margin-top: 34px; }
+.chart-title { margin: 0; font-size: 14px; font-weight: 700; }
+.plot { margin-top: 26px; } /* room for the top axis number */
+.plot { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; align-items: end; height: 200px; border-bottom: 1px solid #cfcfca; }
+.gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); pointer-events: none; }
+.gridline span { position: absolute; left: 0; top: -16px; font-size: 11px; font-weight: 500; color: var(--muted); }
+.col { position: relative; display: flex; align-items: flex-end; height: 100%; cursor: default; outline: none; }
+.col::before { content: ''; position: absolute; inset: 0 -1px; } /* a wider target than the bar */
+.bar { width: 100%; max-width: 40px; margin: 0 auto; border-radius: 4px 4px 0 0; background: var(--bar); min-height: 0; }
+.col:hover .bar, .col:focus-visible .bar, .col.is-on .bar { background: var(--bar-hover); }
+.col:focus-visible { box-shadow: 0 0 0 2px var(--gold); border-radius: 4px; }
+.ticks { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; margin-top: 6px; }
+.ticks span { font-size: 11px; font-weight: 500; text-align: center; color: var(--muted); }
+@media (max-width: 520px) { .ticks.many span:nth-child(even) { visibility: hidden; } }
+.tip { position: absolute; z-index: 2; padding: 8px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 500; line-height: 1.35; white-space: nowrap; pointer-events: none; transform: translate(-50%, calc(-100% - 8px)); }
+.tip b { font-weight: 700; }
+.empty { margin: 20px 0 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+/* Tables */
+details.table { margin-top: 14px; }
+details.table summary { font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.scroll { overflow-x: auto; margin-top: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+th, td { padding: 9px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 12px; font-weight: 700; color: var(--muted); }
+td.heat { font-weight: 600; }
+td.zero { color: #c4c4bf; }
+.dot { color: var(--bar); font-weight: 700; }
+</style>
+</head>
+<body>
+<main class="dash">
+  <div class="top">
+    <p class="wordmark">MIRROR <span>21</span></p>
+    <button class="refresh" type="button" id="refresh">REFRESH</button>
+  </div>
+  <h1>DASHBOARD</h1>
+  <p class="sub" id="updated">Loading…</p>
+  <p class="note" id="message" role="alert" hidden></p>
+
+  <div id="content" hidden>
+    <div class="tiles" id="tiles"></div>
+
+    <section class="section" aria-labelledby="completedTitle">
+      <h2 id="completedTitle">STEPS COMPLETED</h2>
+      <p class="sub">How many people committed each step.</p>
+      <div id="completedChart"></div>
+    </section>
+
+    <section class="section" aria-labelledby="stopsTitle">
+      <h2 id="stopsTitle">WHERE THEY STOP</h2>
+      <p class="sub">Everyone who started and hasn’t finished: the step they’re on, and the part of it they got to.</p>
+      <div class="switch" role="group" aria-label="Who to count">
+        <button type="button" data-idle="0" aria-pressed="true">Everyone</button>
+        <button type="button" data-idle="3" aria-pressed="false">Idle 3+ days</button>
+        <button type="button" data-idle="7" aria-pressed="false">Idle 7+ days</button>
+      </div>
+      <div class="scroll" id="stopsTable"></div>
+    </section>
+
+    <section class="section" aria-labelledby="daysTitle">
+      <h2 id="daysTitle">HOW MANY DAYS</h2>
+      <p class="sub">Day 1 is the day someone started. One step a day finishes on Day 21.</p>
+      <div id="dayChart"></div>
+      <div id="finishChart"></div>
+    </section>
+
+    <section class="section" aria-labelledby="keptTitle">
+      <h2 id="keptTitle">PROMISES KEPT</h2>
+      <p class="sub">Each step’s promise, and the evening check on it. Only the answer is counted, never what was written.</p>
+      <div class="scroll" id="keptTable"></div>
+    </section>
+
+    <section class="section" aria-labelledby="peopleTitle">
+      <h2 id="peopleTitle">EACH LEARNER</h2>
+      <p class="sub">Numbered in the order they bought. No names or emails.</p>
+      <div class="scroll" id="peopleTable"></div>
+    </section>
+  </div>
+</main>
+<script src="../assets/vendor/supabase.js"></script>
+<script src="../assets/core/dashboard-stats.js"></script>
+<script src="../assets/screens/dashboard.js"></script>
+</body>
+</html>

@@ -1390,11 +1390,9 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     assert.equal(await evaluate('document.querySelector("#hereNow").textContent'),'Right now, I leave on time most evenings and have two evenings a week to myself');
     assert.match(await evaluate('document.querySelector("#hereThen").textContent'),/^Right now, I /);
     assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("#cards .method-card"),c=>[c.querySelector(".method-card-num").textContent,c.querySelector(".method-card-title").textContent,c.querySelector(".record-mark").className.replace("record-mark ",""),Boolean(c.querySelector(".method-card-chev")),c.open])'),[['19','My Mirror Method',s.answers[19],true,false],['20','My Mirror Method “New Change”',s.answers[20],true,false]],'Both cards closed: number, name, evening result, arrow');
-    assert.deepEqual(await evaluate('[document.querySelector("#runLabel").hidden,document.querySelector("#changeTitle").textContent,document.querySelector("#journeyTitle").textContent]'),[true,'WHERE YOU STARTED','YOUR JOURNEY IN YOUR WORDS']);
-    assert.deepEqual(await evaluate('[Array.from(document.querySelectorAll(".result-line-num"),n=>n.textContent),Array.from(document.querySelectorAll(".result-heading"),h=>h.textContent).slice(0,3)]'),[['01','21','01'],['WHERE YOU STARTED','WHERE YOU ARE','WHERE YOU’RE GOING']]);
-    assert.deepEqual(await evaluate('[document.querySelectorAll("#journey .result-step").length,document.querySelector(".result-journey").open]'),[21,false],'All 21 steps, closed');
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("#journey .record-mark"),m=>m.className.replace("record-mark ",""))'),Array.from({length:21},(_,n)=>s.answers[n+1]));
-    assert.deepEqual(await evaluate('[document.querySelector("#nextChoice").textContent,document.querySelector("#nextAction").textContent,document.querySelector("#newRun").hidden]'),['Run the steps again.','Today, I’ll ask my manager to move Thursday’s late meeting',false]);
+    assert.deepEqual(await evaluate('[document.querySelector("#runLabel").hidden,Array.from(document.querySelectorAll(".result-line-num"),n=>n.textContent),Array.from(document.querySelectorAll(".result-heading"),h=>h.textContent)]'),[true,['01','21'],['WHERE YOU STARTED','WHERE YOU ARE','YOUR MIRROR METHOD']],'No WHERE YOU’RE GOING or YOUR JOURNEY');
+    assert.deepEqual(await evaluate('[document.querySelectorAll(".result-next, #journey").length,getComputedStyle(document.querySelector(".result-words")).fontWeight,document.querySelectorAll(".result-screen .btn svg").length]'),[0,'500',0],'No WHAT’S NEXT; the two tiles in Medium; no arrows');
+    assert.deepEqual(await evaluate('[document.querySelectorAll("#newRun").length,Array.from(document.querySelectorAll(".block-end .btn"),b=>b.textContent.trim()+" "+getComputedStyle(b).backgroundColor)]'),[0,['BACK TO MY PATH rgb(17, 17, 17)']],'One button: BACK TO MY PATH, black; no START A NEW RUN');
     await noOverflow();
     if(phone){await evaluate('document.querySelectorAll("details").forEach(d=>d.open=true)');await wait(200);await shot('result-mobile.png',true);}
     // Back on the final check, the answer is locked; My Path shows RESULT and its Block 3 tile opens the summary.
@@ -1427,22 +1425,6 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     console.log('phone: long titles '+sizes.join(', '));
    }
 
-   // RUN THE STEPS AGAIN: START A NEW RUN keeps the finished run and its result (mirror21-runs) and starts at Step 01;
-   // Settings › Account › My past results opens it again.
-   {
-    await go('result.html');
-    const before=await evaluate('document.querySelector("#score").textContent');
-    await evaluate('window.confirm=()=>true');await click('#newRun');await ready('04-map-start.html');
-    assert.equal(await evaluate('document.querySelector(".progress-step.current").textContent'),'01','A new run starts at Step 01');
-    assert.equal(await evaluate('JSON.parse(localStorage.getItem("mirror21-runs")).length'),1,'The finished run is kept');
-    await click('.settings-gear');await wait(400);
-    await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("Account")).click()');await wait(350);
-    assert.equal(await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("My past results")).querySelector(".settings-sub").textContent'),'Your finished run');
-    await evaluate('Array.from(document.querySelectorAll(".settings-row")).find(r=>r.textContent.includes("My past results")).click()');await ready('result.html');
-    assert.deepEqual(await evaluate('[document.querySelector("#runLabel").textContent,document.querySelector("#score").textContent,document.querySelector("#newRun").hidden]'),['RUN 1',before,true]);
-    // A new run has no result yet: the page sends you back to My Path.
-    await command('Page.navigate',{url:base+'/html/result.html'});await ready('04-map-start.html');
-   }
    // Settings › Start over: clears answers, check-ins and the Welcome video, keeps settings, then opens My Path at Step 01.
    await go('18-my-mirror.html');await evaluate('localStorage.setItem("mirror21-watched-0","true");localStorage.setItem("mirror21-captions","false")');
    await click('.settings-gear');await wait(400);

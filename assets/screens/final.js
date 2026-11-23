@@ -78,35 +78,11 @@ MirrorStore.ready(() => {
     const [name, line] = tiers[model.tier(percent)];
     $('score').textContent = percent + '%';
     $('tierName').textContent = name; $('tierLine').textContent = line;
-    // EVIDENCE OF CHANGE: Step 01's HERE and THERE, Step 21's HERE NOW, in their words.
+    // EVIDENCE OF CHANGE: Step 01's HERE and Step 21's HERE NOW, in their words.
     $('hereThen').textContent = sentence('Right now, I', r1.HERE);
     $('hereNow').textContent = sentence('Right now, I', r21.HERENOW);
-    $('there').textContent = sentence('I want to be able to', r1.THERE);
     // INDEPENDENT APPLICATION: the two cards with their evening results, as Step 21 shows them.
     $('cards').replaceChildren(...steps.cardList(s));
-    // The 21 steps: title, the promise word for word, the evening result.
-    $('journey').replaceChildren(...Array.from({ length: 21 }, (_, n) => {
-      const d = n + 1, item = el('li', 'result-step'), head = el('div', 'result-step-head');
-      head.append(el('span', 'result-step-num', steps.pad(d)), el('span', 'result-step-title', steps.title(d)), steps.resultMark(s.answers[d]));
-      item.append(head);
-      const promise = (s.dayChanges[d] || '').trim();
-      if (promise) item.append(el('p', 'result-step-promise', promise));
-      return item;
-    }));
-    // WHAT'S NEXT and MY NEXT ACTION, as chosen in Step 21.
-    $('nextChoice').textContent = { keep: 'Keep working on this change.', again: 'Run the steps again.', new: 'Use the method on something new.' }[r21.NEXT] || '';
-    $('nextAction').textContent = sentence('Today, I’ll', r21.ACTION);
-    // Running the steps again starts a new run; this one is kept, with its result, in the finished runs.
-    const newRun = $('newRun');
-    newRun.hidden = Boolean(run) || r21.NEXT !== 'again';
-    newRun.addEventListener('click', () => {
-      if (!confirm('Start a new run? This run and its result are kept, and you start again at Step 01.')) return;
-      runs.push({ endedAt: Date.now(), progress: state });
-      store.course.saveRuns(runs);
-      // What Start over clears: the course, bar and video positions, which blocks were seen.
-      store.course.clear();
-      location.href = map;
-    });
     // Earlier runs, each with its date and score; the current one too once it is finished.
     const list = [...runs.map((past, i) => ({ href: 'result.html?run=' + (i + 1), label: 'Run ' + (i + 1), at: past.endedAt, state: model.normalize(past.progress), here: run === past })),
       ...(state.finishedAt ? [{ href: 'result.html', label: 'This run', at: state.finishedAt, state, here: !run }] : [])];

@@ -1,7 +1,7 @@
 <title>Mirror 21 · Your result</title>
 <!-- The final dashboard (result.html, or result.html?run=N for an earlier run). Opens after the final check.
      Three things kept apart: FOLLOW-THROUGH (the checks), EVIDENCE OF CHANGE (then and now, in their words) and
-     INDEPENDENT APPLICATION (the two Mirror Method cards). Then the 21 steps, and WHAT'S NEXT. -->
+     INDEPENDENT APPLICATION (the two Mirror Method cards). Then the closing lines and BACK TO MY PATH. -->
 <link rel="stylesheet" href="../assets/step/tokens.css">
 <link rel="stylesheet" href="../assets/step/step.css">
 <link rel="stylesheet" href="../assets/step/step-app.css">
@@ -43,8 +43,6 @@
     <p class="result-line result-then"><span class="result-line-num">01</span><span class="result-words" id="hereThen"></span></p>
     <h2 class="result-heading result-heading--next">WHERE YOU ARE</h2>
     <p class="result-line result-now"><span class="result-line-num">21</span><span class="result-words" id="hereNow"></span></p>
-    <h2 class="result-heading result-heading--next">WHERE YOU’RE GOING</h2>
-    <p class="result-line result-then"><span class="result-line-num">01</span><span class="result-words" id="there"></span></p>
   </section>
 
   <!-- INDEPENDENT APPLICATION: the two cards -->
@@ -53,36 +51,11 @@
     <div class="method-cards" id="cards"></div>
   </section>
 
-  <!-- The 21 steps: promise and evening result -->
-  <section class="result-section" aria-labelledby="journeyTitle">
-    <h2 class="result-heading" id="journeyTitle">YOUR JOURNEY IN YOUR WORDS</h2>
-    <details class="result-journey">
-      <summary class="result-journey-toggle"><span class="tools-open">Show all 21 steps</span><span class="tools-close">Hide the steps</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
-      <ol class="result-steps" id="journey"></ol>
-    </details>
-    <p class="result-small">Your follow-through history, step by step: not a separate score of change.</p>
-  </section>
-
-  <!-- WHAT'S NEXT: the call to action at the end -->
-  <section class="result-next" aria-labelledby="nextTitle">
-    <p class="result-kicker" id="nextTitle">WHAT’S NEXT</p>
-    <p class="result-next-choice" id="nextChoice"></p>
-    <p class="result-kicker">MY NEXT ACTION</p>
-    <p class="result-next-action" id="nextAction"></p>
-    <button class="btn btn--gold result-new-run" id="newRun" type="button" hidden>
-      START A NEW RUN
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-  </section>
-
   <div class="block-end">
     <p class="block-closing">Mirror 21 ends here.</p>
     <p class="block-next">The method doesn’t. It starts with you.</p>
     <div class="result-runs" id="runs" hidden></div>
-    <a class="btn btn--ink" href="04-map-start.html">
-      BACK TO MY PATH
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </a>
+    <a class="btn btn--ink" href="04-map-start.html">BACK TO MY PATH</a>
   </div>
 </main>
 </body>
