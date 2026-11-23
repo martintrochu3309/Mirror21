@@ -9,7 +9,8 @@ html, body { margin: 0; background: var(--bg); }
 body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
-:root { --bar: #896a00; --bar-hover: #5e4900; --cell: 137, 106, 0; --line: #ebebe7; }
+/* Only black, white, grey and the gold of the wordmark's 21. */
+:root { --bar: var(--gold); --bar-hover: var(--ink); --cell: 224, 184, 76; --line: #ebebe7; --grey-1: #e2e2de; --grey-2: #b3b3af; --grey-3: #74746f; }
 .dash { max-width: 980px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px max(40px, env(safe-area-inset-bottom)); }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 44px; }
 .wordmark { margin: 0; font: italic 700 18px/1 var(--font-display); letter-spacing: -0.02em; white-space: nowrap; }
@@ -44,6 +45,13 @@ h1 { margin: 26px 0 0; font: italic 700 34px/1 var(--font-display); letter-spaci
 .col::before { content: ''; position: absolute; inset: 0 -1px; } /* a wider target than the bar */
 .bar { width: 100%; max-width: 40px; margin: 0 auto; border-radius: 4px 4px 0 0; background: var(--bar); min-height: 0; }
 .col:hover .bar, .col:focus-visible .bar, .col.is-on .bar { background: var(--bar-hover); }
+/* Stacked: the parts of a step, bottom to top, 2px white between them; the picked column gets a black line under it. */
+.bar.stack { display: flex; flex-direction: column-reverse; gap: 2px; overflow: hidden; background: none; }
+.bar.stack i { display: block; min-height: 0; }
+.col:hover .bar.stack, .col:focus-visible .bar.stack, .col.is-on .bar.stack { background: none; box-shadow: 0 3px 0 var(--ink); }
+.keys { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 0; padding: 0; list-style: none; }
+.keys li { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; }
+.keys i { width: 10px; height: 10px; border-radius: 3px; }
 .col:focus-visible { box-shadow: 0 0 0 2px var(--gold); border-radius: 4px; }
 .ticks { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; margin-top: 6px; }
 .ticks span { font-size: 11px; font-weight: 500; text-align: center; color: var(--muted); }
@@ -51,9 +59,8 @@ h1 { margin: 26px 0 0; font: italic 700 34px/1 var(--font-display); letter-spaci
 .tip { position: absolute; z-index: 2; padding: 8px 10px; border-radius: 8px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 500; line-height: 1.35; white-space: nowrap; pointer-events: none; transform: translate(-50%, calc(-100% - 8px)); }
 .tip b { font-weight: 700; }
 .empty { margin: 20px 0 0; font-size: 14px; font-weight: 500; color: var(--muted); }
-/* Donuts: one gold, light to dark as people get further (checked with the dataviz ordinal validator: each step
-   distinct, the lightest still 2.2:1 on white); a 2px white gap between slices; the legend carries every number. */
-:root { --o1: #d1a540; --o2: #ad8618; --o3: #86670a; --o4: #5f4900; --o5: #382b00; }
+/* Donuts and the stacked columns: greys, the gold and black only (assets/screens/dashboard.js picks them per part);
+   a 2px white gap between slices; the legend carries every number. */
 .donuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px; }
 .donut-card { position: relative; padding: 18px 16px 16px; border: 1px solid var(--line); border-radius: 14px; }
 .donut-card h3 { margin: 0; font-size: 14px; font-weight: 700; }
@@ -84,7 +91,6 @@ th:first-child, td:first-child { text-align: left; }
 th { font-size: 12px; font-weight: 700; color: var(--muted); }
 td.heat { font-weight: 600; }
 td.zero { color: #c4c4bf; }
-.dot { color: var(--bar); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -113,13 +119,13 @@ td.zero { color: #c4c4bf; }
 
     <section class="section" aria-labelledby="stopsTitle">
       <h2 id="stopsTitle">WHERE THEY STOP</h2>
-      <p class="sub">Everyone who started and hasn’t finished: the step they’re on, and the part of it they got to.</p>
+      <p class="sub">Everyone who started and hasn’t finished: how many are on each step, and the part of it they got to. Tap a column for the numbers.</p>
       <div class="switch" role="group" aria-label="Who to count">
         <button type="button" data-idle="0" aria-pressed="true">Everyone</button>
         <button type="button" data-idle="3" aria-pressed="false">Idle 3+ days</button>
         <button type="button" data-idle="7" aria-pressed="false">Idle 7+ days</button>
       </div>
-      <div class="scroll" id="stopsTable"></div>
+      <div id="stopsChart"></div>
     </section>
 
     <section class="section" aria-labelledby="daysTitle">

@@ -8,6 +8,8 @@
   const pad = n => String(n).padStart(2, '0');
   const onComputer = /^(file:|https?:\/\/(localhost|127\.0\.0\.1)[:/])/.test(location.href);
   let client = null, summary = null, idleDays = 0;
+  // Only black, white, grey and the wordmark's gold. The parts of a step, from not opened to Act.
+  const PART_COLOURS = { 'Not opened': 'var(--grey-1)', 'Check in': 'var(--grey-2)', Watch: 'var(--grey-3)', Learn: 'var(--gold)', Act: 'var(--ink)' };
 
   function say(text) { $('message').hidden = !text; $('message').textContent = text || ''; }
 
@@ -68,11 +70,17 @@
     drawPeople();
   }
 
-  // A column chart, one series: bars from the baseline, the value on hover, focus or tap, and a table under it.
-  function columns(box, data, { title, table, empty, guide, few } = {}) {
+  // A column chart: bars from the baseline, the value on hover, focus or tap, and a table under it. A column with
+  // segments ([name, count, colour], bottom first) is stacked; keys: the legend above it; tableNode: its own table.
+  function columns(box, data, { title, table, tableNode, keys, empty, guide, few } = {}) {
     box.replaceChildren();
     const wrap = el('div', 'chart');
     if (title) wrap.append(el('p', 'chart-title', title));
+    if (keys) {
+      const list = el('ul', 'keys');
+      keys.forEach(([name, colour]) => { const li = el('li'), key = el('i'); key.style.background = colour; li.append(key, name); list.append(li); });
+      wrap.append(list);
+    }
     const max = Math.max(0, ...data.map(d => d.value));
     if (!max) { wrap.append(el('p', 'empty', empty)); box.append(wrap); return; }
     const top = niceTop(Math.max(max, guide || 0));
@@ -84,8 +92,15 @@
       col.tabIndex = 0;
       col.setAttribute('role', 'img');
       col.setAttribute('aria-label', d.tip.replace(/<[^>]+>/g, ''));
-      const bar = el('div', 'bar');
+      const bar = el('div', 'bar' + (d.segments ? ' stack' : ''));
       bar.style.height = (d.value / top * 100) + '%';
+      (d.segments || []).forEach(([, n, colour]) => {
+        if (!n) return;
+        const part = el('i');
+        part.style.background = colour;
+        part.style.flex = n + ' 1 0';
+        bar.append(part);
+      });
       col.append(bar);
       const show = () => {
         plot.querySelectorAll('.col.is-on').forEach(c => c.classList.remove('is-on'));
@@ -105,36 +120,34 @@
     const ticks = el('div', 'ticks' + (few ? '' : ' many'));
     data.forEach(d => ticks.append(el('span', '', d.tick)));
     wrap.append(plot, ticks);
-    if (table) {
+    if (table || tableNode) {
       const details = el('details', 'table'); details.append(el('summary', '', 'Show as a table'));
-      details.append(tableOf(table, data.map(d => [d.tick, d.value ? fmt(d.value) : '–'])));
+      const scroll = el('div', 'scroll');
+      scroll.append(tableNode || tableOf(table, data.map(d => [d.tick, d.value ? fmt(d.value) : '–'])));
+      details.append(scroll);
       wrap.append(details);
     }
     box.append(wrap);
   }
-  // AT A GLANCE: where everyone is, the evening checks, and the part of the step people are in.
+  // AT A GLANCE: where everyone is, and the part of the step people are in.
   function drawDonuts() {
     const t = summary.totals, inProgress = t.started - t.finished;
-    const checks = { yes: 0, partly: 0, no: 0 };
-    Object.values(summary.answers).forEach(a => { checks.yes += a.yes; checks.partly += a.partly; checks.no += a.no; });
     const parts = Object.fromEntries(stats.PARTS.map(p => [p, 0]));
     summary.stops.forEach(s => { parts[s.part]++; });
     $('donuts').replaceChildren(
       donut('Where everyone is', 'buyers', [
-        ['Not signed in', t.buyers - t.signedIn], ['Signed in, not started', Math.max(0, t.signedIn - t.started)],
-        ['In progress', inProgress], ['Finished 21', t.finished]]),
-      donut('Evening checks', 'checks', [['No', checks.no], ['Partly', checks.partly], ['Yes', checks.yes]], true),
-      donut('Where people are in a step', 'in progress', stats.PARTS.map(p => [p, parts[p]]))
+        ['Not signed in', t.buyers - t.signedIn, 'var(--grey-1)'], ['Signed in, not started', Math.max(0, t.signedIn - t.started), 'var(--grey-2)'],
+        ['In progress', inProgress, 'var(--gold)'], ['Finished 21', t.finished, 'var(--ink)']]),
+      donut('Where people are in a step', 'in progress', stats.PARTS.map(p => [p, parts[p], PART_COLOURS[p]]))
     );
   }
-  // A donut: slices light to dark in the order given (further = darker), a 2px white gap between them, the total in
-  // the middle, and a legend with every count and share. reversed: the legend lists the darkest first.
+  // A donut: slices [name, count, colour] in the order given, a 2px white gap between them, the total in the middle,
+  // and a legend with every count and share.
   function donut(title, unit, slices, reversed) {
     const card = el('div', 'donut-card');
     card.append(el('h3', '', title));
     const total = slices.reduce((sum, [, n]) => sum + n, 0);
-    const shades = slices.length === 3 ? [1, 3, 5] : slices.length === 4 ? [1, 2, 4, 5] : [1, 2, 3, 4, 5];
-    const colour = i => 'var(--o' + shades[i] + ')';
+    const colour = i => slices[i][2];
     const pct = n => total ? Math.round(n / total * 100) + '%' : '–';
     const body = el('div', 'donut-body'), ring = el('div', 'donut');
     const NS = 'http://www.w3.org/2000/svg', R = 50, C = 2 * Math.PI * R;
@@ -222,9 +235,22 @@
   function drawStops() {
     document.querySelectorAll('.switch button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.idle) === idleDays)));
     const rows = stats.stopTable(summary.stops, idleDays);
-    const box = $('stopsTable');
-    if (!rows.length) { box.replaceChildren(el('p', 'empty', idleDays ? 'Nobody idle that long.' : 'Nobody is part-way through the steps.')); return; }
-    box.replaceChildren(tableOf(['Step', ...stats.PARTS, 'Total'], rows.map(r => ['Step ' + pad(r.step), ...stats.PARTS.map(p => r[p]), r.total]), stats.PARTS.length));
+    const byStep = Object.fromEntries(rows.map(r => [r.step, r]));
+    // One column per step: how many are on it, split by the part they got to (not opened at the bottom, Act on top).
+    const data = Array.from({ length: 21 }, (_, i) => i + 1).map(step => {
+      const r = byStep[step], total = r?.total || 0;
+      const lines = r ? stats.PARTS.filter(p => r[p]).map(p => p + ': <b>' + r[p] + '</b>').join('<br>') : '';
+      return {
+        tick: pad(step), value: total,
+        segments: stats.PARTS.map(p => [p, r?.[p] || 0, PART_COLOURS[p]]),
+        tip: 'Step ' + pad(step) + ': <b>' + total + '</b> ' + (total === 1 ? 'person' : 'people') + (lines ? '<br>' + lines : '')
+      };
+    });
+    columns($('stopsChart'), data, {
+      keys: stats.PARTS.map(p => [p, PART_COLOURS[p]]),
+      empty: idleDays ? 'Nobody idle that long.' : 'Nobody is part-way through the steps.',
+      tableNode: rows.length ? tableOf(['Step', ...stats.PARTS, 'Total'], rows.map(r => ['Step ' + pad(r.step), ...stats.PARTS.map(p => r[p]), r.total]), stats.PARTS.length) : null
+    });
   }
 
   function drawKept() {
