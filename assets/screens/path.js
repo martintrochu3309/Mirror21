@@ -1,7 +1,7 @@
 /* My Path (html/04-map-start.html): the steps as a trail, today's step with its card, the block tiles and the
    header card. Run by the app shell. */
 (globalThis.MirrorScreens ||= {}).path = app => {
-  const { model, store, state, summary, pad, labels, stepsToGo, pageFilename } = app;
+  const { model, store, state, summary, pad, labels, pageFilename } = app;
   // A block video still due (the app was closed during it): it plays first, before anything here.
   const dueVideo = store.device.blockVideo();
   if (dueVideo) { location.replace('step-watch.html?block=' + dueVideo); return; }
@@ -461,7 +461,6 @@
     const lines=header.querySelectorAll('p');
     lines[0].textContent='BLOCK '+Math.ceil((stats.today||21)/7);
     lines[1].textContent=stats.complete?'21 STEPS COMPLETE':'STEP '+pad(stats.today||21)+' OF 21';
-    lines[2].textContent=stepsToGo(stats);
     document.querySelector('[role="status"]')?.remove();
     // Open centred on today's step (on My Results once all 21 are committed), or at the top while START sits on 00 Welcome.
     if(center&&!moment) requestAnimationFrame(()=> { const current=path.querySelector('.current')||(resultsOpen?resultsRow:null);if(startOnWelcome)scroll.scrollTop=0;else if(current)scroll.scrollTop=Math.max(0,current.offsetTop-scroll.clientHeight/2+88); });

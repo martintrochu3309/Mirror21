@@ -18,7 +18,7 @@
   --track: #ececea;           /* progress track, disabled next button */
   --outline: #c9c9c5;         /* outline buttons */
   --gold: #e0b84c;            /* progress fill, path nodes, gold rings — never as text on white */
-  --gold-text: #896a00;       /* gold used as TEXT on white (labels, chips, emphasis) */
+  --gold-text: #e0b84c;       /* gold used as TEXT (labels, chips, emphasis): the wordmark's gold, like the 01–05 on Learn */
   --gold-tint: #f6efdc;       /* chip square background, NOT SURE hint background */
   --gold-hint-text: #5c4700;  /* text on gold-tint */
   --gold-gradient: linear-gradient(110deg, #d8ad3e, #ffef9a 53%, #d8ad3e); /* primary button, final node */

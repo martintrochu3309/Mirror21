@@ -109,7 +109,7 @@ nav[aria-label="Course"] { z-index: 10; }
 .check-question > span { display: block; white-space: nowrap; }
 .lesson-page .app-frame p, .check-page .app-frame p { text-align: left !important; }
 .lesson-page .app-frame .did-that-copy p { text-align: center !important; }
-.lesson-stage { display: flex; align-items: center; gap: 10px; margin-top: 22px; color: #896a00; flex-shrink: 0; }
+.lesson-stage { display: flex; align-items: center; gap: 10px; margin-top: 22px; color: #e0b84c; flex-shrink: 0; }
 .lesson-stage-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: #faf3df; }
 .lesson-stage-label { font: 700 12px/1 'Neue Haas Display',Arial,sans-serif; letter-spacing: .2em; }
 .lesson-page button[aria-label^="Play Day"] { width: 44px !important; height: 44px !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; color: #896a00 !important; }
@@ -121,7 +121,7 @@ nav[aria-label="Course"] { z-index: 10; }
 .change-question-line { display: flex; justify-content: center; column-gap: .25em; white-space: nowrap; }
 .change-question-line > span { flex: 0 0 auto; }
 .lesson-page #v3-change:focus { border-color: #896a00 !important; outline: 2px solid #e0b84c; outline-offset: 2px; background: #ffffff !important; }
-.write-change-link { display: inline-block; margin-top: 8px; color: #896a00; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+.write-change-link { display: inline-block; margin-top: 8px; color: #e0b84c; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
 .check-day-tile { display: grid; place-items: center; box-sizing: border-box; flex-shrink: 0; width: 46px; height: 40px; padding: 0; border-radius: 50%; font: 700 19px/1 Magistral,Arial,sans-serif; text-align: center; }
 .check-day-tile.yes { background: linear-gradient(#f2cf6c,#e0b84c); box-shadow: 0 4px #b8922f, inset 0 1px rgba(255,255,255,.45); color: #101010; }
 .check-day-tile.partly { background: linear-gradient(#f7eac4,#ecd99f); box-shadow: 0 4px #cdb46a, inset 0 1px rgba(255,255,255,.45); color: #3b2b0e; }
@@ -199,7 +199,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 /* Day 00 is an optional welcome, outside the course-day path and scoring. */
 .welcome-row { height: 152px; gap: 14px; }
-.welcome-label { font:700 10px/1 'Neue Haas Display',Arial,sans-serif; letter-spacing:.18em; color:#896a00; }
+.welcome-label { font:700 10px/1 'Neue Haas Display',Arial,sans-serif; letter-spacing:.18em; color:#e0b84c; }
 .welcome-step { display:grid; place-items:center; width:84px; height:78px; box-sizing:border-box; border-radius:50%; background:linear-gradient(#2a2a2a,#111); color:#e0b84c; box-shadow:0 6px #000,inset 0 2px #ffffff38; font:700 26px/1 Magistral,Arial,sans-serif; }
 .welcome-card-stage { margin:-8px 0 18px; color:#c4c4be; font:700 10px/1.3 'Neue Haas Display',Arial,sans-serif; letter-spacing:.18em; }
 
@@ -305,7 +305,7 @@ button.settings-row:active { background: #ececE8; }
   .journal-print { display: block; color: #111111; font: 300 11.5pt/1.5 'Neue Haas Display', Arial, Helvetica, sans-serif; }
   .journal-print h1 { margin: 4pt 0 2pt; font: italic 700 28pt/1 'Magistral', Arial, Helvetica, sans-serif; letter-spacing: -.02em; }
   .journal-print h2 { margin: 3pt 0 8pt; font: italic 700 15pt/1.15 'Magistral', Arial, Helvetica, sans-serif; text-transform: uppercase; letter-spacing: -.01em; }
-  .journal-print-brand, .journal-print-meta, .journal-print-label, .journal-print dt { margin: 0; font-weight: 700; font-size: 7.5pt; letter-spacing: .2em; color: #896a00; }
+  .journal-print-brand, .journal-print-meta, .journal-print-label, .journal-print dt { margin: 0; font-weight: 700; font-size: 7.5pt; letter-spacing: .2em; color: #e0b84c; }
   .journal-print-date { margin: 0 0 18pt; color: #646461; }
   .journal-print section { padding: 14pt 0; border-top: 1px solid #dededb; break-inside: avoid; }
   .journal-print dl { margin: 0 0 8pt; }
@@ -361,7 +361,7 @@ button.settings-row:active { background: #ececE8; }
    Locked: a grey step tile. Open and not yet seen: black like today's step. Seen: white with a gold check. */
 .block-spot { position: absolute; z-index: 1; transform: translate(-50%, -50%); }
 .block-label { position: absolute; left: 50%; bottom: calc(100% + 14px); transform: translateX(-50%); white-space: nowrap; font: 700 10px/1 'Neue Haas Display', Arial, sans-serif; letter-spacing: .18em; color: #a3a39e; }
-.block-spot.open .block-label { color: #896a00; }
+.block-spot.open .block-label { color: #e0b84c; }
 .block-tile { text-decoration: none; }
 .block-tile.block-new { background: linear-gradient(#2a2a2a,#111); color: #e0b84c; box-shadow: 0 7px 0 #000, inset 0 2px rgba(255,255,255,.22); }
 /* The locked note lines up with the tile's right edge, so it stays on screen. */
@@ -378,5 +378,5 @@ button.settings-row:active { background: #ececE8; }
 .second-look-name { margin: 3px 0 0; font: italic 700 17px/1.15 'Magistral', Arial, sans-serif; letter-spacing: -.02em; text-transform: uppercase; }
 .second-look-promise { margin: 6px 0 0; font: 400 15px/1.45 'Neue Haas Display', Arial, sans-serif; color: #3a3a38;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-.second-look-revisit { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #e6e6e2; font: 700 11px/1.4 'Neue Haas Display', Arial, sans-serif; letter-spacing: .18em; color: #896a00; }
+.second-look-revisit { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #e6e6e2; font: 700 11px/1.4 'Neue Haas Display', Arial, sans-serif; letter-spacing: .18em; color: #e0b84c; }
 .second-look-none { margin: 10px 0 2px; font: 300 15px/1.45 'Neue Haas Display', Arial, sans-serif; color: #646461; }

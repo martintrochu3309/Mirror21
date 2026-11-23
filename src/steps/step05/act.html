@@ -8,21 +8,19 @@
 <!--#scripts-step screen="act"-->
 </head>
 <body data-screen="act">
-<main class="screen">
+<main class="screen act--plain">
 
   <!--#step-topbar-->
 
-  <div class="step-label" id="stepLabel">STEP 05</div>
-  <h1 class="title">YOUR TURN.</h1>
-  <p class="intro">Decide now how you’ll respond when the moment comes.</p>
+  <!-- No STEP label, title or intro: the page opens straight on 01. The heading is for screen readers only. -->
+  <h1 class="sr-only">Your turn</h1>
 
   <div class="rows">
 
     <!-- 01 THERE — read-only, from Step 01 (always done) -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">WHERE I’M GOING</p>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span></p>
         <div class="from"><span data-from-step>FROM STEP 01</span></div>
         <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
@@ -30,32 +28,30 @@
 
     <!-- 02 PAUSE — my moment (NOT SURE comes back here, with its hint) -->
     <section class="row" id="rowOne">
-      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxOne">MY MOMENT</label>
-        <div class="eyebrow">PAUSE</div>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">PAUSE</span></p>
+        <label class="question" for="boxOne">My moment</label>
         <p class="prompt">The moment you usually react without thinking.</p>
         <p class="hint" id="proofHint" hidden>Make the moment specific: a time, a place, or what you’ll be about to do.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">When </span>
           <textarea autocapitalize="off" class="answer-box" id="boxOne" data-answer="MOMENT" rows="3" maxlength="160" aria-label="My moment. When"></textarea>
-        </div>
         <!--#next-arrow row="one" row="one"-->
+        </div>
       </div>
     </section>
 
     <!-- 03 RESPOND — my response + "Will you know the moment when it comes?" -->
     <section class="row is-locked" id="rowTwo">
-      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxTwo">MY RESPONSE</label>
-        <div class="eyebrow">RESPOND <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until your moment is written"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">RESPOND</span></p>
+        <label class="question" for="boxTwo">My response</label>
         <p class="prompt">What you’ll do instead of the old reaction.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">I will pause and </span>
           <textarea autocapitalize="off" class="answer-box" id="boxTwo" data-answer="RESPONSE" rows="3" maxlength="160" aria-label="My response. I will pause and"></textarea>
-        </div>
         <!--#next-arrow-hidden row="two" row="two"-->
+        </div>
         <div id="proofQ" hidden>
           <p class="proof-q">WILL YOU KNOW THE MOMENT WHEN IT COMES?</p>
           <div class="pills" style="margin-top: 14px">
@@ -72,7 +68,6 @@
 
     <!-- MY PROMISE — built from MY MOMENT and MY RESPONSE, locked with I'M COMMITTED -->
     <section class="row is-locked" id="rowPromise">
-      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
       <div class="row-body">
         <p class="promise-title">MY PROMISE</p>
         <p class="promise" id="promise" aria-live="polite">Today, when <span class="promise-rest is-empty">…</span>, I will pause and <span class="promise-rest is-empty">…</span>. If it doesn’t come, I’ll run through it once in my head.</p>

@@ -16,6 +16,25 @@
 .choice[aria-checked="true"] .tick { display: block; }
 .choices.has-pick .choice[aria-checked="false"] { opacity: 0.38; }
 
+/* (".screen" so these win over step-app.css, loaded after.) No STEP label, no "Last time you promised:", no MY PROMISE label and no rules: the question, the
+   promise under it in Medium, then the three answers as tiles: light until picked, the pick black with white text,
+   the others fading. No circles or ticks; WATCH in black, no arrow. */
+.screen .step-label, .screen .intro { display: none; }
+.screen .title { margin-top: 22px; }
+.screen .commitment { margin-top: 14px; padding: 0; border-top: 0; border-bottom: 0; }
+.screen .commitment .ex-row { padding: 0; border-bottom: 0; }
+/* The question is the title; the promise sits right under it, no MY PROMISE label. */
+.screen .commitment .ex-key { display: none; }
+.screen .commitment .ex-row > .ex-text { margin-top: 0; font-style: normal; font-weight: 500; color: var(--example-ink); }
+.screen .choices { margin-top: 34px; gap: 12px; }
+.screen .choice { justify-content: center; height: 58px; padding: 0 20px; border: 1px solid var(--rule); border-radius: var(--radius-box); background: var(--surface); transition: opacity 300ms ease, background 200ms ease, color 200ms ease; }
+.screen .choice svg { display: none; }
+.screen .choice-label { flex: none; }
+.screen .choice[aria-checked="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+.screen .choice[aria-checked="true"] .tick { display: none; }
+.screen #next { background: var(--ink); color: #fff; border-color: var(--ink); }
+.screen #next svg { display: none; }
+
 /* Kevin's one-line reply, then the optional box (PARTLY / NOT YET only) */
 .reply { margin: 22px 0 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 22px; line-height: 1.18; letter-spacing: -0.02em; }
 .why { min-height: 76px; }

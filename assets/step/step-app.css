@@ -8,8 +8,10 @@
 .progress .bar-part { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .progress .bar-part > span { flex: none; }
 .bar-label { font-size: 9px; line-height: 1; font-weight: 700; letter-spacing: 0.16em; white-space: nowrap; color: var(--locked-number); transition: color 400ms ease; }
-.bar-label.is-done { color: var(--gold-text); }
+.bar-label.is-done { color: var(--gold); }
 .bar-label.is-current { color: var(--ink); }
+/* The labels in Magistral (same size); done ones in the bar's own gold, the wordmark's. */
+.bar-label { font-family: var(--font-display); font-style: italic; letter-spacing: 0.1em; }
 
 /* Step 01 TEST answer carries the same gold tick as Step 02's "Yes, I could prove it." */
 .answered--btn { display: flex; align-items: center; gap: 8px; }
@@ -28,6 +30,92 @@ a.icon-btn { flex: none; text-decoration: none; }
 
 /* Long step titles shrink to stay on one line (font size set by step.js). */
 .title { overflow: visible; }
+
+/* Learn, plain layout (every step): no STEP label, title or intro. Each move reads "01 PRESENT"
+   on one line, only the number in gold (the wordmark's), its text underneath from the number's left edge, with room
+   to breathe between the moves; no line, no circles.
+   The quote: no gold, each sentence starting on its own line, balanced when it wraps. */
+/* Learn opens straight on the moves, just under the step bar; its heading is for screen readers only. */
+.moves--first { margin-top: 30px; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* Body text in Medium, not the thin Light weight: the moves and the example. */
+.learn-ex--plain .learn-ex-text, .learn-ex--plain .learn-ex-promise { font-weight: 500; }
+.learn-ex--plain .learn-ex-text { color: var(--example-ink); }
+/* Act, plain layout (every step): black and white, gold only in the step bar and the numbers. It opens straight
+   on 01; each row opens on Learn's title ("01 PRESENT", exactly as Learn shows it), then the question in Neue Haas
+   Bold, the guidance in Medium grey, the box. No circles or line; I'M COMMITTED fills black. */
+.act--plain .rows { margin-top: 30px; }
+.act--plain .row { display: block; }
+/* More room between one row's answer and the next row's title. */
+.act--plain .row-body { padding-bottom: 46px; }
+.act--plain .row:last-child .row-body { padding-bottom: 8px; }
+/* MY PROMISE in Magistral, like the row titles. */
+.act--plain .promise-label { display: block; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: var(--keyword-size); line-height: 1; letter-spacing: -0.02em; color: var(--ink); }
+.act--plain .commit .promise-label + .commit-quote { margin-top: 14px; }
+.act--plain .row-head { display: flex; gap: 10px; margin: 0; font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: var(--keyword-size); line-height: 1; letter-spacing: -0.02em; color: var(--ink); }
+.act--plain .row-head .q-num { color: var(--gold); }
+/* Rows not reached yet (and MY PROMISE until then) fade further back than on the other steps. */
+.act--plain .row.is-locked, .act--plain .commit.is-locked { opacity: 0.2; }
+.act--plain .row-body > .row-head + .question { margin-top: 14px; }
+.act--plain .question { font-family: var(--font-body); font-style: normal; font-weight: 700; font-size: 18px; line-height: 1.35; letter-spacing: 0; }
+.act--plain .row-body > .question + .prompt { margin-top: 4px; }
+.act--plain .prompt { font-weight: 500; }
+/* The answer box's words (the grey starter and what they type) at the guidance's size, 16px instead of 17. */
+.act--plain .answer-box, .act--plain .starter { font-size: var(--prompt-size); }
+/* The next button sits inside its box, bottom right, smaller; the box being answered keeps room under the words for it. */
+.act--plain .row.is-active .starter-wrap .answer-box { padding-bottom: 50px; }
+.act--plain .starter-wrap .next-row { position: absolute; right: 10px; bottom: 10px; margin: 0; }
+.act--plain .starter-wrap .next { width: 32px; height: 32px; border-radius: 16px; }
+.act--plain .starter-wrap .next svg { width: 16px; height: 16px; }
+.act--plain .answered { font-weight: 500; font-style: normal; }
+.act--plain .commit-quote { font-weight: 500; }
+.act--plain .answered--btn svg { stroke: var(--ink); }
+.act--plain .hint { background: var(--surface); color: var(--note-ink); }
+.act--plain :focus-visible { outline-color: var(--ink); }
+.act--plain .next { background: var(--ink); color: #fff; }
+.act--plain .next:disabled { background: var(--track); color: var(--locked-number); }
+.act--plain .example-toggle { color: var(--ink); font-weight: 500; }
+.act--plain .promise-label { color: var(--ink); }
+.act--plain .hold { isolation: isolate; }
+.act--plain .hold-fill { background: var(--ink); }
+/* The words read black on the light pill and white where the black fill has reached. */
+.act--plain .hold-label { color: #fff; mix-blend-mode: difference; }
+.act--plain .done-mark { background: var(--ink); }
+.act--plain .done-mark svg { stroke: #fff; }
+.act--plain .done-text { font-weight: 500; }
+/* Steps 02–21's extra rows: "FROM STEP 03" in small grey capitals under a read-only row's title, the earlier answer
+   and the promise in Medium, MY PROMISE in Magistral like the row titles, the check's tick in black. */
+.act--plain .row-body > .row-head + .from { margin-top: 12px; color: var(--locked-number); }
+.act--plain .from { color: var(--locked-number); }
+.act--plain .row .mine-text, .act--plain .promise { font-weight: 500; }
+.act--plain .row .proved { font-weight: 500; font-style: normal; }
+/* MY RECORD's step names in Medium; after committing, the lock in a black circle (no gold). */
+.act--plain .record-title { font-weight: 500; }
+.act--plain .locked-mark { background: var(--ink); }
+.act--plain .locked-mark svg { stroke: #fff; }
+.act--plain .promise-title { margin: 0; font-size: var(--keyword-size); line-height: 1; color: var(--ink); }
+.act--plain .row-body > .promise-title + .promise { margin-top: 14px; }
+.act--plain .proved svg { stroke: var(--ink); }
+.moves--plain { gap: 52px; }
+.moves--plain .move { display: grid; grid-template-columns: auto 1fr; gap: 0 10px; align-items: center; }
+.moves--plain .move::before { content: none; }
+.moves--plain .move-num {
+  display: block; width: auto; height: auto; border: 0; border-radius: 0; background: none;
+  font-size: var(--keyword-size); letter-spacing: -0.02em; line-height: 1; color: var(--gold); /* the "21" of the wordmark */
+}
+.moves--plain .move-body { display: contents; }
+.moves--plain .move-text { grid-column: 1 / -1; margin-top: 16px; font-weight: 500; color: var(--example-ink); }
+.pull--plain p { text-align: center; font-size: 20px; }
+.pull--plain span { display: block; text-wrap: pretty; }
+.pull--plain span + span { margin-top: 4px; }
+/* Step 02's first move shows the user's own THERE under its text, like Act's read-only rows: "YOURS FROM STEP 01" in
+   small grey capitals, their words in Medium; no lines, no lock. */
+.moves--plain .mine { grid-column: 1 / -1; margin-top: 14px; padding: 0; border: 0; }
+.moves--plain .mine .from { color: var(--locked-number); }
+.moves--plain .mine .from svg { display: none; }
+.moves--plain .mine .mine-text { font-size: var(--move-text-size); line-height: 1.55; font-weight: 500; font-style: normal; color: var(--example-ink); }
+/* Two sentences: the first grey, the second black. One sentence stays black. */
+.pull--plain span:first-child:not(:last-child) { color: var(--locked-number); }
 
 /* Steps whose content has not been supplied yet. */
 .unavailable { margin: 24px 0 0; font-size: var(--intro-size); line-height: 1.5; font-weight: 300; color: var(--muted); }

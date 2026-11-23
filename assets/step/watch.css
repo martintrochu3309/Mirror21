@@ -54,6 +54,8 @@ body { font-family: var(--font-body); color: #fff; -webkit-font-smoothing: antia
 .bar-label { font-size: 9px; line-height: 1; font-weight: 700; letter-spacing: .16em; white-space: nowrap; color: rgba(255,255,255,.5); transition: color .4s; }
 .bar-label.is-done { color: var(--gold); }
 .bar-label.is-current { color: #fff; }
+/* The labels in Magistral, same size (step-app.css has the same for Learn and Act). */
+.bar-label { font-family: var(--font-display); font-style: italic; letter-spacing: .1em; }
 
 /* Meta + single-line title (long titles shrink to fit, set by step.js) */
 .heading { position: absolute; left: var(--m); right: var(--m); top: calc(var(--st) + 60px); transition: opacity .5s; }

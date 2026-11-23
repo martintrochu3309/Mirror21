@@ -14,7 +14,7 @@ body { font-family: var(--font-body); color: var(--ink); -webkit-font-smoothing:
 .wordmark { display: flex; align-items: center; height: 44px; margin: 0; font: italic 700 22px/1 var(--font-display); letter-spacing: .06em; white-space: nowrap; }
 .wordmark span { margin-left: .3em; color: var(--gold); }
 h1 { margin: 26px 0 0; font: italic 700 34px/1 var(--font-display); letter-spacing: -.035em; }
-.lede { margin: 12px 0 0; font-size: 17px; font-weight: 300; line-height: 1.4; color: var(--muted); }
+.lede { margin: 12px 0 0; font-size: 17px; font-weight: 500; line-height: 1.4; color: var(--example-ink); }
 .lede strong { font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
 .field { margin-top: 30px; }
 label { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 700; letter-spacing: .2em; color: #4a4a48; }
@@ -22,17 +22,17 @@ label { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 700; 
   color: var(--ink); font: 500 17px/1 var(--font-body); outline: none; -webkit-appearance: none; appearance: none; }
 .field input::placeholder { color: #a3a3a0; }
 .field input:focus { border-color: var(--gold); background: #fffdf6; box-shadow: 0 0 0 3px rgba(224, 184, 76, .16); }
-.note { display: flex; gap: 12px; margin: 22px 0 0; font-size: 14px; font-weight: 300; line-height: 1.45; color: var(--muted); }
+.note { display: flex; gap: 12px; margin: 22px 0 0; font-size: 14px; font-weight: 500; line-height: 1.45; color: var(--muted); }
 .note svg { flex: none; margin-top: 1px; }
 .message { margin: 16px 0 0; font-size: 14px; font-weight: 500; line-height: 1.4; color: #b3261e; }
-.message.is-info { color: var(--muted); font-weight: 300; }
+.message.is-info { color: var(--muted); font-weight: 500; }
 .foot { margin-top: auto; padding-top: 32px; }
-.go { display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border: 0; border-radius: 29px; background: var(--gold-gradient);
-  color: var(--on-gold); font: 700 12px/1 var(--font-body); letter-spacing: .24em; text-decoration: none; cursor: pointer; }
+.go { display: flex; align-items: center; justify-content: center; width: 100%; height: 58px; border: 0; border-radius: 29px; background: var(--ink);
+  color: #fff; font: 700 12px/1 var(--font-body); letter-spacing: .24em; text-decoration: none; cursor: pointer; }
 .go:active { transform: translateY(1px); }
 .go:disabled { cursor: default; opacity: .6; }
 .go.buy { background: var(--ink); color: #fff; }
-.terms { margin: 14px 0 0; font-size: 11.5px; font-weight: 300; text-align: center; color: #8a8a86; }
+.terms { margin: 14px 0 0; font-size: 11.5px; font-weight: 500; text-align: center; color: #8a8a86; }
 .terms span { color: var(--muted); }
 /* The code: one real field over six boxes, so typing, pasting and the keyboard's code suggestion all work. */
 .code { position: relative; display: flex; gap: 10px; margin-top: 30px; }
@@ -52,7 +52,7 @@ label { display: block; margin-bottom: 10px; font-size: 10px; font-weight: 700; 
 .nobuy { align-items: center; text-align: center; }
 .nobuy-mark { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; }
 .nobuy-mark .wordmark { height: auto; font-size: 46px; }
-.nobuy-text { margin: 20px 0 0; font-size: 15px; font-weight: 300; line-height: 1.45; color: var(--muted); }
+.nobuy-text { margin: 20px 0 0; font-size: 15px; font-weight: 500; line-height: 1.45; color: var(--example-ink); }
 .nobuy-text strong { font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
 .nobuy .foot { width: 100%; }
 .nobuy .link { margin-bottom: 22px; }

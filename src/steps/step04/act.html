@@ -8,21 +8,19 @@
 <!--#scripts-step screen="act"-->
 </head>
 <body data-screen="act">
-<main class="screen">
+<main class="screen act--plain">
 
   <!--#step-topbar-->
 
-  <div class="step-label" id="stepLabel">STEP 04</div>
-  <h1 class="title">YOUR TURN.</h1>
-  <p class="intro">Spot what’s in the way, then act on what you control.</p>
+  <!-- No STEP label, title or intro: the page opens straight on 01. The heading is for screen readers only. -->
+  <h1 class="sr-only">Your turn</h1>
 
   <div class="rows">
 
     <!-- 01 MY MOVE — read-only, from Step 03, in the user's own words (always done) -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY MOVE</p>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">MY MOVE</span></p>
         <div class="from"><span data-from-step>FROM STEP 03</span></div>
         <p class="mine-text" data-from="move" data-starter="My move is"></p>
       </div>
@@ -30,32 +28,30 @@
 
     <!-- 02 SPOT — what's in the way -->
     <section class="row" id="rowOne">
-      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxOne">WHAT’S IN THE WAY</label>
-        <div class="eyebrow">SPOT</div>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">SPOT</span></p>
+        <label class="question" for="boxOne">What’s in the way</label>
         <p class="prompt">The one thing most likely to stop you.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">The thing that could stop me is </span>
           <textarea autocapitalize="off" class="answer-box" id="boxOne" data-answer="WAY" rows="3" maxlength="200" aria-label="What’s in the way. The thing that could stop me is"></textarea>
-        </div>
         <!--#next-arrow row="one" row="one"-->
+        </div>
       </div>
     </section>
 
     <!-- 03 CONTROL — my action + "Is it in your control?" -->
     <section class="row is-locked" id="rowTwo">
-      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxTwo">MY ACTION</label>
-        <div class="eyebrow">CONTROL <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve named what’s in the way"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">CONTROL</span></p>
+        <label class="question" for="boxTwo">My action</label>
         <p class="prompt">Make it something in your control.</p>
         <p class="hint" id="proofHint" hidden>If you can’t choose it or do it yourself, it’s not in your control. Pick the part that is.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">Today I will </span>
           <textarea autocapitalize="off" class="answer-box" id="boxTwo" data-answer="ACTION" rows="3" maxlength="200" aria-label="My action. Today I will"></textarea>
-        </div>
         <!--#next-arrow-hidden row="two" row="two"-->
+        </div>
         <div id="proofQ" hidden>
           <p class="proof-q">IS IT IN YOUR CONTROL?</p>
           <div class="pills" style="margin-top: 14px">
@@ -72,7 +68,6 @@
 
     <!-- MY PROMISE — built from MY ACTION, locked with I'M COMMITTED -->
     <section class="row is-locked" id="rowPromise">
-      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
       <div class="row-body">
         <p class="promise-title">MY PROMISE</p>
         <p class="promise" id="promise" aria-live="polite">Today, I will <span class="promise-rest is-empty">…</span>.</p>

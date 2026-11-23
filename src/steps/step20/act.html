@@ -10,21 +10,19 @@
 <!--#scripts-step screen="act"-->
 </head>
 <body data-screen="act">
-<main class="screen">
+<main class="screen act--plain">
 
   <!--#step-topbar-->
 
-  <div class="step-label" id="stepLabel">STEP 20</div>
-  <h1 class="title">YOUR TURN.</h1>
-  <p class="intro">A new change, on a blank card.</p>
+  <!-- No STEP label, title or intro: the page opens straight on 01. The heading is for screen readers only. -->
+  <h1 class="sr-only">Your turn</h1>
 
   <div class="rows">
 
     <!-- 01 MY TOOLS — read-only reference, closed until tapped; nothing here is copied into the card -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY TOOLS</p>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">MY TOOLS</span></p>
         <div class="from"><span>FROM YOUR STEPS</span></div>
         <details class="tools" id="tools">
           <summary class="tools-toggle"><span class="tools-open">Tap to open</span><span class="tools-close">Close</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
@@ -71,72 +69,66 @@
 
     <!-- 02 MY NEW CHANGE — blank -->
     <section class="row" id="rowOne">
-      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxOne">MY NEW CHANGE</label>
-        <div class="eyebrow">NEW CHANGE</div>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">MY NEW CHANGE</span></p>
+        <label class="sr-only" for="boxOne">MY NEW CHANGE</label>
         <div class="starter-wrap">
           <textarea class="answer-box" id="boxOne" data-answer="NEWCHANGE"rows="3" maxlength="200" aria-label="My new change"></textarea>
-        </div>
         <!--#next-arrow row="one" row="one"-->
+        </div>
       </div>
     </section>
 
     <!-- 03 SEE IT — blank -->
     <section class="row is-locked" id="rowTwo">
-      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxTwo">SEE IT</label>
-        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve named your new change"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">SEE IT</span></p>
+        <label class="sr-only" for="boxTwo">SEE IT</label>
         <div class="starter-wrap">
           <textarea class="answer-box" id="boxTwo" data-answer="SEE" rows="3" maxlength="200" aria-label="See it"></textarea>
-        </div>
         <!--#next-arrow-hidden row="two" row="two"-->
+        </div>
       </div>
     </section>
 
     <!-- 04 OWN IT — blank -->
     <section class="row is-locked" id="rowThree">
-      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxThree">OWN IT</label>
-        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve seen it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">04</span><span class="row-key">OWN IT</span></p>
+        <label class="sr-only" for="boxThree">OWN IT</label>
         <div class="starter-wrap">
           <textarea class="answer-box" id="boxThree" data-answer="OWN" rows="3" maxlength="200" aria-label="Own it"></textarea>
-        </div>
         <!--#next-arrow-hidden row="three" row="three"-->
+        </div>
       </div>
     </section>
 
     <!-- 05 CHANGE IT — blank: the chosen move and tool, in the learner's words (no tool buttons) -->
     <section class="row is-locked" id="rowFour">
-      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxFour">CHANGE IT</label>
-        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve owned it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">05</span><span class="row-key">CHANGE IT</span></p>
+        <label class="sr-only" for="boxFour">CHANGE IT</label>
         <div class="starter-wrap">
           <textarea class="answer-box" id="boxFour" data-answer="CHANGEIT" rows="3" maxlength="200" aria-label="Change it"></textarea>
-        </div>
         <!--#next-arrow-hidden row="four" row="four"-->
+        </div>
       </div>
     </section>
 
     <!-- 06 MY FIRST MOVE TODAY — blank (no check: the arrow goes to MY PROMISE) -->
     <section class="row is-locked" id="rowFive">
-      <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxFive">MY FIRST MOVE TODAY</label>
-        <div class="eyebrow">NEW CHANGE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve changed it"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">06</span><span class="row-key">MY FIRST MOVE TODAY</span></p>
+        <label class="sr-only" for="boxFive">MY FIRST MOVE TODAY</label>
         <div class="starter-wrap">
           <textarea class="answer-box" id="boxFive" data-answer="FIRST" rows="3" maxlength="200" aria-label="My first move today"></textarea>
-        </div>
         <!--#next-arrow-hidden row="five" row="five"-->
+        </div>
       </div>
     </section>
 
     <!-- MY PROMISE — from MY FIRST MOVE TODAY only, locked with I'M COMMITTED once all five boxes are filled -->
     <section class="row is-locked" id="rowPromise">
-      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
       <div class="row-body">
         <p class="promise-title">MY PROMISE</p>
         <p class="promise" id="promise" aria-live="polite">Today, I’ll <span class="promise-rest is-empty">…</span>.</p>

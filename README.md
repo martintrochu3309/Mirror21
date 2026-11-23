@@ -155,9 +155,21 @@ Every read and write of saved data goes through `MirrorStore`: no screen touches
 
 Each screen starts with `MirrorStore.ready(…)`, which runs it once the saved course is available: straight away today, and after the account's course has loaded once Supabase is connected. `course.load()` always gives a safe course (a fresh one when nothing valid is saved), `course.save(state)` stamps the time, `course.clear()` is Start over (and a new run), `deleteAll()` is Delete my data, and `course.onChange(fn)` reports a save from another tab. The keys and format are unchanged, so saved progress keeps working. The one exception to "only through the store" is the tiny script in `step-watch.html`'s head, which reads the arrival note before the first paint.
 
+## The look (November 2026)
+
+One style across the step screens, tried on Step 01 first, then brought to every step:
+
+- **Type:** headings in Magistral bold italic; body text in Neue Haas Display **Medium** (500), never the thin Light weight. One gold for gold text everywhere, the wordmark's `#e0b84c` (`--gold-text` now equals `--gold`); My Path's tiles and START pill keep their own colours.
+- **Step bar:** WATCH · LEARN · ACT (and CHECK IN) in Magistral, 9px; done labels in the bar's gold.
+- **Learn** (`.moves--plain`, `.pull--plain`, `.learn-ex--plain`): opens straight on the moves, no STEP label, title or intro (a screen-reader-only heading stays). Each move reads **01 PRESENT** (gold number, black Magistral word) with its text under it from the number's left edge, Medium near-black, 52px between moves. The quote is centred at 20px, no gold: two sentences go grey then black, one sentence stays black. The example keeps its circles and line, its text in Medium. YOUR TURN has no arrow.
+- **Act** (`main.act--plain`): black and white, gold only in the bar and the numbers. Opens straight on 01 (no STEP / YOUR TURN / intro). Each row opens on **NN MOVE**, the gold label's word (Learn's move), then the old heading in Neue Haas Bold, sentence case, same words ("What's in the way"), then the guidance in Medium grey and the box. Read-only rows open on their own title (**01 WHERE I'M GOING**) with FROM STEP NN in small grey capitals; card labels (MY MIRROR METHOD, NEW CHANGE) give way to the row's own title. No circles, line, gold labels or lock icons. The answer box's words are 16px; the arrow sits inside a text box (bottom right, 32px; date and choice rows keep it below). Rows not reached yet fade to 20%. MY PROMISE in Magistral; I'M COMMITTED fills black (its words switch from black to white where the fill reaches); COMMITTED's lock is a black circle. Step 01's PRESENT is answered by opening Act (no I'M HERE / NOT YET).
+- **Check in and the final check:** the question, the promise under it in Medium, then three tiles (light; the pick black with white text, the others fading). No STEP label, intro, MY PROMISE label, circles or ticks; WATCH / SEE YOUR RESULT black, no arrow.
+- **My Journey:** no circles or line; each entry is **01 TITLE** (gold number), then "Sat 14 Nov · Yes" (the evening's answer as a word), then the promise in Medium. Opened: each label in small dark capitals above its answer, no rules. Block headings in Magistral, 26px.
+- **Sign in:** text in Medium; SEND MY CODE black with white text. My Path's header card shows the block and the step only.
+
 ## Rules to keep
 
-- **Gold on white:** use `--gold` for fills and `--gold-text` / `--gold-ink` (#896a00) for gold text. Plain `#e0b84c` text on white is unreadable.
+- **Gold:** `--gold` (#e0b84c) for fills and gold text alike (see **The look**); `#896a00` stays only on My Path's tiles and pill, focus rings and small icons.
 - **Map steps and gold map buttons use a 3D lip.** Step screens follow the handoff: no shadows except the video play button.
 - **The Offer page is kept as it is.**
 

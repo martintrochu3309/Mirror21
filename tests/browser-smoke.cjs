@@ -324,7 +324,14 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
    // Step 01 · Learn: the button sits at the end of the content, not pinned.
    await click('#next');await ready('step-learn.html');
-   assert.equal(await evaluate('document.querySelector("#stepLabel").textContent'),'STEP 01');
+   // No STEP 01 label; each move reads "01 PRESENT" (number in gold) with its text under it from the number's left
+   // edge, no line or circles; the quote has no gold, each sentence on its own line.
+   assert.deepEqual(await evaluate('[document.querySelector("#stepLabel"),document.querySelector(".title"),document.querySelector(".intro"),document.querySelector("main > :not(header):not(.topbar):not(.sr-only)")?.className.includes("moves")]'),[null,null,null,true],'The page opens straight on the moves');
+   const plain=await evaluate('(()=>{const m=document.querySelector(".moves--plain .move"),n=m.querySelector(".move-num"),k=m.querySelector(".move-key"),t=m.querySelector(".move-text");const r=e=>e.getBoundingClientRect();return {sameLine:Math.abs(r(n).bottom-r(k).bottom)<3,titleLeft:Math.abs(r(n).left-r(m).left)<1,textLeft:Math.abs(r(t).left-r(m).left)<1,numberColour:getComputedStyle(n).color,border:getComputedStyle(n).borderTopWidth,line:getComputedStyle(m,"::before").content,quoteGold:document.querySelectorAll(".pull em").length,sentences:Array.from(document.querySelectorAll(".pull span"),s=>getComputedStyle(s).display)}})()');
+   assert.deepEqual(plain,{sameLine:true,titleLeft:true,textLeft:true,numberColour:'rgb(224, 184, 76)',border:'0px',line:'none',quoteGold:0,sentences:['block','block']},JSON.stringify(plain));
+   // The example keeps its circles and line (its text in Medium); YOUR TURN has no arrow.
+   const example=await evaluate('(()=>{const row=document.querySelector(".learn-ex--plain .learn-ex-row"),num=row.querySelector(".learn-ex-num");return {line:getComputedStyle(row,"::before").content!=="none",border:getComputedStyle(num).borderTopWidth,weight:getComputedStyle(row.querySelector(".learn-ex-text")).fontWeight,arrow:document.querySelector("#next svg")?"shown":"none"}})()');
+   assert.deepEqual(example,{line:true,border:'2px',weight:'500',arrow:'none'},JSON.stringify(example));
    assert.equal(await evaluate('getComputedStyle(document.querySelector("#next")).position'),'relative');
    if(phone){
     assert.ok(await evaluate('document.querySelector("#next").getBoundingClientRect().top>innerHeight'),'YOUR TURN is only seen after scrolling');
@@ -336,16 +343,19 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
    // Step 01 · Act.
    await click('#next');await ready('step-act.html');
-   assert.equal(await barValue(),70);
-   assert.equal(await evaluate('document.querySelectorAll(".row.is-locked").length'),4,'Everything is visible, later rows locked');
-   assert.equal(await evaluate('document.querySelector("#a-here").disabled'),true);
-   assert.equal(await evaluate('document.querySelector("#hold").disabled'),true);
-   if(phone)await shot('step-act-start-mobile.png');
-   await click('[data-action="notyet"]');
-   assert.equal(await evaluate('document.querySelector("#notYetNote").hidden'),false);assert.equal(await stage(),0,'NOT YET keeps the user here');
-   await click('[data-action="here"]');await wait(400);
+   // PRESENT needs no answer (no I'M HERE / NOT YET): it shows as done, and HERE is open straight away.
    assert.equal(await stage(),1);
-   assert.equal(await evaluate('document.activeElement.id'),'a-here','The unlocked box gets focus');
+   assert.equal(await barValue(),75);
+   assert.deepEqual(await evaluate('[document.querySelector(".row[data-k=\\"0\\"]").classList.contains("is-done"),document.querySelector(".row[data-k=\\"0\\"] .answered").hidden,document.querySelectorAll("[data-action=\\"here\\"],[data-action=\\"notyet\\"]").length]'),[true,false,0]);
+   assert.equal(await evaluate('document.querySelectorAll(".row.is-locked").length'),3,'Everything is visible, later rows locked');
+   assert.equal(await evaluate('document.querySelector("#a-here").disabled'),false);
+   assert.equal(await evaluate('document.querySelector("#hold").disabled'),true);
+   // Opening straight on 01; each row opens on Learn's title ("01 PRESENT": gold number, black word), rows not reached
+   // yet faded far back (0.2), then the
+   // question in Neue Haas Bold; no circles or line, no separate labels; I'M COMMITTED fills black.
+   const act01=await evaluate('(()=>{const row=document.querySelector(".row"),c=e=>getComputedStyle(e).color;return {top:[document.querySelector("#stepLabel"),document.querySelector(".title"),document.querySelector(".intro")].every(e=>!e),titles:Array.from(document.querySelectorAll(".row-head"),h=>h.textContent),number:c(row.querySelector(".q-num")),key:c(row.querySelector(".row-key")),question:[row.querySelector(".question").textContent,getComputedStyle(row.querySelector(".question")).fontWeight],locked:getComputedStyle(document.querySelector(".row.is-locked")).opacity,circles:document.querySelectorAll(".rail,.node,.row .eyebrow").length,fill:getComputedStyle(document.querySelector("#holdFill")).backgroundColor}})()');
+   assert.deepEqual(act01,{top:true,titles:['01PRESENT','02HERE','03THERE','04TEST','05POINT & STEP'],number:'rgb(224, 184, 76)',key:'rgb(17, 17, 17)',question:['Stop. Give this your full attention.','700'],locked:'0.2',circles:0,fill:'rgb(17, 17, 17)'},JSON.stringify(act01));
+   if(phone)await shot('step-act-start-mobile.png');
    const here=()=>evaluate('document.querySelector("#a-here").value');
    // "See an example": only on the question being answered, closed until tapped, between helper line and box.
    const examples=()=>evaluate('Array.from(document.querySelectorAll(".example:not([hidden])"),e=>({row:e.closest(".row").dataset.k,toggle:e.querySelector(".example-toggle").textContent.trim(),text:e.querySelector(".example-text").hidden?null:e.querySelector(".example-text").textContent,beforeBox:e.nextElementSibling.classList.contains("starter-wrap")}))');
@@ -355,7 +365,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    if(phone)await shot('step-act-example-mobile.png');
    await click('.row[data-k="1"] .example-toggle');
    assert.equal((await examples())[0].text,null,'Tapping again hides it');
-   await click('.row[data-k="1"] .example-toggle');await click('#a-here');
+   await click('.row[data-k="1"] .example-toggle');await evaluate('document.querySelector("#a-here").focus()');
    // Grey sentence starters sit in front of each box; the user only finishes the sentence.
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".starter"),s=>s.textContent+"|"+getComputedStyle(s).color)'),['Right now, I |rgb(138, 138, 134)','I want to be able to |rgb(138, 138, 134)','Today I will |rgb(138, 138, 134)']);
    assert.equal(await here(),'','The box holds only what the user types');
@@ -387,8 +397,8 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    await click('[data-next="there"]');await wait(300);await click('[data-action="yes"]');await wait(300);
    assert.equal(await stage(),4);
    assert.equal(await evaluate('getComputedStyle(document.querySelector("[data-action=retest]")).display')!=='none',true,'TEST shows its answer');
-   assert.equal(await evaluate('document.querySelector(".row[data-k=\\"4\\"] .eyebrow").textContent.trim()'),'MY STEP');
-   assert.equal(await evaluate('getComputedStyle(document.querySelector(".answered--btn svg")).display')!=='none',true,'TEST answer has the gold tick');
+   assert.equal(await evaluate('document.querySelector(".row[data-k=\\"4\\"] .row-head").textContent.trim()'),'05POINT & STEP');
+   assert.equal(await evaluate('getComputedStyle(document.querySelector(".answered--btn svg")).display')!=='none',true,'TEST answer has its tick');
    assert.equal(await evaluate('document.querySelector("#a-step").value'),'');
    assert.equal(await evaluate('document.querySelector("#promise").textContent'),'Today, I will …');
    await typeInto('#a-step','say no to one request this week, kindly and clearly');
@@ -449,7 +459,10 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await barParts(),4,'From Step 02: Check in · Watch · Learn · Act');
    assert.equal(await barValue(),0,'Check in fills once answered');
    assert.equal(await evaluate('document.querySelectorAll(".choice[role=radio]").length'),3);
-   assert.equal(await evaluate('document.querySelector(".choice").getBoundingClientRect().height'),60);
+   // Step 02's check-in: no STEP label, no "you promised:" line, no MY PROMISE label (the promise sits under the
+   // question), the answers as light tiles with no circles (a pick turns black with white text, below).
+   const ci=await evaluate('(()=>{const c=document.querySelector(".choice"),s=getComputedStyle(c);return {hidden:[getComputedStyle(document.querySelector("#stepLabel")).display,getComputedStyle(document.querySelector(".intro")).display,getComputedStyle(document.querySelector(".commitment .ex-key")).display],height:c.getBoundingClientRect().height,radius:s.borderTopLeftRadius,background:s.backgroundColor,circles:Array.from(document.querySelectorAll(".choice svg:not(.tick)"),v=>getComputedStyle(v).display)}})()');
+   assert.deepEqual(ci,{hidden:['none','none','none'],height:58,radius:'16px',background:'rgb(247, 247, 245)',circles:['none','none','none']},JSON.stringify(ci));
    await noOverflow();
    if(phone)await shot('step-checkin-before-mobile.png');
    // Watch sends you back to the check-in until it is done.
@@ -459,6 +472,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelectorAll("#reply, #why, .reply, textarea").length'),0,'Check-in is just YES / PARTLY / NO: no reply line, no note');
    assert.equal(await evaluate('document.querySelector("#next").hidden'),false);
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".choice"),b=>getComputedStyle(b).opacity)'),['1','0.38','0.38']);
+   assert.deepEqual(await evaluate('(()=>{const p=document.querySelector(".choice[aria-checked=true]"),s=getComputedStyle(p);return [s.backgroundColor,s.color,getComputedStyle(p.querySelector(".tick")).display,getComputedStyle(document.querySelector("#next")).backgroundColor,getComputedStyle(document.querySelector("#next svg")).display]})()'),['rgb(17, 17, 17)','rgb(255, 255, 255)','none','rgb(17, 17, 17)','none'],'The pick turns black with white text, no tick; WATCH is black, no arrow');
    assert.equal(await barValue(),25);
    if(phone)await shot('step-checkin-yes-mobile.png');
    await choose('partly');
@@ -519,9 +533,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
    // Step 02 · Learn: its own lesson, with your THERE from Step 01 read-only.
    await command('Page.navigate',{url:base+'/html/step-learn?step=2'});await ready('step02-learn.html');
-   assert.equal(await evaluate('document.querySelector(".title").getAttribute("aria-label")'),'There, proof, once.');
-   assert.equal(await evaluate('document.querySelectorAll(".title svg").length'),2,'Drawn arrows');
-   fit=await titleFits();assert.ok(fit.width<=fit.available+1,JSON.stringify(fit));
+   assert.deepEqual(await evaluate('[document.querySelector(".title"),document.querySelector(".intro"),document.querySelector("#stepLabel"),document.querySelector(".moves").classList.contains("moves--plain")]'),[null,null,null,true],'Step 02 Learn opens straight on the moves, like Step 01');
    assert.equal(await evaluate('document.querySelector("[data-from=there]").textContent'),'I want to be able to have two evenings a week that are truly mine.');
    assert.equal(await evaluate('document.querySelector("[data-from-step]").textContent'),'FROM STEP 01');
    assert.equal(await evaluate('document.querySelectorAll(".move").length'),3);
@@ -568,7 +580,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    if(phone)await shot('step02-act-committed-mobile.png');
    await go('04-map-start.html');
    assert.equal(await evaluate('document.querySelector(".progress-step.current").textContent'),'03');
-   assert.equal(await evaluate('document.querySelectorAll(".app-frame > div[style*=\\"top: 59px\\"] > div p")[2].textContent'),'19 steps to go','My Path header counts steps, not days');
+   assert.equal(await evaluate('document.querySelectorAll(".app-frame > div[style*=\\"top: 59px\\"] > div p").length'),2,'My Path header: the block and the step, no steps-to-go line');
    // Step 03's check-in grades that exact promise; Step 03 itself uses Step 01's lesson.
    await go('step-checkin.html?step=3');
    assert.equal(await evaluate('document.querySelector("#commitText").textContent'),'Today, I will leave my laptop at work tonight.');
@@ -639,16 +651,17 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
    // My Journey: committed steps in your own words, read-only, then today's step.
    await click('nav a[href*="my-journey"]');await ready('19-my-journey.html');
-   const journey=()=>evaluate('Array.from(document.querySelectorAll(".entry"),e=>({step:e.dataset.step,dot:e.querySelector(".entry-dot").className.replace("entry-dot ",""),label:e.querySelector(".entry-dot").getAttribute("aria-label"),open:e.classList.contains("is-open"),line:e.querySelector(".entry-line")?.className||null}))');
+   // Each entry: "01 TITLE" (gold number), then "Sat 14 Nov · Yes" (the evening's answer as a word), no circles or line.
+   const journey=()=>evaluate('Array.from(document.querySelectorAll(".entry"),e=>{const meta=e.querySelector(".entry-meta").textContent;return {step:e.dataset.step,dot:e.classList.contains("is-today")?"today":(meta.split(" · ")[1]||"committed").toLowerCase(),label:e.querySelector(".entry-meta").getAttribute("aria-label"),open:e.classList.contains("is-open"),num:e.querySelector(".entry-num").textContent,circles:e.querySelectorAll(".entry-dot,.entry-line").length}})');
    let entries=await journey();
    assert.deepEqual(entries.map(e=>e.step+':'+e.dot+':'+(e.open?'open':'closed')),['1:partly:open','2:committed:closed','3:today:closed'],JSON.stringify(entries));
-   assert.equal(entries[0].label,'Step 01, partly kept');
+   assert.ok(/^[A-Z][a-z]{2} \d{1,2} [A-Z][a-z]{2}, partly kept$/.test(entries[0].label),entries[0].label);assert.deepEqual([entries[0].num,entries[0].circles],['01',0]);
    assert.equal(await evaluate('document.querySelector(".journey-week").textContent'),'BLOCK 1 · SEE IT');
    assert.equal(await evaluate('document.querySelector("#journeyFooter").textContent'),'19 more steps to write.');
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".entry[data-step=\\"1\\"] .entry-answer"),r=>r.querySelector("dt").textContent+": "+r.querySelector("dd").textContent)'),['HERE: Right now, I say yes to every request and finish each week drained.','THERE: I want to be able to have two evenings a week that are truly mine.','TEST: Yes, that’s what I actually want.','STEP: Today I will say no to one request this week, kindly and clearly']);
    assert.equal(await evaluate('document.querySelector(".entry[data-step=\\"1\\"] .entry-locked").textContent'),'Today, I will say no to one request this week, kindly and clearly.');
    assert.equal(await evaluate('document.querySelector(".entry[data-step=\\"2\\"] .entry-promise").textContent'),'Today, I will leave my laptop at work tonight.','Closed entries show just the promise');
-   assert.ok(/^STEP 01 · [A-Z]{3} \d{1,2} [A-Z]{3}/.test(await evaluate('document.querySelector(".entry-meta").textContent')),'Commit date in the header');
+   assert.ok(/^[A-Z][a-z]{2} \d{1,2} [A-Z][a-z]{2} · Partly$/.test(await evaluate('document.querySelector(".entry-meta").textContent')),'Commit date and the evening’s answer under the title');
    assert.equal(await evaluate('document.querySelectorAll("textarea, input, [contenteditable]").length'),0,'Nothing can be edited');
    assert.equal(await evaluate('document.querySelector(".entry.is-today button")'),null,'Today is not clickable');
    await click('.entry[data-step="2"] .entry-head');
@@ -663,7 +676,6 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    await go('19-my-journey.html');
    entries=await journey();
    assert.deepEqual(entries.map(e=>e.step+':'+e.dot+':'+(e.open?'open':'closed')),['1:partly:closed','2:yes:open','3:today:closed']);
-   assert.ok(entries[0].line.includes('is-gold'),'Gold between graded steps');assert.ok(!entries[1].line.includes('is-gold'),'Grey after');
    if(phone)await shot('my-journey-mobile.png',true);
 
    // Step 03 · Pick one move: its own Learn (straight into the moves) and Act (MY MOVE, MY ACTION, proof, promise).
@@ -677,12 +689,12 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".learn-ex-row"),r=>r.querySelector(".learn-ex-num").textContent+" "+r.querySelector(".learn-ex-key").textContent)'),['01 OPTIONS','02 IMPACT','03 START',' MY PROMISE']);
    assert.equal(await evaluate('document.querySelector(".learn-ex-promise").textContent'),'Today, I will set a 6:30am alarm for every day this week, weekends included.');
    assert.equal(await evaluate('getComputedStyle(document.querySelector(".learn-ex-fixed")).color'),'rgb(100, 100, 97)','Fixed promise words in the moves’ grey');
-   assert.deepEqual(await evaluate('[".move-text",".learn-ex-text",".learn-ex-promise"].map(q=>{const s=getComputedStyle(document.querySelector(q));return s.fontFamily.split(",")[0]+" "+s.fontWeight+" "+s.fontStyle+" "+s.fontSize+" "+s.lineHeight})'),Array(3).fill('"Neue Haas Display" 300 normal 17px 26.35px'),'The example and its promise set exactly like the move text above');
-   assert.equal(await evaluate('getComputedStyle(document.querySelector(".learn-ex-text")).color'),'rgb(100, 100, 97)','Each move’s example words in the moves’ grey');
+   assert.deepEqual(await evaluate('[".move-text",".learn-ex-text",".learn-ex-promise"].map(q=>{const s=getComputedStyle(document.querySelector(q));return s.fontFamily.split(",")[0]+" "+s.fontWeight+" "+s.fontStyle+" "+s.fontSize+" "+s.lineHeight})'),Array(3).fill('"Neue Haas Display" 500 normal 17px 26.35px'),'The moves, the example and its promise in Medium');
+   assert.equal(await evaluate('getComputedStyle(document.querySelector(".learn-ex-text")).color'),'rgb(43, 43, 41)','The example’s words in near-black, like the moves');
    const exPanel=await evaluate('(()=>{const p=document.querySelector(".learn-ex").getBoundingClientRect();return {left:Math.round(p.left),right:Math.round(innerWidth-p.right),bg:getComputedStyle(document.querySelector(".learn-ex")).backgroundColor}})()');
    if(phone)assert.deepEqual(exPanel,{left:0,right:0,bg:'rgb(247, 247, 245)'},'A full-width grey panel');
    assert.equal(await evaluate('getComputedStyle(document.querySelector("#next")).backgroundColor'),'rgb(17, 17, 17)','YOUR TURN is black');
-   assert.deepEqual([...new Set(await evaluate('Array.from(document.querySelectorAll(".move-num"),n=>{const s=getComputedStyle(n);return s.backgroundColor+" "+s.color+" "+s.borderTopColor})'))],['rgb(255, 255, 255) rgb(137, 106, 0) rgb(224, 184, 76)'],'Every Learn circle the same: white, gold ring, gold number (the last one too)');
+   assert.deepEqual([...new Set(await evaluate('Array.from(document.querySelectorAll(".move-num"),n=>{const s=getComputedStyle(n);return s.color+" "+s.borderTopWidth})'))],['rgb(224, 184, 76) 0px'],'Every move: a gold number, no circle (the last one too)');
    assert.deepEqual(await barLabels(),['CHECK IN:done','WATCH:done','LEARN:current','ACT:']);
    await noOverflow();
    if(phone)await shot('step03-learn-mobile.png',true);
@@ -710,7 +722,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await stage3(),4);
    await go('step03-act.html?step=3');
    assert.equal(await evaluate('document.querySelector("#lockedText").textContent'),'Your promise is locked. Step 04 starts by asking how it went.');
-   assert.equal(await evaluate('document.querySelector("#rowPromise .node--lock").getBoundingClientRect().width>0'),true);
+   assert.deepEqual(await evaluate('[document.querySelectorAll(".rail,.node").length,getComputedStyle(document.querySelector(".locked-mark")).backgroundColor]'),[0,'rgb(17, 17, 17)'],'No rail; COMMITTED has a black lock circle');
    saved=await stored();
    assert.deepEqual([saved.lessons[3],saved.responses[3].MOVE,saved.responses[3].ACTION,saved.dayChanges[3]],[true,'saying no to extra evening work','leave the office at 6pm','Today, I will leave the office at 6pm.'],'Both answers saved; the promise is MY ACTION');
    await go('19-my-journey.html');await click('.entry[data-step="3"] .entry-head');
@@ -965,14 +977,13 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await evaluate('scrollTo(0,document.documentElement.scrollHeight)');await wait(500);
     await click('#next');await ready('step13-act.html');
     assert.deepEqual(await evaluate('Array.from(document.querySelectorAll("[data-from]"),e=>e.textContent)'),['I want to be able to have two evenings a week that are truly mine.','My move is saying no to extra evening work']);
-    // Rows: the title first (level with the number), then the small line; read-only rows say FROM STEP NN.
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".row-body"),b=>Array.from(b.children).slice(0,2).map(c=>c.className.split(" ")[0]).join(">"))'),['question>from','question>from','question>eyebrow','question>eyebrow','question>eyebrow','question>eyebrow','promise-title>promise']);
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".row-static .question"),q=>q.textContent)'),['WHERE I’M GOING','MY MOVE'],'First-person titles');
-    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".row-static .from"),f=>f.textContent.trim())'),['FROM STEP 01','FROM STEP 03']);
-    // Dots: read-only rows white with a gold number; the row being filled in black with a gold number.
-    const dot=q=>evaluate('(()=>{const s=getComputedStyle(document.querySelector("'+q+' .node"));return [s.backgroundColor,s.color]})()');
-    assert.deepEqual(await dot('.row-static'),['rgb(255, 255, 255)','rgb(137, 106, 0)'],'Read-only rows: white, gold number');
-    assert.deepEqual(await dot('#rowOne'),['rgb(17, 17, 17)','rgb(224, 184, 76)'],'The row being filled in: black, gold number');
+    // Rows: "NN MOVE" first (gold number), then the old heading in sentence case; read-only rows open on their own title,
+    // then FROM STEP NN in small grey capitals. MY PROMISE has no number.
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".row-body"),b=>Array.from(b.children).filter(c=>!c.classList.contains("sr-only")).slice(0,2).map(c=>c.className.split(" ")[0]).join(">"))'),['row-head>from','row-head>from','row-head>question','row-head>question','row-head>question','row-head>question','promise-title>promise']);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".row-head"),h=>h.textContent)'),['01WHERE I’M GOING','02MY MOVE','03LOOK AHEAD','04WALK THROUGH','05CHOOSE YOUR TOOL','06GET READY']);
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".row:not(.row-static) .question"),q=>q.textContent)'),['My hard day','The slip point','My tool','Getting ready'],'The old headings, same words, sentence case');
+    assert.deepEqual(await evaluate('Array.from(document.querySelectorAll(".row-static .from"),f=>f.textContent.trim()+" "+getComputedStyle(f).color)'),['FROM STEP 01 rgb(143, 143, 139)','FROM STEP 03 rgb(143, 143, 139)']);
+    assert.deepEqual(await evaluate('[...new Set(Array.from(document.querySelectorAll(".row-head .q-num"),n=>getComputedStyle(n).color))].concat(document.querySelectorAll(".rail,.node,.row .eyebrow").length)'),['rgb(224, 184, 76)',0],'Gold numbers; no circles, line or gold labels');
     const limits=await evaluate('[document.querySelector("#boxOne").min,document.querySelector("#boxOne").max]');
     const isoIn=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
     assert.deepEqual(limits,[isoIn(1),isoIn(7)],'The hard day: tomorrow to a week ahead');
@@ -990,7 +1001,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await typeInto('#boxFour','set two alarms for that morning');await pressEnter('#boxFour');await wait(300);
     assert.equal(await stage13(),5,'No check: straight to MY PROMISE');
     assert.equal(await evaluate('document.querySelector("#promise").textContent'),promise13);
-    const promiseLook=await evaluate('(()=>{const p=getComputedStyle(document.querySelector("#promise")),w=getComputedStyle(document.querySelector("#promise .promise-rest"));return {font:p.fontFamily.includes("Neue Haas")&&p.fontWeight==="300",size:p.fontSize,style:p.fontStyle,fixed:p.color,words:w.color}})()');
+    const promiseLook=await evaluate('(()=>{const p=getComputedStyle(document.querySelector("#promise")),w=getComputedStyle(document.querySelector("#promise .promise-rest"));return {font:p.fontFamily.includes("Neue Haas")&&p.fontWeight==="500",size:p.fontSize,style:p.fontStyle,fixed:p.color,words:w.color}})()');
     assert.deepEqual(promiseLook,{font:true,size:'17px',style:'normal',fixed:'rgb(100, 100, 97)',words:'rgb(17, 17, 17)'},'MY PROMISE in the body font: fixed words grey, the user’s words black');
     await noOverflow();
     if(phone)await shot('step13-act-ready-mobile.png',true);
@@ -1089,12 +1100,12 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     await ready('04-map-start.html');
     await go('step-checkin.html?step=16');
     assert.equal(await evaluate('document.querySelector("#commitText").textContent'),promise15,'Step 16’s check-in grades Step 15’s promise');
-    // My Journey: every step title on one line, 16px at most; long ones shrink to fit.
+    // My Journey: every step title on one line, 20px at most; long ones shrink to fit.
     await go('19-my-journey.html');
     const titles=await evaluate('Array.from(document.querySelectorAll(".entry-title"),t=>{const s=getComputedStyle(t),r=document.createRange();r.selectNodeContents(t);return {text:t.textContent,size:parseFloat(s.fontSize),lines:Math.round(t.getBoundingClientRect().height/parseFloat(s.lineHeight)),fits:r.getBoundingClientRect().width<=t.clientWidth+1}})');
     assert.equal(titles.length,16);
-    for(const t of titles){assert.equal(t.lines,1,JSON.stringify(t));assert.ok(t.size<=16&&t.fits,JSON.stringify(t));}
-    if(phone){console.log('phone: My Journey titles shrunk: '+titles.filter(t=>t.size<16).map(t=>t.text+' '+t.size+'px').join(', '));await evaluate('document.querySelector(".journey-scroll").scrollTop=0');await wait(200);await shot('my-journey-titles-mobile.png');}
+    for(const t of titles){assert.equal(t.lines,1,JSON.stringify(t));assert.ok(t.size<=20&&t.fits,JSON.stringify(t));}
+    if(phone){console.log('phone: My Journey titles shrunk: '+titles.filter(t=>t.size<20).map(t=>t.text+' '+t.size+'px').join(', '));await evaluate('document.querySelector(".journey-scroll").scrollTop=0');await wait(200);await shot('my-journey-titles-mobile.png');}
     // My Mirror with a NO: MISSED counts it, and WORTH A SECOND LOOK shows the latest NO before any PARTLY.
     const setAnswers=changes=>evaluate('(()=>{const s=JSON.parse(localStorage.getItem("mirror21-progress"));Object.assign(s.answers,'+JSON.stringify(changes)+');localStorage.setItem("mirror21-progress",JSON.stringify(s));})()');
     const kept=(await stored()).answers;
@@ -1229,7 +1240,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    {
     const stage19=async()=>(await stored()).steps[19].stage;
     const promise19='Today, I’ll block 6–6:30pm in my calendar to wrap up.';
-    const nodes=()=>evaluate('Array.from(document.querySelectorAll(".rows > .row:not([hidden]) .node:not(.node--lock)"),n=>n.textContent)');
+    const nodes=()=>evaluate('Array.from(document.querySelectorAll(".rows > .row:not([hidden]) .row-head .q-num"),n=>n.textContent)');
     await go('step-checkin.html?step=19');await click('.choice[data-choice="yes"]');await wait(300);await click('#next');await ready('step-watch.html');
     await command('Page.navigate',{url:base+'/html/step-learn?step=19'});await ready('step19-learn.html');
     assert.equal(await evaluate('document.querySelectorAll(".move").length'),4);
@@ -1440,7 +1451,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    assert.equal(await evaluate('document.querySelector(".progress-step.current").textContent'),'01');
    assert.equal(await evaluate('Object.keys(JSON.parse(localStorage.getItem("mirror21-progress")).lessons).length'),0);
    assert.equal(await evaluate('localStorage.getItem("mirror21-watched-0")'),null);
-   assert.equal(await evaluate('document.querySelectorAll(".app-frame > div[style*=\\"top: 59px\\"] > div p")[2].textContent'),'21 steps to go');
+   assert.equal(await evaluate('document.querySelectorAll(".app-frame > div[style*=\\"top: 59px\\"] > div p")[1].textContent'),'STEP 01 OF 21');
    if(phone)await shot('my-path-gear-mobile.png');   const beforeWelcome=await evaluate('localStorage.getItem("mirror21-progress")');
    await go('step-watch.html?step=0');assert.equal(await evaluate('localStorage.getItem("mirror21-progress")'),beforeWelcome,'Welcome must leave existing course progress untouched');
    await command('Page.navigate',{url:base+'/html/restart-session'});await ready('step-watch.html');

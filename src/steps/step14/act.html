@@ -9,21 +9,19 @@
 <!--#scripts-step screen="act"-->
 </head>
 <body data-screen="act">
-<main class="screen">
+<main class="screen act--plain">
 
   <!--#step-topbar-->
 
-  <div class="step-label" id="stepLabel">STEP 14</div>
-  <h1 class="title">YOUR TURN.</h1>
-  <p class="intro">Let your record decide your next level.</p>
+  <!-- No STEP label, title or intro: the page opens straight on 01. The heading is for screen readers only. -->
+  <h1 class="sr-only">Your turn</h1>
 
   <div class="rows">
 
     <!-- 01 THERE — read-only, from Step 01 (always done) -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">WHERE I’M GOING</p>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span></p>
         <div class="from"><span data-from-step>FROM STEP 01</span></div>
         <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
@@ -31,9 +29,8 @@
 
     <!-- 02 MY MOVE — read-only, the Step 03 move -->
     <section class="row row-static is-done" data-from-of="3">
-      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY MOVE</p>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">MY MOVE</span></p>
         <div class="from"><span data-from-step>FROM STEP 03</span></div>
         <p class="mine-text" data-from="move" data-starter="My move is"></p>
       </div>
@@ -41,9 +38,8 @@
 
     <!-- 03 MY MINIMUM — read-only, Step 12's MINIMUM after its starter -->
     <section class="row row-static is-done" data-from-of="12">
-      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY MINIMUM</p>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">MY MINIMUM</span></p>
         <div class="from"><span data-from-step>FROM STEP 12</span></div>
         <p class="mine-text" data-from="minimum" data-starter="On a bad day, the least I will do is"></p>
       </div>
@@ -51,9 +47,8 @@
 
     <!-- 04 MY RECORD — read-only: every check-in so far (built by step.js) -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY RECORD</p>
+        <p class="row-head"><span class="q-num">04</span><span class="row-key">MY RECORD</span></p>
         <div class="from"><span>FROM YOUR CHECK-INS</span></div>
         <ol class="record" id="record"></ol>
       </div>
@@ -61,10 +56,9 @@
 
     <!-- 05 DECIDE — raise the bar, or make it hold -->
     <section class="row" id="rowOne">
-      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY DECISION</p>
-        <div class="eyebrow">DECIDE</div>
+        <p class="row-head"><span class="q-num">05</span><span class="row-key">DECIDE</span></p>
+        <p class="question">My decision</p>
         <p class="prompt">Full move most days? Raise the bar. Leaning on your minimum? Make it hold.</p>
         <input type="hidden" id="boxOne" data-answer="DECISION">
         <div class="pills pills--stack" role="group" aria-label="My decision">
@@ -77,22 +71,20 @@
 
     <!-- 06 STEP UP — my new bar: only when raising the bar (no check: the arrow goes to MY PROMISE) -->
     <section class="row is-locked" id="rowTwo" hidden>
-      <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxTwo">MY NEW BAR</label>
-        <div class="eyebrow">STEP UP <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve decided"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">06</span><span class="row-key">STEP UP</span></p>
+        <label class="question" for="boxTwo">My new bar</label>
         <p class="prompt">The same move, a little more. Something you can start today.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">My one small increase is </span>
           <textarea autocapitalize="off" class="answer-box" id="boxTwo" data-answer="NEWBAR" data-when="DECISION=raise" rows="3" maxlength="200" aria-label="My new bar. My one small increase is"></textarea>
-        </div>
         <!--#next-arrow-hidden row="two" row="two"-->
+        </div>
       </div>
     </section>
 
     <!-- MY PROMISE — from the decision, locked with I'M COMMITTED -->
     <section class="row is-locked" id="rowPromise">
-      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
       <div class="row-body">
         <p class="promise-title">MY PROMISE</p>
         <p class="promise" id="promise" aria-live="polite">Today, I will <span class="promise-rest is-empty">…</span>.</p>

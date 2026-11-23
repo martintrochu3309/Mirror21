@@ -27,7 +27,7 @@
 <script src="../assets/shell/step.js?v=20261106-signin" defer></script>
 </head>
 <body data-screen="act">
-<main class="screen">
+<main class="screen act--plain">
 
   <div class="topbar">
     <a class="icon-btn" href="04-map-start.html" aria-label="Close step">
@@ -37,17 +37,15 @@
   </div>
 
 
-  <div class="step-label" id="stepLabel">STEP 02</div>
-  <h1 class="title">YOUR TURN.</h1>
-  <p class="intro">Turn your destination into something you do today.</p>
+  <!-- No STEP label, title or intro: the page opens straight on 01. The heading is for screen readers only. -->
+  <h1 class="sr-only">Your turn</h1>
 
   <div class="rows">
 
     <!-- 01 THERE — read-only, from the step before (always done) -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">WHERE I’M GOING</p>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span></p>
         <div class="from"><span data-from-step>FROM STEP 01</span></div>
         <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
@@ -55,18 +53,17 @@
 
     <!-- 02 PROOF — my action + proof check -->
     <section class="row" id="rowAction">
-      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="action">MY ACTION</label>
-        <div class="eyebrow">PROOF</div>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">PROOF</span></p>
+        <label class="question" for="action">My action</label>
         <p class="prompt">Make it something you could prove you did.</p>
         <p class="hint" id="proofHint" hidden>If you couldn’t prove it, it’s still an intention. Make it something you either do or don’t.</p>
         <div class="starter-wrap">
           <span class="starter" id="starter" aria-hidden="true">Today I will </span>
           <textarea autocapitalize="off" class="answer-box" id="action" rows="3" maxlength="200" aria-label="My action. Today I will"></textarea>
-        </div>
         <div class="next-row" id="nextRow" style="display: flex">
           <button class="next" id="next" aria-label="Next" disabled><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
         </div>
         <div id="proofQ" hidden>
           <p class="proof-q">COULD YOU PROVE YOU DID IT?</p>
@@ -84,10 +81,9 @@
 
     <!-- 03 ONCE — my promise -->
     <section class="row is-locked" id="rowPromise">
-      <div class="rail"><div class="node">03</div></div>
       <div class="row-body">
-        <p class="promise-title">MY PROMISE</p>
-        <div class="eyebrow">ONCE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until your action is written"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">ONCE</span></p>
+        <p class="question">My promise</p>
         <p class="promise" aria-live="polite">Today, I will <span class="promise-rest is-empty" id="promiseRest">…</span></p>
 
         <div id="commitBlock">

@@ -117,6 +117,8 @@
     const keys = { here: 'HERE', there: 'THERE', step: 'STEP' };
     const isCommitted = () => Boolean(state.lessons[step]);
     if (committed) record.stage = 6;
+    // PRESENT needs no answer: opening Act counts as "I'm here. Full attention.", so HERE is open straight away.
+    else if (record.stage === 0) { record.stage = 1; save(); refreshBar(); }
     const rows = Array.from(document.querySelectorAll('.row'));
     const boxes = { here: document.getElementById('a-here'), there: document.getElementById('a-there'), step: document.getElementById('a-step') };
     const fieldStage = { here: 1, there: 2, step: 4 };
@@ -178,7 +180,6 @@
     function go(stage, extra) {
       record.stage = stage;
       Object.assign(record, extra || {});
-      document.getElementById('notYetNote').hidden = true;
       if (stage === 6) commitPromise(promiseFor(written('step')));
       save(); refreshBar(); render(true);
       if (stage === 6) returnToMap();
@@ -203,8 +204,6 @@
       const button = event.target.closest('[data-action]');
       if (!button || button.disabled || isCommitted()) return;
       const action = button.dataset.action;
-      if (action === 'here') go(1);
-      if (action === 'notyet') document.getElementById('notYetNote').hidden = false; // the step stays here, nothing lost
       if (action === 'yes') go(4);
       if (action === 'notsure') go(2, { notSure: true });
       if (action === 'retest') go(3);
@@ -431,7 +430,7 @@
       });
       mark(rowPromise, s === PROMISE, s === DONE);
       // With a row hidden in the middle (Step 19's MY UPDATED MOVE), the rows after it number on without a gap.
-      if (boxes.some(box => box.dataset.when)) document.querySelectorAll('.rows > .row:not([hidden]) .node:not(.node--lock)').forEach((node, n) => { node.textContent = pad(n + 1); });
+      if (boxes.some(box => box.dataset.when)) document.querySelectorAll('.rows > .row:not([hidden]) .row-head .q-num').forEach((num, n) => { num.textContent = pad(n + 1); });
       if (hasCheck) {
         $('proofQ').hidden = s !== CHECK;
         $('proofYes').disabled = $('proofNotSure').disabled = s !== CHECK;

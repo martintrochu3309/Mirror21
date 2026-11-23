@@ -8,21 +8,19 @@
 <!--#scripts-step screen="act"-->
 </head>
 <body data-screen="act">
-<main class="screen">
+<main class="screen act--plain">
 
   <!--#step-topbar-->
 
-  <div class="step-label" id="stepLabel">STEP 17</div>
-  <h1 class="title">YOUR TURN.</h1>
-  <p class="intro">Separate what happened from what you did, then put your part to work.</p>
+  <!-- No STEP label, title or intro: the page opens straight on 01. The heading is for screen readers only. -->
+  <h1 class="sr-only">Your turn</h1>
 
   <div class="rows">
 
     <!-- 01 THERE — read-only, from Step 01 (always done) -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">WHERE I’M GOING</p>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span></p>
         <div class="from"><span data-from-step>FROM STEP 01</span></div>
         <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
@@ -30,9 +28,8 @@
 
     <!-- 02 WHAT I FOUND — read-only, both Step 16 findings after their starters -->
     <section class="row row-static is-done" data-from-of="16">
-      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">WHAT I FOUND</p>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">WHAT I FOUND</span></p>
         <div class="from"><span data-from-step>FROM STEP 16</span></div>
         <p class="mine-text" data-from="working" data-starter="One thing that’s working is"></p>
         <p class="mine-text" data-from="notyet" data-starter="One thing that isn’t working yet is"></p>
@@ -41,9 +38,8 @@
 
     <!-- 03 MY STORY — read-only, Step 15's STORY after its starter -->
     <section class="row row-static is-done" data-from-of="15">
-      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY STORY</p>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">MY STORY</span></p>
         <div class="from"><span data-from-step>FROM STEP 15</span></div>
         <p class="mine-text" data-from="story" data-starter="If I miss, the story I’d tell myself is"></p>
       </div>
@@ -51,52 +47,48 @@
 
     <!-- 04 SEPARATE — what happened around me -->
     <section class="row" id="rowOne">
-      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxOne">WHAT HAPPENED AROUND ME</label>
-        <div class="eyebrow">SEPARATE</div>
+        <p class="row-head"><span class="q-num">04</span><span class="row-key">SEPARATE</span></p>
+        <label class="question" for="boxOne">What happened around me</label>
         <p class="prompt">Pick one moment. Say what happened, reasons and all.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">What happened around me was </span>
           <textarea autocapitalize="off" class="answer-box" id="boxOne" data-answer="AROUND" rows="3" maxlength="200" aria-label="What happened around me. What happened around me was"></textarea>
-        </div>
         <!--#next-arrow row="one" row="one"-->
+        </div>
       </div>
     </section>
 
     <!-- 05 OWN — what I did (for Step 18) -->
     <section class="row is-locked" id="rowTwo">
-      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxTwo">WHAT I DID</label>
-        <div class="eyebrow">OWN <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said what happened around you"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">05</span><span class="row-key">OWN</span></p>
+        <label class="question" for="boxTwo">What I did</label>
         <p class="prompt">Accept it, without blaming yourself or anyone else.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">What I did was </span>
           <textarea autocapitalize="off" class="answer-box" id="boxTwo" data-answer="DID" rows="3" maxlength="200" aria-label="What I did. What I did was"></textarea>
-        </div>
         <!--#next-arrow-hidden row="two" row="two"-->
+        </div>
       </div>
     </section>
 
     <!-- 06 PUT IT TO WORK — my action today (no check: the arrow goes to MY PROMISE; for Step 18) -->
     <section class="row is-locked" id="rowThree">
-      <div class="rail"><div class="node">06</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxThree">MY ACTION TODAY</label>
-        <div class="eyebrow">PUT IT TO WORK <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said what you did"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">06</span><span class="row-key">PUT IT TO WORK</span></p>
+        <label class="question" for="boxThree">My action today</label>
         <p class="prompt">If something slipped: one thing you’ll do differently. If things held: one thing that helps them hold again.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">Because that part is mine, today I’ll </span>
           <textarea autocapitalize="off" class="answer-box" id="boxThree" data-answer="ACTION" rows="3" maxlength="200" aria-label="My action today. Because that part is mine, today I’ll"></textarea>
-        </div>
         <!--#next-arrow-hidden row="three" row="three"-->
+        </div>
       </div>
     </section>
 
     <!-- MY PROMISE — from MY ACTION TODAY, locked with I'M COMMITTED once all three boxes are filled -->
     <section class="row is-locked" id="rowPromise">
-      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
       <div class="row-body">
         <p class="promise-title">MY PROMISE</p>
         <p class="promise" id="promise" aria-live="polite">Today, I’ll <span class="promise-rest is-empty">…</span>.</p>

@@ -107,7 +107,7 @@ const flows=[
  {name:'flow-act03',url:'step03-act.html?step=3',local:course({done:2,current:{step:3,screen:'act',stage:0}}),steps:[
   ['type','#boxOne','getting up at the same time every day'],['click','#oneNext'],['shot','box-two'],['type','#boxTwo','set a 6:30 alarm'],['click','#twoNext'],['shot','proof'],['click','#proofYes'],['shot','promise'],['enter','#hold'],['await','04-map-start.html']]},
  {name:'flow-act01',url:'step-act.html?step=1',local:course({current:{step:1,screen:'act',stage:0}}),steps:[
-  ['click','[data-action="here"]'],['type','#a-here','spend my nights on my phone'],['enter','#a-here'],['type','#a-there','wake up rested'],['enter','#a-there'],['click','[data-action="notsure"]'],['shot','not-sure'],['enter','#a-there'],['click','[data-action="yes"]'],['type','#a-step','charge my phone in the kitchen'],['enter','#a-step'],['shot','ready'],['enter','#hold'],['await','04-map-start.html']]},
+  ['type','#a-here','spend my nights on my phone'],['enter','#a-here'],['type','#a-there','wake up rested'],['enter','#a-there'],['click','[data-action="notsure"]'],['shot','not-sure'],['enter','#a-there'],['click','[data-action="yes"]'],['type','#a-step','charge my phone in the kitchen'],['enter','#a-step'],['shot','ready'],['enter','#hold'],['await','04-map-start.html']]},
  {name:'flow-act02',url:'step02-act.html?step=2',local:course({done:1,current:{step:2,screen:'act',stage:0}}),steps:[
   ['type','#action','leave my phone in the kitchen'],['click','#next'],['click','#proofNotSure'],['shot','not-sure'],['click','#next'],['click','#proofYes'],['enter','#hold'],['await','04-map-start.html']]},
  {name:'flow-act14',url:'step14-act.html?step=14',local:course({done:13,current:{step:14,screen:'act',stage:0}}),steps:[

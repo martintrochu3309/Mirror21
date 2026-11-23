@@ -8,21 +8,19 @@
 <!--#scripts-step screen="act"-->
 </head>
 <body data-screen="act">
-<main class="screen">
+<main class="screen act--plain">
 
   <!--#step-topbar-->
 
-  <div class="step-label" id="stepLabel">STEP 10</div>
-  <h1 class="title">YOUR TURN.</h1>
-  <p class="intro">Find the reason that carries you from the pause to the swap.</p>
+  <!-- No STEP label, title or intro: the page opens straight on 01. The heading is for screen readers only. -->
+  <h1 class="sr-only">Your turn</h1>
 
   <div class="rows">
 
     <!-- 01 THERE — read-only, from Step 01 (always done) -->
     <section class="row row-static is-done">
-      <div class="rail"><div class="node">01</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">WHERE I’M GOING</p>
+        <p class="row-head"><span class="q-num">01</span><span class="row-key">WHERE I’M GOING</span></p>
         <div class="from"><span data-from-step>FROM STEP 01</span></div>
         <p class="mine-text" data-from="there" data-starter="I want to be able to"></p>
       </div>
@@ -30,9 +28,8 @@
 
     <!-- 02 MY MOMENT — read-only, Step 08's WHEN after its starter -->
     <section class="row row-static is-done" data-from-of="8">
-      <div class="rail"><div class="node">02</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY MOMENT</p>
+        <p class="row-head"><span class="q-num">02</span><span class="row-key">MY MOMENT</span></p>
         <div class="from"><span data-from-step>FROM STEP 08</span></div>
         <p class="mine-text" data-from="when" data-starter="It usually happens when"></p>
       </div>
@@ -40,9 +37,8 @@
 
     <!-- 03 MY SWAP — read-only, Step 09's SWAP after its starter -->
     <section class="row row-static is-done" data-from-of="9">
-      <div class="rail"><div class="node">03</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <p class="question">MY SWAP</p>
+        <p class="row-head"><span class="q-num">03</span><span class="row-key">MY SWAP</span></p>
         <div class="from"><span data-from-step>FROM STEP 09</span></div>
         <p class="mine-text" data-from="swap" data-starter="Instead, I will"></p>
       </div>
@@ -50,37 +46,34 @@
 
     <!-- 04 DIG — why it matters -->
     <section class="row" id="rowOne">
-      <div class="rail"><div class="node">04</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxOne">WHY IT MATTERS</label>
-        <div class="eyebrow">DIG</div>
+        <p class="row-head"><span class="q-num">04</span><span class="row-key">DIG</span></p>
+        <label class="question" for="boxOne">Why it matters</label>
         <p class="prompt">Keep asking why until you reach something you genuinely care about.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">This really matters to me because </span>
           <textarea autocapitalize="off" class="answer-box" id="boxOne" data-answer="WHY" rows="3" maxlength="200" aria-label="Why it matters. This really matters to me because"></textarea>
-        </div>
         <!--#next-arrow row="one" row="one"-->
+        </div>
       </div>
     </section>
 
     <!-- 05 ONE LINE — my line (no check: the arrow goes to MY PROMISE) -->
     <section class="row is-locked" id="rowTwo">
-      <div class="rail"><div class="node">05</div><div class="rail-line"></div></div>
       <div class="row-body">
-        <label class="question" for="boxTwo">MY LINE</label>
-        <div class="eyebrow">ONE LINE <svg class="lock" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" role="img" aria-label="Locked until you’ve said why it matters"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+        <p class="row-head"><span class="q-num">05</span><span class="row-key">ONE LINE</span></p>
+        <label class="question" for="boxTwo">My line</label>
         <p class="prompt">Short enough to say in one breath.</p>
         <div class="starter-wrap">
           <span class="starter" aria-hidden="true">My line is </span>
           <textarea autocapitalize="off" class="answer-box" id="boxTwo" data-answer="LINE" rows="3" maxlength="200" aria-label="My line. My line is"></textarea>
-        </div>
         <!--#next-arrow-hidden row="two" row="two"-->
+        </div>
       </div>
     </section>
 
     <!-- MY PROMISE — built from Step 08's WHEN, MY LINE and Step 09's SWAP, locked with I'M COMMITTED -->
     <section class="row is-locked" id="rowPromise">
-      <div class="rail"><div class="node node--lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div></div>
       <div class="row-body">
         <p class="promise-title">MY PROMISE</p>
         <p class="promise" id="promise" aria-live="polite">Today, when <span class="promise-rest is-empty">…</span>, I will pause, say “<span class="promise-rest is-empty">…</span>”, and <span class="promise-rest is-empty">…</span>. If the moment doesn’t come, I will run through it once in my head.</p>

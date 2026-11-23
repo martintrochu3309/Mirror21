@@ -43,7 +43,8 @@ MirrorStore.ready(() => {
   }
   save();
 
-  const label = document.getElementById('stepLabel');
+  // The STEP label (Step 01's Learn has none).
+  const label = document.getElementById('stepLabel') || document.createElement('div');
   label.textContent = 'STEP ' + pad(step);
   document.title = 'Mirror 21 · ' + (block ? 'Block ' + block : 'Step ' + pad(step)) + ' · ' + { checkin: 'Check in', watch: 'Watch', learn: 'Learn', act: 'Act' }[screenName];
 
@@ -108,6 +109,8 @@ MirrorStore.ready(() => {
   addEventListener('resize', () => { if (innerWidth !== lastWidth) { lastWidth = innerWidth; fitTitles(); } });
   addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
   document.documentElement.dataset.stepScreen = screenName;
+  // Which step this is, for styles tried on one step first (Step 01's step bar labels).
+  document.documentElement.dataset.step = String(step);
   document.documentElement.dataset.mirrorReady = 'true';
 
   // Answers brought forward from an earlier step (the step before unless given) are shown read-only,
