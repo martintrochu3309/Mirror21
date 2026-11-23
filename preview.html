@@ -32,6 +32,11 @@ h3 small { margin-right: 10px; color: var(--gold); font: inherit; }
 .bezel { position: relative; width: 100%; height: calc(844px * var(--s) + 24px); padding: 12px; border-radius: calc(54px * var(--s) + 12px); background: #1b1b1b; box-shadow: 0 0 0 1px #2c2c2c, 0 18px 40px rgba(0, 0, 0, .55); }
 .screen { width: calc(390px * var(--s)); height: calc(844px * var(--s)); overflow: hidden; border-radius: calc(54px * var(--s)); background: #fff; }
 .screen iframe { display: block; width: 390px; height: 844px; border: 0; transform: scale(var(--s)); transform-origin: 0 0; }
+/* A computer screen (1280 × 800), across two phone columns. */
+.phone.wide { --ds: calc(var(--s) * .62); grid-column: span 2; width: calc(1280px * var(--ds) + 24px); }
+.phone.wide .bezel { height: calc(800px * var(--ds) + 24px); border-radius: 18px; }
+.phone.wide .screen { width: calc(1280px * var(--ds)); height: calc(800px * var(--ds)); border-radius: 8px; }
+.phone.wide iframe { width: 1280px; height: 800px; transform: scale(var(--ds)); }
 .caption { display: flex; align-items: baseline; gap: 8px; margin-top: 14px; padding: 0 6px; }
 .caption b { color: #5a5a57; font: italic 700 15px/1 var(--font-display); }
 .caption span { flex: 1; font: italic 700 15px/1.2 var(--font-display); }
@@ -54,6 +59,7 @@ h3 small { margin-right: 10px; color: var(--gold); font: inherit; }
     <a class="pill" href="#block-2">BLOCK 2</a>
     <a class="pill" href="#block-3">BLOCK 3</a>
     <a class="pill" href="#end">END</a>
+    <a class="pill" href="#dashboard">DASHBOARD</a>
   </nav>
   <div id="sections"></div>
 </main>
@@ -125,8 +131,22 @@ h3 small { margin-right: 10px; color: var(--gold); font: inherit; }
       phone('Final check', 'final-check.html', inApp(course({ done: 21, graded: 20 }))),
       phone('Block 3 summary', 'block.html?block=3', inApp(finishedCourse())),
       phone('Result', 'result.html', inApp(finishedCourse()))
-    ]]]]
+    ]]]],
+    // The team's dashboard with made-up buyers (random, but the same each time for the same seed).
+    ['dashboard', 'DASHBOARD · MADE-UP NUMBERS', [
+      [null, [
+        dashboard('Computer · 300 buyers', { buyers: 300, seed: 21 }, true),
+        dashboard('Phone · 300 buyers', { buyers: 300, seed: 21 }),
+        dashboard('Phone · 40 buyers', { buyers: 40, seed: 7 }),
+        dashboard('Phone · first 5 buyers', { buyers: 5, seed: 3 }),
+        dashboard('Phone · nobody yet', { buyers: 0 }),
+        dashboard('Not on the team', { denied: true })
+      ]]
+    ]]
   ];
+  function dashboard(name, setting, wide) {
+    return { ...phone(name, 'dashboard.html', inApp({ 'mirror21-dashboard-sample': JSON.stringify(setting) })), wide };
+  }
 
   const el = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text != null) node.textContent = text; return node; };
   let count = 0;
@@ -138,7 +158,7 @@ h3 small { margin-right: 10px; color: var(--gold); font: inherit; }
       if (sub) { const h3 = el('h3'); if (sub[0]) h3.append(el('small', '', sub[0])); h3.append(sub[1]); section.append(h3); }
       const grid = el('div', 'grid');
       for (const p of phones) {
-        const box = el('div', 'phone'), bezel = el('div', 'bezel'), screen = el('div', 'screen'), frame = el('iframe');
+        const box = el('div', 'phone' + (p.wide ? ' wide' : '')), bezel = el('div', 'bezel'), screen = el('div', 'screen'), frame = el('iframe');
         frame.name = TAG + JSON.stringify(p.data);
         frame.title = p.name;
         frame.loading = 'lazy';

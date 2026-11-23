@@ -254,7 +254,8 @@ For the Mirror 21 team only. You sign in with the usual 6-digit code, then the p
   - days to finish all 21
   - promises kept per step
   - one anonymous row per learner
-- **On a computer** (`file:`, `localhost`) it draws made-up sample data, marked as such, so the page can be checked without Supabase.
+- **At a glance:** three donuts in one gold, lighter to darker as people get further. They show where everyone is, the evening checks, and where people are in a step. The scale was checked with the dataviz ordinal validator. Each donut has a legend with counts and shares.
+- **On a computer** (`file:`, `localhost`) it draws made-up buyers, marked as such, so the page can be checked without Supabase. `preview.html` › DASHBOARD shows it on a computer screen and on phones (300, 40, 5 and 0 buyers), plus the "not on the team" message. Each phone sets its mix in `mirror21-dashboard-sample` (`{ buyers, seed }` or `{ denied: true }`).
 
 ## Deploying on Netlify
 

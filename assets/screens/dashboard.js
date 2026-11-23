@@ -16,8 +16,13 @@
     say('');
     try {
       let learners;
-      if (onComputer) learners = sample();
-      else {
+      if (onComputer) {
+        // preview.html sets how many made-up buyers (and the random mix) per phone, or shows the "not on the team" screen.
+        let setting = {};
+        try { setting = JSON.parse(localStorage.getItem('mirror21-dashboard-sample')) || {}; } catch {}
+        if (setting.denied) { $('content').hidden = true; $('updated').textContent = ''; say('This page is for the Mirror 21 team. Sign in with a team email to see it.'); return; }
+        learners = sample(Number.isInteger(setting.buyers) ? setting.buyers : 40, Number(setting.seed) || 7);
+      } else {
         client ||= globalThis.supabase.createClient(auth.url, auth.key, { auth: { storageKey: auth.storageKey, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
         const { data, error } = await client.rpc('dashboard_stats');
         if (error) {
@@ -50,6 +55,7 @@
       ['FINISHED 21', t.finished, share(t.finished)]
     ].map(([label, value, sub]) => { const tile = el('div', 'tile'); tile.append(el('p', 'tile-label', label), el('p', 'tile-value', String(value)), el('p', 'tile-sub', sub)); return tile; }));
 
+    drawDonuts();
     const steps = Array.from({ length: 21 }, (_, i) => i + 1);
     columns($('completedChart'), steps.map(d => ({ tick: pad(d), value: summary.completed[d], tip: 'Step ' + pad(d) + ': <b>' + summary.completed[d] + '</b> committed' })),
       { table: ['Step', 'Committed'], empty: 'Nobody has committed a step yet.' });
@@ -106,10 +112,87 @@
     }
     box.append(wrap);
   }
-  // A round top for the axis: 1, 2, 5, 10, 20, 50…
+  // AT A GLANCE: where everyone is, the evening checks, and the part of the step people are in.
+  function drawDonuts() {
+    const t = summary.totals, inProgress = t.started - t.finished;
+    const checks = { yes: 0, partly: 0, no: 0 };
+    Object.values(summary.answers).forEach(a => { checks.yes += a.yes; checks.partly += a.partly; checks.no += a.no; });
+    const parts = Object.fromEntries(stats.PARTS.map(p => [p, 0]));
+    summary.stops.forEach(s => { parts[s.part]++; });
+    $('donuts').replaceChildren(
+      donut('Where everyone is', 'buyers', [
+        ['Not signed in', t.buyers - t.signedIn], ['Signed in, not started', Math.max(0, t.signedIn - t.started)],
+        ['In progress', inProgress], ['Finished 21', t.finished]]),
+      donut('Evening checks', 'checks', [['No', checks.no], ['Partly', checks.partly], ['Yes', checks.yes]], true),
+      donut('Where people are in a step', 'in progress', stats.PARTS.map(p => [p, parts[p]]))
+    );
+  }
+  // A donut: slices light to dark in the order given (further = darker), a 2px white gap between them, the total in
+  // the middle, and a legend with every count and share. reversed: the legend lists the darkest first.
+  function donut(title, unit, slices, reversed) {
+    const card = el('div', 'donut-card');
+    card.append(el('h3', '', title));
+    const total = slices.reduce((sum, [, n]) => sum + n, 0);
+    const shades = slices.length === 3 ? [1, 3, 5] : slices.length === 4 ? [1, 2, 4, 5] : [1, 2, 3, 4, 5];
+    const colour = i => 'var(--o' + shades[i] + ')';
+    const pct = n => total ? Math.round(n / total * 100) + '%' : '–';
+    const body = el('div', 'donut-body'), ring = el('div', 'donut');
+    const NS = 'http://www.w3.org/2000/svg', R = 50, C = 2 * Math.PI * R;
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 128 128');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', title + ': ' + slices.map(([name, n]) => name + ' ' + n).join(', '));
+    const tip = el('div', 'tip'); tip.hidden = true;
+    const base = document.createElementNS(NS, 'circle');
+    base.setAttribute('cx', 64); base.setAttribute('cy', 64); base.setAttribute('r', R);
+    base.setAttribute('style', 'fill:none;stroke:var(--line);stroke-width:22');
+    svg.append(base);
+    let offset = 0;
+    const gap = slices.filter(([, n]) => n > 0).length > 1 ? 2 : 0;
+    slices.forEach(([name, n], i) => {
+      if (!n) return;
+      const length = n / total * C;
+      const arc = document.createElementNS(NS, 'circle');
+      arc.setAttribute('class', 'slice');
+      arc.setAttribute('cx', 64); arc.setAttribute('cy', 64); arc.setAttribute('r', R);
+      arc.setAttribute('stroke-dasharray', Math.max(0.5, length - gap) + ' ' + (C - Math.max(0.5, length - gap)));
+      arc.setAttribute('stroke-dashoffset', String(-offset));
+      arc.style.stroke = colour(i);
+      const mid = (offset + length / 2) / C * 2 * Math.PI;
+      arc.addEventListener('mouseenter', () => {
+        arc.classList.add('is-on');
+        tip.innerHTML = '';
+        tip.append(el('b', '', name), ': ' + n + ' (' + pct(n) + ')');
+        const box = ring.getBoundingClientRect(), cardBox = card.getBoundingClientRect();
+        tip.style.left = (box.left - cardBox.left + box.width / 2 + Math.cos(mid) * box.width * 0.42) + 'px';
+        tip.style.top = (box.top - cardBox.top + box.height / 2 + Math.sin(mid) * box.height * 0.42 - 6) + 'px';
+        tip.hidden = false;
+      });
+      arc.addEventListener('mouseleave', () => { arc.classList.remove('is-on'); tip.hidden = true; });
+      svg.append(arc);
+      offset += length;
+    });
+    const middle = el('div', 'donut-mid');
+    middle.append(el('b', '', String(total)), el('span', '', unit));
+    ring.append(svg, middle);
+    const legend = el('ul', 'legend');
+    const order = slices.map((s, i) => [s, i]);
+    (reversed ? order.reverse() : order).forEach(([[name, n], i]) => {
+      const li = el('li'), key = el('i');
+      key.style.background = colour(i);
+      li.append(key, el('span', 'name', name), el('span', 'count', String(n)), el('span', 'pct', pct(n)));
+      legend.append(li);
+    });
+    body.append(ring, legend);
+    card.append(body, tip);
+    if (!total) card.append(el('p', 'empty', 'Nothing to show yet.'));
+    return card;
+  }
+
+  // A round top for the axis, just above the tallest bar: 1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, 40…
   function niceTop(max) {
     const step = Math.pow(10, Math.floor(Math.log10(max)));
-    return [1, 2, 5, 10].map(m => m * step).find(n => n >= max) || max;
+    return [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].map(m => m * step).find(n => n >= max && Number.isInteger(n / 2)) || Math.ceil(max);
   }
   const fmt = n => Number.isInteger(n) ? String(n) : n.toFixed(1);
 
@@ -153,29 +236,50 @@
     $('keptTable').replaceChildren(tableOf(['Step', 'Promised', 'Yes', 'Partly', 'No', 'Not checked yet', 'Kept'], rows));
   }
 
-  function drawPeople() {
-    const rows = summary.people.map(p => ['Learner ' + p.n + (p.test ? ' (test)' : ''), p.signedIn ? 'Yes' : 'No', p.done + ' / 21', p.day ? 'Day ' + p.day : '–', p.idle == null ? '–' : p.idle === 0 ? 'Today' : p.idle + ' day' + (p.idle === 1 ? '' : 's') + ' ago', p.where]);
-    $('peopleTable').replaceChildren(rows.length ? tableOf(['Learner', 'Signed in', 'Steps done', 'On', 'Last active', 'Where'], rows) : el('p', 'empty', 'No buyers yet.'));
+  // One row per buyer, newest first; the first 20, then SHOW ALL.
+  function drawPeople(all = false) {
+    const rows = summary.people.slice().reverse().map(p => ['Learner ' + p.n + (p.test ? ' (test)' : ''), p.signedIn ? 'Yes' : 'No', p.done + ' / 21', p.day ? 'Day ' + p.day : '–', p.idle == null ? '–' : p.idle === 0 ? 'Today' : p.idle + ' day' + (p.idle === 1 ? '' : 's') + ' ago', p.where]);
+    if (!rows.length) { $('peopleTable').replaceChildren(el('p', 'empty', 'No buyers yet.')); return; }
+    const shown = all ? rows : rows.slice(0, 20);
+    const parts = [tableOf(['Learner', 'Signed in', 'Steps done', 'On', 'Last active', 'Where'], shown)];
+    if (rows.length > shown.length) {
+      const more = el('button', 'more', 'Show all ' + rows.length);
+      more.type = 'button';
+      more.addEventListener('click', () => drawPeople(true));
+      parts.push(more);
+    }
+    $('peopleTable').replaceChildren(...parts);
   }
 
-  // Made-up data for checking the page on a computer.
-  function sample() {
+  // Made-up buyers for checking the page on a computer: random but repeatable (the same seed gives the same data).
+  // Most sign in, most start; each step loses a few; some take days off; a few are idle for a week or more.
+  function sample(count, seed) {
     const DAY = 86400000, now = Date.now(), out = [];
-    let seed = 7; const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-    for (let i = 0; i < 40; i++) {
-      const start = now - Math.floor(5 + rand() * 50) * DAY, reach = Math.min(21, Math.floor(Math.pow(rand(), 0.8) * 24)), steps = {};
-      let t = start;
-      for (let d = 1; d <= reach; d++) {
-        t += (rand() < 0.75 ? 1 : 2 + Math.floor(rand() * 3)) * DAY * (d === 1 ? 0 : 1);
-        if (t > now) break;
+    let s = seed % 2147483647 || 7; const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < count; i++) {
+      const paid = now - Math.floor(rand() * 70) * DAY - Math.floor(rand() * DAY);
+      const signedIn = rand() < 0.9, started = signedIn && rand() < 0.9;
+      if (!started) { out.push({ paid_at: paid, test: i < 2, signed_in: signedIn, saved_at: null, started_at: null, finished_at: null, steps: {} }); continue; }
+      const start = paid + Math.floor(rand() * 3) * DAY, steps = {};
+      const keepGoing = 0.86 + rand() * 0.12; // how likely this person goes on after each step
+      let t = start, d = 1;
+      for (; d <= 21; d++) {
+        if (d > 1) t += (rand() < 0.7 ? 1 : 2 + Math.floor(rand() * 4)) * DAY;
+        if (t > now || (d > 1 && rand() > keepGoing)) break;
         const r = rand();
-        steps[d] = { committed: true, committed_at: new Date(t).toISOString(), opened: true, checked_in: d >= 2, reached: 2, answer: d < reach || rand() < 0.5 ? (r < 0.6 ? 'yes' : r < 0.85 ? 'partly' : 'no') : undefined };
+        steps[d] = { committed: true, committed_at: new Date(t + rand() * DAY / 2).toISOString(), opened: true, checked_in: d >= 2, reached: 2 };
+        if (d < 21 || rand() < 0.7) steps[d].answer = r < 0.6 ? 'yes' : r < 0.83 ? 'partly' : 'no';
       }
-      const next = Object.keys(steps).length + 1;
-      if (next <= 21 && rand() < 0.8) steps[next] = { opened: true, checked_in: rand() < 0.7, reached: Math.floor(rand() * 3) };
-      out.push({ paid_at: start - DAY, test: i < 3, signed_in: rand() < 0.95, saved_at: Math.min(now, t + Math.floor(rand() * 9) * DAY), started_at: rand() < 0.92 ? start : null, finished_at: steps[21] ? t : null, steps });
+      const done = d - 1;
+      if (done < 21 && rand() < 0.85) {
+        const r = rand();
+        steps[done + 1] = r < 0.15 ? { opened: false } : { opened: true, checked_in: done + 1 === 1 || r > 0.35, reached: r < 0.55 ? 0 : r < 0.8 ? 1 : 2 };
+        if (done && steps[done]) delete steps[done].answer; // not checked in yet: no answer on the last promise
+      }
+      const last = done ? Date.parse(steps[done].committed_at) : start;
+      out.push({ paid_at: paid, test: i < 2, signed_in: true, saved_at: Math.min(now, last + Math.floor(rand() * rand() * 14) * DAY), started_at: start, finished_at: done === 21 && rand() < 0.8 ? now - DAY : null, steps });
     }
-    return out.map(l => l.started_at ? l : { ...l, steps: {} });
+    return out;
   }
 
   $('refresh').addEventListener('click', load);
